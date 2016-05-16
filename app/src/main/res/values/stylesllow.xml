@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
+    </style>
+    <style name="One" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="colorPrimary">@android:color/holo_red_light</item>
+        <item name="colorPrimaryDark">@android:color/holo_red_light</item>
+        <item name="android:listDivider">@drawable/divider_bg</item>
+    </style>
+</resources>

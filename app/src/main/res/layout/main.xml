@@ -1,0 +1,213 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent" android:layout_height="match_parent"
+    >
+
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="80dp"
+        android:background="?attr/colorPrimary"
+        android:minHeight="?attr/actionBarSize"
+        android:layout_gravity="right">
+        <RelativeLayout
+            android:layout_marginTop="30dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+        <TextView
+            android:textSize="20sp"
+            android:singleLine="true"
+            android:ellipsize="marquee"
+            android:id="@+id/toolbar_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="#FFFFFF"
+            android:text="歌名" />
+
+        <TextView
+            android:textSize="16sp"
+            android:singleLine="true"
+            android:ellipsize="marquee"
+            android:textColor="@color/background_floating_material_dark"
+            android:layout_below="@+id/toolbar_title"
+            android:id="@+id/toolbar_subtitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="艺术家" />
+        </RelativeLayout>
+
+    </android.support.v7.widget.Toolbar>
+    <RelativeLayout
+        android:id="@+id/basetag"
+        android:background="?attr/colorPrimary"
+        android:layout_below="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="50dp">
+        <TextView
+            android:textSize="16sp"
+            android:gravity="center"
+            android:id="@+id/local"
+            android:background="?android:attr/selectableItemBackground"
+            android:layout_width="65dp"
+            android:layout_height="50dp"
+            android:textColor="#FFFFFF"
+            android:text="本地"
+            android:layout_alignTop="@+id/internet"
+            android:layout_marginStart="0dp"
+            />
+
+        <TextView
+            android:textSize="16sp"
+            android:gravity="center"
+            android:textColor="#000000"
+            android:background="?android:attr/selectableItemBackground"
+            android:id="@+id/internet"
+            android:layout_width="65dp"
+            android:layout_height="50dp"
+            android:text="网络"
+            android:layout_alignParentTop="true"
+            android:layout_toEndOf="@id/local"
+            />
+        <ImageView
+
+            android:id="@+id/cursor"
+            android:layout_width="65dp"
+            android:layout_height="3dp"
+            android:scaleType="matrix"
+            android:src="@drawable/cursor"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentStart="true" />
+    </RelativeLayout>
+
+    <android.support.v4.view.ViewPager
+        android:id="@+id/id_viewpager"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/relativeLayout"
+        android:layout_below="@+id/basetag"
+        android:layout_gravity="center">
+    </android.support.v4.view.ViewPager>
+    <RelativeLayout
+        android:id="@+id/albumcontainer"
+        android:visibility="gone"
+        android:layout_width="match_parent"
+        android:layout_below="@+id/toolbar"
+        android:layout_above="@+id/relativeLayout"
+        android:layout_height="match_parent" />
+    <!--<ImageView-->
+            <!--android:layout_width="180dp"-->
+            <!--android:layout_height="180dp"-->
+            <!--android:id="@+id/imageView"-->
+            <!--android:src="@drawable/cut"-->
+            <!--android:layout_marginTop="79dp"-->
+            <!--android:elevation="2dp"-->
+            <!--android:layout_alignParentTop="true"-->
+            <!--android:layout_centerHorizontal="true" />-->
+
+    <!--<TextView
+            android:id="@+id/textview"
+            android:text="蛤蛤"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_centerHorizontal="true" />-->
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="100dp"
+        android:background="@android:color/holo_red_light"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentStart="true"
+        android:id="@+id/relativeLayout">
+        <ImageButton
+            android:onClick="playMode"
+            android:background="?android:attr/selectableItemBackground"
+            android:scaleType="centerInside"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:src="@drawable/ic_repeat_white_48dp"
+            android:id="@+id/playmode"
+            android:layout_marginTop="44dp"
+            android:layout_marginStart="304dp" />
+
+        <ImageButton
+            android:onClick="next"
+            android:background="?android:attr/selectableItemBackground"
+            android:scaleType="fitXY"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:src="@drawable/ic_skip_next_white_48dp"
+            android:text="下一首"
+            android:id="@+id/next"
+            android:layout_alignParentBottom="true"
+            android:layout_marginStart="220dp" />
+        <ImageButton
+            android:onClick="queue"
+            android:background="?android:attr/selectableItemBackground"
+            android:scaleType="centerInside"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:src="@drawable/ic_album_white_48dp"
+            android:id="@+id/queue"
+            android:layout_marginTop="44dp"
+            android:layout_marginStart="16dp" />
+
+        <ImageButton
+            android:onClick="previous"
+            android:background="?android:attr/selectableItemBackground"
+            android:scaleType="fitXY"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:src="@drawable/ic_skip_previous_white_48dp"
+            android:text="上一首"
+            android:id="@+id/previous"
+            android:layout_alignBottom="@+id/next"
+            android:layout_marginStart="80dp" />
+
+        <SeekBar
+            android:max="1000"
+            android:layout_width="250dp"
+            android:layout_height="wrap_content"
+            android:progressTint="#FFFFFF"
+            android:thumbTint="#FFFFFF"
+            android:progressBackgroundTint="#000000"
+            android:secondaryProgressTint="@color/material_blue_grey_800"
+            android:id="@+id/seekBar"
+            android:layout_marginTop="8dp"
+            android:layout_centerHorizontal="true" />
+
+        <TextView
+            android:textColor="#FFFFFF"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="播放时长"
+            android:id="@+id/duration"
+            android:layout_marginTop="14dp"
+            android:layout_marginStart="304dp" />
+        <TextView
+            android:textColor="#FFFFFF"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="现在时间"
+            android:id="@+id/progress"
+            android:layout_marginTop="14dp"
+            android:layout_marginStart="16dp" />
+
+        <ImageButton
+            android:onClick="play"
+            android:background="?android:attr/selectableItemBackground"
+            android:scaleType="fitXY"
+            android:layout_width="64dp"
+            android:layout_height="64dp"
+            android:src="@drawable/ic_play_circle_fill_white_48dp"
+            android:text="播放"
+            android:id="@+id/playandpause"
+            android:layout_alignParentBottom="true"
+            android:layout_centerHorizontal="true" />
+
+    </RelativeLayout>
+
+
+
+
+</RelativeLayout>

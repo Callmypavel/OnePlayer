@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:background="@android:color/holo_red_light"
+    android:layout_width="match_parent" android:layout_height="wrap_content">
+    <ImageView
+        android:src="@drawable/logo"
+        android:layout_height="65dp"
+        android:layout_width="65dp"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:id="@+id/imageView3" />
+    <TextView
+        android:textSize="16sp"
+        android:id="@+id/noti_name"
+        android:text="歌名"
+        android:textColor="#FFFFFF"
+        android:layout_alignTop="@+id/noti_previous"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="8dp"
+        android:layout_toRightOf="@+id/imageView3" />
+    <TextView
+        android:textSize="14sp"
+        android:textColor="@color/background_floating_material_dark"
+        android:id="@+id/noti_singer"
+        android:text="歌手加专辑"
+        android:layout_below="@id/noti_name"
+        android:singleLine="true"
+        android:ellipsize="marquee"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="8dp"
+        android:layout_toRightOf="@+id/imageView3" />
+    <ImageButton
+        android:background="#00000000"
+        android:scaleType="fitXY"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:src="@drawable/ic_play_circle_fill_white_48dp"
+        android:text="播放"
+        android:id="@+id/noti_playandpause"
+        android:layout_gravity="center_vertical"
+        android:layout_alignParentBottom="true"
+        android:layout_toLeftOf="@+id/noti_next" />
+
+    <ImageButton
+        android:background="#00000000"
+        android:scaleType="fitXY"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:src="@drawable/ic_skip_next_white_48dp"
+        android:text="下一首"
+        android:id="@+id/noti_next"
+        android:layout_gravity="center_vertical"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true" />
+
+    <ImageButton
+        android:background="#00000000"
+        android:scaleType="fitXY"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:src="@drawable/ic_skip_previous_white_48dp"
+        android:text="上一首"
+        android:id="@+id/noti_previous"
+        android:layout_gravity="center_vertical"
+        android:layout_alignParentBottom="true"
+        android:layout_toLeftOf="@+id/noti_playandpause" />
+
+</RelativeLayout>
