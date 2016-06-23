@@ -8,6 +8,14 @@
         android:layout_height="250dp"
         android:layout_centerVertical="true"
         android:layout_centerHorizontal="true">
-        </com.example.peacemaker.oneplayer.CircleImageView>>
+        </com.example.peacemaker.oneplayer.CircleImageView>
+    <com.example.peacemaker.oneplayer.OneWaveFromView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/OneWaveFromView"
+        >
+
+    </com.example.peacemaker.oneplayer.OneWaveFromView>
+
 
 </RelativeLayout>

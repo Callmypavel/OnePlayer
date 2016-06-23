@@ -1,12 +1,22 @@
 package com.example.peacemaker.oneplayer;
 
+import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.util.Log;
+
+import java.io.Serializable;
+import java.util.ArrayList;
+
+import butterknife.BindView;
 
 /**
  * Created by ouyan_000 on 2015/8/18.
  */
-public class Music implements Parcelable {
+public class Music implements Parcelable{
+    private static final long serialVersionUID = 2L;
     public static Parcelable.Creator<Music>  CREATOR =
             new Creator<Music>() {
                 @Override
@@ -21,20 +31,43 @@ public class Music implements Parcelable {
             };
     private String artist = "<unknown>";
     private String duration;
-    //private String size;
-    //private String id;
+    private String size;
+    private String id;
     private String album = "<unknown>";
     private String displayName="<unknown>";
     private String url;
+    //private Bitmap albumBitmap;
+    private ArrayList<Music> musicArrayList;
+    private boolean isPlayable;
+    public Music(String displayName){
+        this.displayName = displayName;
+        this.isPlayable = false;
+    }
+    public Music(String displayName,Bitmap albumBitmap){
+        this.displayName = displayName;
+        this.isPlayable = false;
+        //this.albumBitmap = albumBitmap;
+    }
 
-    public Music(String artist,String duration,String album,String displayName,String url){
+    public Music(String artist, String duration,String album,String displayName, String url, String id, String size, boolean isPlayable){
         this.artist = artist;
         this.duration = duration;
-        //this.size = size;
-        //this.id = id;
+        this.size = size;
+        this.id = id;
         this.album = album;
         this.displayName = cutName(displayName);
         this.url = url;
+        this.isPlayable = isPlayable;
+        //this.albumBitmap = albumBitmap;
+    }
+    public Music(String artist,String duration,String album,String displayName,String url,boolean isPlayable){
+        this.artist = artist;
+        this.duration = duration;
+        this.isPlayable = isPlayable;
+        this.album = album;
+        this.displayName = cutName(displayName);
+        this.url = url;
+        //this.albumBitmap = albumBitmap;
     }
     public Music(){
 
@@ -46,6 +79,8 @@ public class Music implements Parcelable {
         album = in.readString();
         displayName = in.readString();
         url = in.readString();
+        isPlayable =in.readByte()!=0;
+        musicArrayList = in.readArrayList(getClass().getClassLoader());
     }
 
     public String getArtist(){
@@ -73,6 +108,13 @@ public class Music implements Parcelable {
         }else
             return "<unknown>";
     }
+    public Bitmap getAlbumBitmap(Context context){
+        Bitmap bitmap = OneMusicloader.getAlbumArt(url);
+        if(bitmap==null){
+            return BitmapFactory.decodeResource(context.getResources(),R.drawable.music);
+        }
+        return OneMusicloader.getAlbumArt(url);
+    }
 
     public String getDisplayName(){
         if(displayName!=null) {
@@ -87,6 +129,10 @@ public class Music implements Parcelable {
         }else
             return "<unknown>";
     }
+    public ArrayList<Music> getSecondItems(){
+
+        return musicArrayList;
+    }
     public void setArtist(String artist){
         this.artist = artist;
     }
@@ -96,6 +142,9 @@ public class Music implements Parcelable {
     //public void setSize(String size){
     //    this.size = size;
     //}
+    public boolean isPlayable(){
+        return isPlayable;
+    }
 
 
     public void setAlbum(String album){
@@ -109,7 +158,22 @@ public class Music implements Parcelable {
     public void setUrl(String url){
         this.url = url;
     }
+    public void setSecondItems(ArrayList<Music> musicArrayList){
+        //Log.v("Music","set二级项现场"+musicArrayList);
+//        if(musicArrayList!=null){
+//            for(int i=0;i<musicArrayList.size();i++){
+//                Log.v("Music","领导视察二级项现场"+i+musicArrayList.get(i).getDisplayName());
+//            }
+//        }
 
+        this.musicArrayList = musicArrayList;
+    }
+    public void addSecondItem(Music secondItem){
+        if(musicArrayList!=null){
+            musicArrayList.add(secondItem);
+            //Log.v("Music","领导视察增加二级项现场"+secondItem.getDisplayName());
+        }
+    }
     public String cutName(String name){
         String getName = name;
         if(name==null){
@@ -152,5 +216,7 @@ public class Music implements Parcelable {
         dest.writeString(album);
         dest.writeString(displayName);
         dest.writeString(url);
+        dest.writeByte((byte)(isPlayable ?1:0));
+        dest.writeList(musicArrayList);
     }
 }

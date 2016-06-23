@@ -19,6 +19,9 @@ import android.widget.ImageView;
 
 import java.math.BigDecimal;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+
 /**
  * Created by 请叫我保尔 on 2015/10/1.
  */
@@ -31,11 +34,13 @@ public class PlayingFragment extends Fragment implements Animation.AnimationList
     RotateRunnable rotateRunnable;
     Thread rotateThread;
     @Nullable
+    @BindView(R.id.OneWaveFromView) OneWaveFromView oneWaveFromView;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         this.layoutInflater = inflater;
         View view = inflater.inflate(R.layout
                 .playing_fragment, container, false);
+        ButterKnife.bind(this,view);
         return view;
     }
 
@@ -59,7 +64,7 @@ public class PlayingFragment extends Fragment implements Animation.AnimationList
                 activity.basetag.setVisibility(View.VISIBLE);
                 activity.isAlbuming = false;
                 activity.queueButton.setImageResource(R.drawable.ic_album_white_48dp);
-                activity.albumcontainer.setVisibility(View.GONE);
+                //activity.albumcontainer.setVisibility(View.GONE);
                 activity.viewPager.setVisibility(View.VISIBLE);
             }
         });
@@ -83,6 +88,11 @@ public class PlayingFragment extends Fragment implements Animation.AnimationList
             rotateThread = new Thread(rotateRunnable);
             rotateThread.start();
         }
+
+    }
+    public void setWaveData(byte[] data){
+        Log.v("PlayingFragment","setWaveData()"+data);
+        oneWaveFromView.setData(data);
 
     }
     public void stopAnimation(){

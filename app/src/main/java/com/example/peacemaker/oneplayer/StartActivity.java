@@ -20,6 +20,7 @@ import net.sourceforge.pinyin4j.format.HanyuPinyinVCharType;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -40,11 +41,12 @@ public class StartActivity extends Activity implements Runnable {
     ArrayList<ArrayList<Music>> singerArrayLists  = new ArrayList<ArrayList<Music>>();
     ArrayList<String> albums = new ArrayList<>();
     ArrayList<ArrayList<Music>> albumArrayLists = new ArrayList<ArrayList<Music>>();
+    MusicProvider musicProvider;
     int musicNumber;
     Handler handler;
-    String lastPlayedMusic = null;
+    private Music lastPlayedMusic ;
     int currentPosition = 0;
-    int OrderMode = -1;
+    int OrderMode = -3;
     int FirstPosition = 0;
     String singer;
     String song;
@@ -64,17 +66,16 @@ public class StartActivity extends Activity implements Runnable {
             public boolean handleMessage(Message msg) {
                 if(msg.what==initFinished){
                     Intent intent = new Intent();
-                    intent.putParcelableArrayListExtra("musicArraylist", musicArrayList);
+                    //intent.putParcelableArrayListExtra("musicArraylist", musicArrayList);
                     intent.putExtra("lastPlayedMusic", lastPlayedMusic);
                     intent.putExtra("currentPosition", currentPosition);
-                    Log.v("StartActivity", "onCreate检查模式" + OrderMode);
-                    intent.putExtra("FirstPosition", FirstPosition);
-                    Log.v("StartActivity", "onCreate检查第一彩蛋" + FirstPosition);
+                    //Log.v("StartActivity", "onCreate检查模式" + OrderMode);
+                    //intent.putExtra("FirstPosition", FirstPosition);
+                    //Log.v("StartActivity", "onCreate检查第一彩蛋" + FirstPosition);
                     intent.putExtra("OrderMode", OrderMode);
-                    intent.putExtra("singers",singers);
-                    intent.putExtra("singerArrayLists",singerArrayLists);
-                    intent.putExtra("albums",albums);
-                    intent.putExtra("albumArrayLists",albumArrayLists);
+                    //Log.v("StartActivity", "onCreate检查第一彩蛋" + FirstPosition);
+                    intent.putExtra("musicProvider", musicProvider);
+                    Log.v("StartActivity", "传前检查提供者" + musicProvider);
                     intent.setClass(StartActivity.this, MainActivity.class);
                     Log.v("获取完成", "开始新的旅途");
                     startActivity(intent);
@@ -98,175 +99,172 @@ public class StartActivity extends Activity implements Runnable {
         textView.setVisibility(View.VISIBLE);
         //从数据库中获得音乐
         DatabaseOperator databaseOperator = new DatabaseOperator(this, "OnePlayer.db");
-        musicArrayList = databaseOperator.getMusics();
+//        musicArrayList = databaseOperator.getMusics();
         //如果从数据库中取不到歌曲，启动扫描加载
-        if (musicArrayList.size() == 0) {
+//        if (musicArrayList.size() == 0) {
             OneMusicloader oneMusicloader = new OneMusicloader(getContentResolver());
             musicArrayList = oneMusicloader.loadLocalMusic();
-            databaseOperator.saveMusics(musicArrayList);
-        }
-//        Comparator com=Collator.getInstance(java.util.Locale.CHINA);
-//        String[] newArray={"中山","汕头","广州","安庆","阳江","南京","武汉","北京","安阳","北方","beifagn","wuhan"};
-//        Arrays.sort(newArray, com);
-//        for(String i:newArray){
-//            System.out.print(i+"  ");
+//            databaseOperator.saveMusics(musicArrayList);
 //        }
-        Comparator<Music> comparator = new Comparator<Music>() {
-            @Override
-            public int compare(Music lhs, Music rhs) {
-                return  Mandarin2Pinyin(lhs.getDisplayName()).toLowerCase().compareTo(Mandarin2Pinyin(rhs.getDisplayName()).toLowerCase());
-            }
-        };
-        Collections.sort(musicArrayList, comparator);
-
-        //初始化按歌手排列
-        singers.add("初始化用");
-        ArrayList<Music> temp = new ArrayList<>();
-        Music tempmusic = new Music();
-        tempmusic.setArtist("初始化用");
-        temp.add(tempmusic);
-        singerArrayLists.add(temp);
-        for (Music music : musicArrayList){
-            int singerLocation = 0;
-            Boolean isSame = false;
-            for(int i = singers.size();i>0;i--){
-                String singer=singers.get(i-1);
-                if(singer.equals(music.getArtist())){
-                    singerLocation = i-1;
-                    isSame = true;
-                }
-            }
-            if(!isSame){
-                singers.add(music.getArtist());
-                ArrayList<Music> temp1 = new ArrayList<>();
-                temp1.add(music);
-                singerArrayLists.add(temp1);
-            }else {
-
-                singerArrayLists.get(singerLocation).add(music);
-            }
-        }
-        singers.remove(0);
-        singerArrayLists.remove(0);
-
-        //初始化按专辑排列
-        albums.add("初始化用");
-        tempmusic.setAlbum("初始化用");
-        temp.add(tempmusic);
-        albumArrayLists.add(temp);
-        for (Music music : musicArrayList){
-            int albumLocation = 0;
-            Boolean isSame = false;
-            for(int i = albums.size();i>0;i--){
-                String album=albums.get(i-1);
-                if(album.equals(music.getAlbum())){
-                    albumLocation = i-1;
-                    isSame = true;
-                }
-            }
-            if(!isSame){
-                albums.add(music.getAlbum());
-                ArrayList<Music> temp1 = new ArrayList<>();
-                temp1.add(music);
-                albumArrayLists.add(temp1);
-            }else {
-
-                albumArrayLists.get(albumLocation).add(music);
-            }
-        }
-        albums.remove(0);
-        albumArrayLists.remove(0);
-
-//        Comparator<String> comparator1 = new Comparator<String>() {
+//        Comparator<Music> comparator = new Comparator<Music>() {
 //            @Override
-//            public int compare(String lhs, String rhs) {
-//                return  Mandarin2Pinyin(lhs).toLowerCase().compareTo(Mandarin2Pinyin(rhs).toLowerCase());
+//            public int compare(Music lhs, Music rhs) {
+//                return  Mandarin2Pinyin(lhs.getDisplayName()).toLowerCase().compareTo(Mandarin2Pinyin(rhs.getDisplayName()).toLowerCase());
 //            }
 //        };
-//        Collections.sort(albums, comparator1);
-//        Collections.sort(singers, comparator1);
-        for(ArrayList<Music> musics : singerArrayLists){
-            Collections.sort(musics, comparator);
-        }
-        for(ArrayList<Music> musics : albumArrayLists){
-            Collections.sort(musics, comparator);
-        }
-//        Log.v("StartActivity", "检查歌手数量" + singers.size());
-//        for (String singer : singers){
-//            Log.v("StartActivity","检查歌手们"+singer);
-//        }
-//        Log.v("StartActivity","检查音乐歌手数量"+singerArrayLists.size());
-//        for(ArrayList<Music> musicArrayList1 : singerArrayLists){
-//            Log.v("StartActivity","检查歌手音乐数量"+musicArrayList1.size());
-//            for(Music music : musicArrayList1){
-//                Log.v("StartActivity","检查朱军音乐们"+music.getDisplayName());
+//        Collections.sort(musicArrayList, comparator);
+//        //初始化按歌手排列
+//        singers.add("初始化用");
+//        ArrayList<Music> temp = new ArrayList<>();
+//        Music tempmusic = new Music();
+//        tempmusic.setArtist("初始化用");
+//        temp.add(tempmusic);
+//        singerArrayLists.add(temp);
+//        for (Music music : musicArrayList){
+//            int singerLocation = 0;
+//            Boolean isSame = false;
+//            for(int i = singers.size();i>0;i--){
+//                String singer=singers.get(i-1);
+//                if(singer.equals(music.getArtist())){
+//                    singerLocation = i-1;
+//                    isSame = true;
+//                }
+//            }
+//            if(!isSame){
+//                singers.add(music.getArtist());
+//                ArrayList<Music> temp1 = new ArrayList<>();
+//                temp1.add(music);
+//                singerArrayLists.add(temp1);
+//            }else {
+//
+//                singerArrayLists.get(singerLocation).add(music);
 //            }
 //        }
-//        Log.v("StartActivity", "检查专辑数量" + albums.size());
-//        for (String album : albums){
-//            Log.v("StartActivity","检查专辑们"+album);
-//        }
-//        Log.v("StartActivity","检查音乐专辑数量"+albumArrayLists.size());
-//        for(ArrayList<Music> musicArrayList1 : albumArrayLists){
-//            Log.v("StartActivity","检查专辑音乐数量"+musicArrayList1.size());
-//            for(Music music : musicArrayList1){
-//                Log.v("StartActivity","检查朱军音乐们"+music.getDisplayName());
+//        singers.remove(0);
+//        singerArrayLists.remove(0);
+//
+//        //初始化按专辑排列
+//        albums.add("初始化用");
+//        tempmusic.setAlbum("初始化用");
+//        temp.add(tempmusic);
+//        albumArrayLists.add(temp);
+//        for (Music music : musicArrayList){
+//            int albumLocation = 0;
+//            Boolean isSame = false;
+//            for(int i = albums.size();i>0;i--){
+//                String album=albums.get(i-1);
+//                if(album.equals(music.getAlbum())){
+//                    albumLocation = i-1;
+//                    isSame = true;
+//                }
+//            }
+//            if(!isSame){
+//                albums.add(music.getAlbum());
+//                ArrayList<Music> temp1 = new ArrayList<>();
+//                temp1.add(music);
+//                albumArrayLists.add(temp1);
+//            }else {
+//
+//                albumArrayLists.get(albumLocation).add(music);
 //            }
 //        }
+//        albums.remove(0);
+//        albumArrayLists.remove(0);
+//
+////        Comparator<String> comparator1 = new Comparator<String>() {
+////            @Override
+////            public int compare(String lhs, String rhs) {
+////                return  Mandarin2Pinyin(lhs).toLowerCase().compareTo(Mandarin2Pinyin(rhs).toLowerCase());
+////            }
+////        };
+////        Collections.sort(albums, comparator1);
+////        Collections.sort(singers, comparator1);
+//        for(ArrayList<Music> musics : singerArrayLists){
+//            Collections.sort(musics, comparator);
+//        }
+//        for(ArrayList<Music> musics : albumArrayLists){
+//            Collections.sort(musics, comparator);
+//        }
+////        Log.v("StartActivity", "检查歌手数量" + singers.size());
+////        for (String singer : singers){
+////            Log.v("StartActivity","检查歌手们"+singer);
+////        }
+////        Log.v("StartActivity","检查音乐歌手数量"+singerArrayLists.size());
+////        for(ArrayList<Music> musicArrayList1 : singerArrayLists){
+////            Log.v("StartActivity","检查歌手音乐数量"+musicArrayList1.size());
+////            for(Music music : musicArrayList1){
+////                Log.v("StartActivity","检查朱军音乐们"+music.getDisplayName());
+////            }
+////        }
+////        Log.v("StartActivity", "检查专辑数量" + albums.size());
+////        for (String album : albums){
+////            Log.v("StartActivity","检查专辑们"+album);
+////        }
+////        Log.v("StartActivity","检查音乐专辑数量"+albumArrayLists.size());
+////        for(ArrayList<Music> musicArrayList1 : albumArrayLists){
+////            Log.v("StartActivity","检查专辑音乐数量"+musicArrayList1.size());
+////            for(Music music : musicArrayList1){
+////                Log.v("StartActivity","检查朱军音乐们"+music.getDisplayName());
+////            }
+////        }
         //取得最后一次播放的音乐
-        SharedPreferences sharedPreferences = getSharedPreferences("Last", Activity.MODE_PRIVATE);
-        JSONObject jsonObject = databaseOperator.getLastPlayed(sharedPreferences);
+        //SharedPreferences sharedPreferences = getSharedPreferences("Last", Activity.MODE_PRIVATE);
+        JSONObject jsonObject = databaseOperator.getLastPlayed();
         try {
-            lastPlayedMusic = jsonObject.getString("currentMusic");
             currentPosition = jsonObject.getInt("currentPosition");
-            FirstPosition = jsonObject.getInt("FirstPosition");
+            String artist = jsonObject.getString("artist");
+            String duration = jsonObject.getString("duration");
+            String ablum = jsonObject.getString("ablum");
+            String displayName = jsonObject.getString("displayName");
+            String url = jsonObject.getString("url");
+            lastPlayedMusic = new Music(artist,duration,ablum,displayName,url,true);
+            //FirstPosition = jsonObject.getInt("FirstPosition");
             OrderMode = jsonObject.getInt("OrderMode");
             Log.v("StartActivity","init检查模式"+OrderMode);
         }catch (JSONException e){
             e.printStackTrace();
             Log.v("StartActivity","json异常");
         }
-        Log.v("StartActivity","init检查url"+lastPlayedMusic);
-        Log.v("StartActivity","init检查位置"+currentPosition);
-        if(lastPlayedMusic.equals("")){
-            lastPlayedMusic = musicArrayList.get(0).getUrl();
+        if(lastPlayedMusic==null){
+            if(musicArrayList.size()!=0){
+                lastPlayedMusic = musicArrayList.get(0);
+            }
+
         }
-
-
-
+        musicProvider = new MusicProvider(musicArrayList);
         isStop = true;
         Message message = new Message();
         message.what = initFinished;
         handler.sendMessage(message);
     }
-    public String Mandarin2Pinyin(String src){
-        char[] t1 ;
-        t1=src.toCharArray();
-        String[] t2;
-        HanyuPinyinOutputFormat outputFormat = new HanyuPinyinOutputFormat();
-        outputFormat.setCaseType(HanyuPinyinCaseType.LOWERCASE);
-        outputFormat.setToneType(HanyuPinyinToneType.WITHOUT_TONE);
-        outputFormat.setVCharType(HanyuPinyinVCharType.WITH_V);
-        String t4="";
-        int t0=t1.length;
-        try {
-            for (int i=0;i<t0;i++)
-            {
-            //判断是否为汉字字符
-                if(java.lang.Character.toString(t1[i]).matches("[\\u4E00-\\u9FA5]+"))
-                {
-                    t2 = PinyinHelper.toHanyuPinyinStringArray(t1[i], outputFormat);
-                    t4+=t2[0];
-                }
-                else
-                    t4+=java.lang.Character.toString(t1[i]);
-            }
-            return t4;
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return t4;
-    }
+//    public String Mandarin2Pinyin(String src){
+//        char[] t1 ;
+//        t1=src.toCharArray();
+//        String[] t2;
+//        HanyuPinyinOutputFormat outputFormat = new HanyuPinyinOutputFormat();
+//        outputFormat.setCaseType(HanyuPinyinCaseType.LOWERCASE);
+//        outputFormat.setToneType(HanyuPinyinToneType.WITHOUT_TONE);
+//        outputFormat.setVCharType(HanyuPinyinVCharType.WITH_V);
+//        String t4="";
+//        int t0=t1.length;
+//        try {
+//            for (int i=0;i<t0;i++)
+//            {
+//            //判断是否为汉字字符
+//                if(java.lang.Character.toString(t1[i]).matches("[\\u4E00-\\u9FA5]+"))
+//                {
+//                    t2 = PinyinHelper.toHanyuPinyinStringArray(t1[i], outputFormat);
+//                    t4+=t2[0];
+//                }
+//                else
+//                    t4+=java.lang.Character.toString(t1[i]);
+//            }
+//            return t4;
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+//        return t4;
+//    }
 
 
 }

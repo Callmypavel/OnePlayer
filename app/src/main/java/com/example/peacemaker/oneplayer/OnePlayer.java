@@ -50,30 +50,28 @@ public class OnePlayer implements Serializable {
 
 
     public void init(String path) {
-        System.out.println("初始化播放器");
         try {
-            if(mediaPlayer!=null){
-                mediaPlayer.release();
+            if(mediaPlayer==null){
+                Log.v("OnePlayer","init()重新实例化mediaplayer");
+                mediaPlayer = new MediaPlayer();
+                mediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+                    @Override
+                    public void onPrepared(MediaPlayer mp) {
+                        mediaPlayer.start();
+                        if (onPrepareListener != null) {
+                            onPrepareListener.onPrepare(mediaPlayer.getDuration());
+                        }
+
+                    }
+                });
             }
-            mediaPlayer = new MediaPlayer();
-            Log.v("OnePlayer","哥先看看路径"+path);
+            //mediaPlayer = new MediaPlayer();
+            mediaPlayer.reset();
             mediaPlayer.setDataSource(path);
         } catch (IOException e) {
-            Log.v("OnePlayer", "哥先看看路径" + path);
-            Log.v("OnePlayer", "IO异常");
             e.printStackTrace();
         }
-        mediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
-            @Override
-            public void onPrepared(MediaPlayer mp) {
-                Log.v("OnePlayer", "开始播放" + mediaPlayer.getDuration());
-                mediaPlayer.start();
-                if (onPrepareListener != null) {
-                    onPrepareListener.onPrepare(mediaPlayer.getDuration());
-                }
 
-            }
-        });
         //mediaPlayer.setAudioStreamType(MediaPlayer.MEDIA_INFO_BUFFERING_START);
         isInit = false;
     }
@@ -185,6 +183,7 @@ public class OnePlayer implements Serializable {
     }
     public void release(){
         if(mediaPlayer!=null){
+            Log.v("OnePlayer","release()释放");
             mediaPlayer.release();
         }
     }

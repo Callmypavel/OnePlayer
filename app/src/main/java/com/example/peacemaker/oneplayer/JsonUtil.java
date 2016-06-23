@@ -69,10 +69,10 @@ public class JsonUtil {
 			public void run() {
 				while (!stop) {
 					jsonObject = Connect(jsonObjectin, url);
-					Log.v("线程中的json", jsonObject + "");
+					Log.v("JsonUtil", jsonObject + "线程中的json");
 					if(jsonObject!=null) {
 						Bundle bundle = new Bundle();
-						Log.v("bundle发送检查",jsonObject.toString());
+						Log.v("JsonUtil","bundle发送检查"+jsonObject.toString());
 						bundle.putString("json", jsonObject.toString());
 						Message message = new Message();
 						message.setData(bundle);

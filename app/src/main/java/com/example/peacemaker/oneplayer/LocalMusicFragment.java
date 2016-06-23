@@ -39,7 +39,7 @@ public class LocalMusicFragment extends MusicListFragment implements View.OnClic
         album.setOnClickListener(this);
         linearLayoutManager = new LinearLayoutManager(activity);
         playrecycleView.setLayoutManager(linearLayoutManager);
-        playrecycleView.setAdapter(activity.localplaylistAdapter);
+        //playrecycleView.setAdapter(activity.localplaylistAdapter);
         playrecycleView.addItemDecoration(new DividerItemDecoration(getActivity(), DividerItemDecoration.VERTICAL_LIST));
         Log.v("LocalMusicFragment本地庆典", playrecycleView.getLayoutManager() + "");
 

@@ -98,7 +98,6 @@ public class MusicService extends Service implements Runnable{
 
     @Override
     public void run() {
-
         onePlayer.play();
     }
     public void setOnePlayer(OnePlayer onePlayer){

@@ -29,7 +29,7 @@ public class LocalMusicFragmentLow extends MusicListFragmentLow implements View.
         single.setOnClickListener(this);
         singer.setOnClickListener(this);
         album.setOnClickListener(this);
-        playlistView.setAdapter(activity.localPlaylistAdapterlow);
+        //playlistView.setAdapter(activity.localPlaylistAdapterlow);
         playlistView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {

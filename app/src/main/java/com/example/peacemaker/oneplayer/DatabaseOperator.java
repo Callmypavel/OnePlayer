@@ -8,11 +8,14 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.util.Base64;
 import android.util.Log;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 
 /**
@@ -22,7 +25,7 @@ public class DatabaseOperator extends SQLiteOpenHelper {
     private MainActivity mainActivity;
     private final static int VERSION = 1;
     private final static String CREATE_Music = "create table if not exists Music(_id integer primary key autoincrement,artist text not null,duration text not null,album text not null,displayName text not null,url text not null,identifier text not null)";
-    private final static String CREATE_Last = "create table if not exists Music(_id integer primary key autoincrement,artist text not null,duration text not null,album text not null,displayName text not null,url text not null,identifier text not null)";
+    private final static String CREATE_Last = "create table if not exists Last(_id integer primary key autoincrement,artist text not null,duration text not null,album text not null,displayName text not null,url text not null,position integer not null)";
     public DatabaseOperator(Context context, String name) {
         super(context, name, null, 1);
         // TODO Auto-generated constructor stub
@@ -48,12 +51,13 @@ public class DatabaseOperator extends SQLiteOpenHelper {
         Cursor cursor = db.query("Music",new String[]{"identifier"},null,null,null,null,null);
         if(cursor.moveToFirst()){
             while(!isSame&&!cursor.isLast()){
-                System.out.println(values.get("identifier")+"和"+cursor.getString(cursor.getColumnIndex("identifier")));
+                //System.out.println(values.get("identifier")+"和"+cursor.getString(cursor.getColumnIndex("identifier")));
                 if(values.get("identifier").equals(cursor.getString(cursor.getColumnIndex("identifier")))){
                     System.out.println("找到同名不插入和和");
                     isSame = true;
                 }
                     cursor.moveToNext();
+
             }
 
             if(!isSame){
@@ -98,30 +102,14 @@ public class DatabaseOperator extends SQLiteOpenHelper {
     public ArrayList<Music> getMusics(){
         SQLiteDatabase db = getReadableDatabase();
         Cursor cursor = db.query("Music", null, null, null, null, null, null) ;
-        ArrayList<Music> Musics = new ArrayList<Music>();
-        if(cursor.moveToFirst()){
-            while(!cursor.isLast()){
-
-                String artist = cursor.getString(cursor.getColumnIndex("artist"));
-                String duration = cursor.getString(cursor.getColumnIndex("duration"));
-                //String size = cursor.getString(cursor.getColumnIndex("size"));
-                //String id = cursor.getString(cursor.getColumnIndex("id"));
-                String album = cursor.getString(cursor.getColumnIndex("album"));
-                String displayName = cursor.getString(cursor.getColumnIndex("displayName"));
-                String url = cursor.getString(cursor.getColumnIndex("url"));
-                Musics.add(new Music(artist,duration,album,displayName,url));
-                cursor.moveToNext();
-            }
-            if(cursor.isLast()){
-                //憋忘了最后一条
-                String artist = cursor.getString(cursor.getColumnIndex("artist"));
-                String duration = cursor.getString(cursor.getColumnIndex("duration"));
-                String album = cursor.getString(cursor.getColumnIndex("album"));
-                String displayName = cursor.getString(cursor.getColumnIndex("displayName"));
-                String url = cursor.getString(cursor.getColumnIndex("url"));
-                Musics.add(new Music(artist, duration, album, displayName, url));
-            }
-
+        ArrayList<Music> Musics = new ArrayList<>();
+        while(cursor.moveToNext()){
+            String artist = cursor.getString(cursor.getColumnIndex("artist"));
+            String duration = cursor.getString(cursor.getColumnIndex("duration"));
+            String album = cursor.getString(cursor.getColumnIndex("album"));
+            String displayName = cursor.getString(cursor.getColumnIndex("displayName"));
+            String url = cursor.getString(cursor.getColumnIndex("url"));
+            Musics.add(new Music(artist,duration,album,displayName,url,true));
         }
         return Musics;
     }
@@ -139,28 +127,65 @@ public class DatabaseOperator extends SQLiteOpenHelper {
         String identifier = name+artist+duration;
         return identifier;
     }
-    public void saveLastplayed(int currentPosition,String currentMusic,SharedPreferences sharedPreferences){
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putString("currentMusic",currentMusic);
-        editor.putInt("currentPosition", currentPosition);
-        editor.commit();
+    public void saveLastplayed(int currentPosition,Music music,String tableName){
+//        SharedPreferences.Editor editor = sharedPreferences.edit();
+//        editor.putString("currentMusic",currentMusic);
+//        editor.putInt("currentPosition", currentPosition);
+//        editor.commit();
+        SQLiteDatabase db = getWritableDatabase();
+        Cursor cursor = db.query("Last",null,null,null,null,null,null);
+        ContentValues values = new ContentValues();
+        values.put("artist", music.getArtist());
+        values.put("duration", music.getDuration());
+        values.put("album", music.getAlbum());
+        values.put("displayName", music.getDisplayName());
+        values.put("url", music.getUrl());
+        values.put("position",currentPosition);
+        if(cursor.moveToFirst()){
+            db.replace(tableName,"ab",values);
+        }else {
+            db.insert(tableName,"ab",values);
+        }
+        db.close();
     }
-    public void saveOrderMode(SharedPreferences sharedPreferences,int OrderMode){
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putInt("OrderMode", OrderMode);
-        editor.commit();
-    }
-    public JSONObject getLastPlayed(SharedPreferences sharedPreferences){
+//    public void saveOrderMode(int OrderMode,String tableName,SharedPreferences sharedPreferences){
+//        SharedPreferences.Editor editor = sharedPreferences.edit();
+//        editor.putInt("OrderMode", OrderMode);
+//        editor.commit();
+//        SQLiteDatabase db = getWritableDatabase();
+//        Cursor cursor = db.query("Last",null,null,null,null,null,null);
+//        ContentValues values = new ContentValues();
+//        values.put("OrderMode",OrderMode);
+//        if(cursor.moveToFirst()){
+//            db.replace(tableName,"ab",values);
+//        }else {
+//            db.insert(tableName,"ab",values);
+//        }
+//        //db.update(tableName,values,null,null);
+//        db.close();
+//    }
+    public JSONObject getLastPlayed(){
         JSONObject jsonObject = new JSONObject();
-        try {
-            jsonObject.put("currentMusic", sharedPreferences.getString("currentMusic", ""));
-            jsonObject.put("currentPosition", sharedPreferences.getInt("currentPosition", 0));
-            jsonObject.put("OrderMode", sharedPreferences.getInt("OrderMode", -1));
-            jsonObject.put("FirstPosition", sharedPreferences.getInt("FirstPosition", 0));
-            Log.v("DatabaseOperator","getLastPlayed()"+sharedPreferences.getString("currentMusic", "")+
-                    sharedPreferences.getInt("currentPosition", 0)+sharedPreferences.getInt("OrderMode", -1));
-        }catch (JSONException e){
-            e.printStackTrace();
+//        try {
+//            jsonObject.put("currentMusic", sharedPreferences.getString("currentMusic", ""));
+//            jsonObject.put("currentPosition", sharedPreferences.getInt("currentPosition", 0));
+//            jsonObject.put("OrderMode", sharedPreferences.getInt("OrderMode", -1));
+//            jsonObject.put("FirstPosition", sharedPreferences.getInt("FirstPosition", 0));
+//            Log.v("DatabaseOperator","getLastPlayed()"+sharedPreferences.getString("currentMusic", "")+
+//                    sharedPreferences.getInt("currentPosition", 0)+sharedPreferences.getInt("OrderMode", -1));
+//        }catch (JSONException e){
+//            e.printStackTrace();
+//        }
+        SQLiteDatabase db = getReadableDatabase();
+        Cursor cursor = db.query("Last", null, null, null, null, null, null) ;
+        if(cursor.moveToFirst()) {
+            try {
+                jsonObject.put("currentPosition", cursor.getString(cursor.getColumnIndex("position")));
+                //jsonObject.put("OrderMode", cursor.getString(cursor.getColumnIndex("OrderMode")));
+            }catch (Exception e){
+
+            }
+
         }
         return jsonObject;
     }
@@ -168,6 +193,26 @@ public class DatabaseOperator extends SQLiteOpenHelper {
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putInt("FirstPosition", FirstPosition);
         editor.commit();
+    }
+    public static String bitmap2String(Bitmap bitmap) {
+        // 将Bitmap转换成字符串
+        String string = null;
+        ByteArrayOutputStream bStream = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.PNG, 100, bStream);
+        byte[] bytes = bStream.toByteArray();
+        string = Base64.encodeToString(bytes, Base64.DEFAULT);
+        return string;
+    }
+    public static Bitmap String2bitmap(String st){
+        Bitmap bitmap = null;
+        try{
+            byte[] bitmapArray;
+            bitmapArray = Base64.decode(st, Base64.DEFAULT);
+            bitmap = BitmapFactory.decodeByteArray(bitmapArray, 0,bitmapArray.length);
+            return bitmap;
+        }catch (Exception e){
+            return null;
+        }
     }
 
 

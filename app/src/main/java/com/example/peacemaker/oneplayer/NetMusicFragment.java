@@ -43,7 +43,7 @@ public class NetMusicFragment extends MusicListFragment  {
                 button.setText("正在连接服务器...");
             }
         });
-        playrecycleView.setAdapter(activity.netplaylistAdapter);
+        //playrecycleView.setAdapter(activity.netplaylistAdapter);
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(activity);
         Log.v("LocalMusicFragment", linearLayoutManager + "");
         playrecycleView.setLayoutManager(linearLayoutManager);
@@ -114,8 +114,8 @@ public class NetMusicFragment extends MusicListFragment  {
                             }
 
                             activity.netmusicNumber = musicArrayList.size();
-                            activity.netmusicArrayList = musicArrayList;
-                            activity.netplaylistAdapter.setDatasource(musicArrayList);
+                            //activity.netmusicArrayList = musicArrayList;
+                            //activity.netplaylistAdapter.setDatasource(musicArrayList);
                         }
 
                     }

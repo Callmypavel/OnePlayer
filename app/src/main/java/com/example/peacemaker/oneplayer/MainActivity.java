@@ -17,8 +17,9 @@ import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
-import android.content.res.Resources;
+import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.media.audiofx.Visualizer;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -26,67 +27,69 @@ import android.os.Environment;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarActivity;
-import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
+import android.util.DisplayMetrics;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
-import android.view.MenuItem;
+import android.view.View;
+import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.view.animation.TranslateAnimation;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
-import android.support.v7.widget.Toolbar;
-import android.util.TypedValue;
-import android.view.Gravity;
-import android.view.View;
-import android.view.ViewOutlineProvider;
-import android.widget.ImageButton;
-//import android.support.v4.widget.DrawerLayout;
-
 import android.widget.RemoteViews;
-import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.support.v7.graphics.Palette;
 
-import net.sourceforge.pinyin4j.PinyinHelper;
-import net.sourceforge.pinyin4j.format.HanyuPinyinCaseType;
-import net.sourceforge.pinyin4j.format.HanyuPinyinOutputFormat;
-import net.sourceforge.pinyin4j.format.HanyuPinyinToneType;
-import net.sourceforge.pinyin4j.format.HanyuPinyinVCharType;
+import com.google.android.gms.appindexing.Action;
+import com.google.android.gms.appindexing.AppIndex;
+import com.google.android.gms.appindexing.Thing;
+import com.google.android.gms.common.api.GoogleApiClient;
 
 import org.json.JSONObject;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.Timer;
 import java.util.TimerTask;
+
+import butterknife.BindView;
+import butterknife.ButterKnife;
+//import android.support.v4.widget.DrawerLayout;
 
 /**
  * Created by ouyan_000 on 2015/8/14.
  */
 public class MainActivity extends ActionBarActivity implements View.OnClickListener {
     int transferNum = 0;
-    String currentMusic;
-    String lastPlayedMusic;
+    private Music currentMusic;
+    private Music lastPlayedMusic;
     int musicNumber;
     public int currentPosition;
     int playMode = cycle;
     final static int cycle = 1;
     final static int looping = 2;
     final static int random = 3;
-    int time;
-    int totalTime;
-    int FirstPositon;
-    int netcurrentPositon;
-    CardView cardView;
+    private static int singer = 0;
+    private static int album = 1;
+    private static int song = 2;
+    private int currentColor = Color.WHITE;
+    private int cursorWidth;
+    private int time;
+    private int totalTime;
     Boolean isNull = false;
     private Timer timer;
     private TimerTask timerTask;
@@ -94,71 +97,112 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
     ListView listView;
     Handler handler;
     SharedPreferences sharedPreferences;
-    ArrayList<Music> localmusicArrayList;
-    ArrayList<Music> netmusicArrayList;
-    ArrayList<String> singers ;
-    ArrayList<ArrayList<Music>> singerArrayLists;
-    ArrayList<String> albums ;
-    ArrayList<ArrayList<Music>> albumArrayLists;
-    ArrayList<Music> tempmusicArrayList ;
-    ArrayList<Music> tempmusicArrayList2 ;
-    DrawerLayout drawerLayout;
-    PlaylistAdapter localplaylistAdapter;
-    PlaylistAdapter netplaylistAdapter;
-    PlaylistAdapterlow localPlaylistAdapterlow;
-    PlaylistAdapterlow netPlaylistAdapterlow;
-    RelativeLayout basetag;
-    MusicService musicService;
-    TextView durationText;
-    TextView progressText;
-    TextView versionText;
-    TextView local;
-    TextView internet;
+    ArrayList<Music> tempmusicArrayList;
     OnePlayer onePlayer;
-    TextView updateText;
-    ImageButton previousButton;
-    ImageButton playButton;
-    ImageButton nextButton;
-    ImageButton playModeButton;
-    ImageButton queueButton;
-    ImageView cursor;
-    RelativeLayout deepload;
-    RelativeLayout version;
-    RelativeLayout update;
-    RelativeLayout albumcontainer;
-    SeekBar seekBar;
-    ViewPager viewPager;
+    MusicService musicService;
     SerchingFragment serchingfragment;
-    PlayingFragment playingFragment;
     FragmentTransaction fragmentTransaction;
     Handler serchhandler;
     Boolean isVersionOpen = false;
     Boolean isNew = true;
     Boolean isAlbuming = false;
-    ProgressBar progressBar;
     Boolean isNotiClikable = true;
     Boolean isNet = false;
     Boolean isFirstTime = true;
     Boolean isAlbumTwo = false;
     Boolean isSingerTwo = false;
-    String initSinger;
-    String initSong;
-    int Order;
+//    private int Order;
     int netmusicNumber = 1;
-    OnIntializeCompleListener onIntializeCompleListener;
+    Visualizer visualizer;
+    MusicProvider musicProvider;
     BroadcastReceiver playReceiver;
     BroadcastReceiver previousReceiver;
     BroadcastReceiver nextReceiver;
-    CircleImageView circleImageView;
-    MusicListFragment localmusicListFragment ;
-    MusicListFragment netmusicListFragment ;
-    MusicListFragmentLow localmusicListFragmentLow;
-    MusicListFragmentLow netmusicListFragmentLow;
+    private Music target;
+    private ArrayList<Music> albumArraylist;
+    private ArrayList<Music> singerArraylist;
+    private ArrayList<Music> songArraylist;
+    @BindView(R.id.one_seekbar)
+    OneSeekBar oneSeekBar;
+    @BindView(R.id.play_view_previous)
+    public ImageButton previousButton;
+    @BindView(R.id.play_view_next)
+    public ImageButton nextButton;
+    @BindView(R.id.play_view_playmode)
+    public ImageButton playModeButton;
+    @BindView(R.id.play_view_queue)
+    public ImageButton queueButton;
+    public TextView updateText;
+    @BindView(R.id.cursor)
+    public ImageView cursor;
+    @BindView(R.id.deepload)
+    public RelativeLayout deepload;
+    @BindView(R.id.version)
+    public RelativeLayout version;
+    @BindView(R.id.update)
+    public RelativeLayout update;
+    @BindView(R.id.drawer_layout)
+    public DrawerLayout drawerLayout;
+    @BindView(R.id.basetag)
+    public RelativeLayout basetag;
+    @BindView(R.id.play_view_duration)
+    public TextView durationText;
+    @BindView(R.id.play_view_progress)
+    public TextView progressText;
+    @BindView(R.id.versiontext)
+    public TextView versionText;
+    @BindView(R.id.song_tag)
+    public TextView songTagText;
+    @BindView(R.id.singer_tag)
+    public TextView singerTagText;
+    @BindView(R.id.album_tag)
+    public TextView albumTagText;
+    @BindView(R.id.bottom_song_name)
+    public TextView bottomSongNameText;
+    @BindView(R.id.bottom_singer_name)
+    public TextView bottomSingerNameText;
+    @BindView(R.id.bottom_album_image)
+    public ImageView bottomAblumImageView;
+    @BindView(R.id.bottom_controll_bar)
+    public RelativeLayout bottomControllBar;
+    @BindView(R.id.top_tool_bar_song_name)
+    public TextView topToolBarSongNameText;
+    @BindView(R.id.top_tool_bar_singer_name)
+    public TextView topToolBarSingerNameText;
+    @BindView(R.id.top_tool_bar)
+    public RelativeLayout topToolBar;
+    @BindView(R.id.play_view_album)
+    public ImageView playViewAblumImageView;
+    @BindView(R.id.play_view_controll_bar)
+    public RelativeLayout playViewControllBar;
+    @BindView(R.id.bottom_play_button)
+    public ImageButton playButton;
+    @BindView(R.id.main_content_bar)
+    public OneLayout mainContentBar;
+    @BindView(R.id.id_viewpager)
+    public ViewPager viewPager;
+    @BindView(R.id.play_view_onewaveform)
+    public OneWaveFromView oneWaveFromView;
+    public ProgressBar progressBar;
+    private OnePlayListFragment onePlayListFragment;
+    private OneAblumListFragment oneAblumListFragment;
+    private OneSingerListFragment oneSingerlistFragment;
+    private OneSingerDetailFragment oneSingerDetailFragment;
+    private OneAblumDetailFragment oneAblumDetailFragment;
+    private ArrayList<Fragment> oneFragments;
+    private FragmentPagerAdapter fragmentPagerAdapter;
+    private FragmentStatePagerAdapter fragmentStatePagerAdapter;
+    private Boolean isAblumDetail = false;
+    private Boolean isSingerDetail = false;
+    private Boolean isPlayView = false;
+    private int currentFragmentPosition = singer;
+    public int albumSelectedPosition;
+    public int singerSelectedPosition;
     ServiceConnection serviceConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
 
-            musicService = ((MusicService.MusicBinder)service).getMusicService();
+            musicService = ((MusicService.MusicBinder) service).getMusicService();
             System.out.println("接受音乐服务" + musicService);
 
         }
@@ -170,26 +214,34 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
     };
     DatabaseOperator databaseOperator;
     Boolean isPlaying = false;
+    /**
+     * ATTENTION: This was auto-generated to implement the App Indexing API.
+     * See https://g.co/AppIndexing/AndroidStudio for more information.
+     */
+    private GoogleApiClient client;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        if(Build.VERSION.SDK_INT>19){
+        if (Build.VERSION.SDK_INT > 19) {
             setTheme(R.style.Oneplayer);
-            Log.v("MainActivity","我选择OnePlayer主题");
-        }else{
+            Log.v("MainActivity", "我选择OnePlayer主题");
+        } else {
             setTheme(R.style.One);
             Log.v("MainActivity", "我选择One主题");
         }
 
         super.onCreate(savedInstanceState);
 
-        if(Build.VERSION.SDK_INT>19){
+        if (Build.VERSION.SDK_INT > 19) {
             setContentView(R.layout.main_activity);
-        }else{
+        } else {
             setContentView(R.layout.main_activity_low);
         }
         initialize();
         checkUpdate();
+        // ATTENTION: This was auto-generated to implement the App Indexing API.
+        // See https://g.co/AppIndexing/AndroidStudio for more information.
+        client = new GoogleApiClient.Builder(this).addApi(AppIndex.API).build();
     }
 
     @Override
@@ -201,37 +253,41 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        Log.v("摧毁","activity");
+        Log.v("摧毁", "activity");
         unregisterReceiver(playReceiver);
         unregisterReceiver(nextReceiver);
         unregisterReceiver(previousReceiver);
         unbindService(serviceConnection);
     }
+    public ArrayList<Music> getSingerArraylist(){
+        //Log.v("MainActivity","歌手列表抽查"+singerArraylist.get(0).getSecondItems());
+        return singerArraylist;
+    }
+    public ArrayList<Music> getAlbumArraylist(){
+        return albumArraylist;
+    }
+    public ArrayList<Music> getSongArraylist(){
+        return songArraylist;
+    }
 
-    public void initialize(){
+    private void initialize() {
         //从intent获取数据
-        final Bundle bundle = getIntent().getExtras();
-        localmusicArrayList = (ArrayList<Music>)bundle.get("musicArraylist");
-        lastPlayedMusic = (String)bundle.get("lastPlayedMusic");
-        Log.v("MainActivity", "intialize检查一番" + lastPlayedMusic);
+        Bundle bundle = getIntent().getExtras();
+        lastPlayedMusic = (Music) bundle.get("lastPlayedMusic");
         currentMusic = lastPlayedMusic;
-        currentPosition = (int)bundle.get("currentPosition");
-        Log.v("MainActivity", "intialize检查位置" + currentPosition);
-        FirstPositon = (int)bundle.get("FirstPosition");
-        singerArrayLists = (ArrayList<ArrayList<Music>>)bundle.get("singerArrayLists");
-        albumArrayLists = (ArrayList<ArrayList<Music>>)bundle.get("albumArrayLists");
-        singers = (ArrayList<String>) bundle.get("singers");
-        albums = (ArrayList<String>) bundle.get("albums");
-        Order = (int)bundle.get("OrderMode");
-        switch (Order){
-            case -1:tempmusicArrayList = localmusicArrayList;break;
-            case -2:tempmusicArrayList = singerArrayLists.get(FirstPositon);break;
-            case -3:tempmusicArrayList = albumArrayLists.get(FirstPositon);break;
-        }
+        currentPosition = (int) bundle.get("currentPosition");
+//        Order = (int) bundle.get("OrderMode");
+        musicProvider = (MusicProvider) bundle.get("musicProvider");
+        songArraylist = musicProvider.getSongs();
+        singerArraylist = musicProvider.getSingers();
+        albumArraylist = musicProvider.getAlbums();
+        Log.v("MainActivity", "传后检查提供者" + musicProvider);
+        //for (Music singer : singerArraylist) {
+            //Log.v("MainActivity","抽查歌手"+singer.getSecondItems());
+            //Log.v("MainActivity","抽查歌手歌曲"+singer.getSecondItems().get(0).getDisplayName());
+        //}
+        tempmusicArrayList = songArraylist;
         musicNumber = tempmusicArrayList.size();
-        Log.v("MainActivity", "intialize" + bundle.getInt("OrderMode"));
-
-
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
 //        toolbar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
 //            @Override
@@ -239,36 +295,23 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
 //                return false;
 //            }
 //        });
+        toolbar.setTitle("");
         setSupportActionBar(toolbar);
-
 
 
         TypedValue typedValue = new TypedValue();
         getTheme().resolveAttribute(R.attr.colorPrimaryDark, typedValue, true);
         int color = typedValue.data;
         // 注意setStatusBarBackgroundColor方法需要你将fitsSystemWindows设置为true才会生效
-        drawerLayout = (DrawerLayout)findViewById(R.id.drawer_layout);
-        drawerLayout.setStatusBarBackgroundColor(color);
         //将ActionBar和drawer绑定
 //        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawerLayout, R.string.app_name, R.string.app_name);
 //        toggle.syncState();
 //        drawerLayout.setDrawerListener(toggle);
 
-        previousButton = (ImageButton)findViewById(R.id.previous);
-
-        playButton = (ImageButton)findViewById(R.id.playandpause);
-
-        queueButton = (ImageButton)findViewById(R.id.queue);
-        playModeButton = (ImageButton)findViewById(R.id.playmode);
-        nextButton = (ImageButton)findViewById(R.id.next);
-        playModeButton = (ImageButton)findViewById(R.id.playmode);
         //playlistView = (ListView)findViewById(R.id.playList);
-        seekBar = (SeekBar)findViewById(R.id.seekBar);
-        versionText = (TextView)findViewById(R.id.versiontext);
-        durationText = (TextView)findViewById(R.id.duration);
-        progressText = (TextView)findViewById(R.id.progress);
-        local = (TextView)findViewById(R.id.local);
-        internet = (TextView)findViewById(R.id.internet);
+        //seekBar = (SeekBar) findViewById(R.id.seekBar);
+        ButterKnife.bind(this);
+        drawerLayout.setStatusBarBackgroundColor(color);
 //        ViewOutlineProvider viewOutlineProvider = new ViewOutlineProvider() {
 //            @Override
 //            public void getOutline(View view, Outline outline) {
@@ -276,12 +319,37 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
 //                outline.setOval(0,0,size,size);
 //            }
 //        };
-        albumcontainer = (RelativeLayout)findViewById(R.id.albumcontainer);
-        deepload = (RelativeLayout)findViewById(R.id.deepload);
-        version = (RelativeLayout)findViewById(R.id.version);
-        update = (RelativeLayout)findViewById(R.id.update);
-        basetag = (RelativeLayout)findViewById(R.id.basetag);
-        cursor = (ImageView)findViewById(R.id.cursor);
+        oneSeekBar.setOnOneSeekBarListener(new OnOneSeekBarListener() {
+            @Override
+            public void onSeekBarUpdated(float progress) {
+                int targetTime = (int) (progress * totalTime);
+                progressText.setText(ten2sixty(targetTime));
+                if (!isNew) {
+                    Log.v("MainActiivty","跳转进度"+targetTime);
+                    if(currentColor==Color.WHITE) {
+                        playButton.setImageResource(R.drawable.pause);
+                    }else {
+                        playButton.setImageResource(R.drawable.ic_pause_circle_fill_white_48dp);
+                    }
+                    musicService.seekTo(time * 1000);
+                    isPlaying = false;
+                    play();
+                } else {
+                    oneSeekBar.setProgress(0);
+                    progressText.setText(ten2sixty(0));
+//                    ViewGroup.LayoutParams layoutParams = bottomProgress.getLayoutParams();
+//                    layoutParams.width = 0;
+//                    bottomProgress.setLayoutParams(layoutParams);
+//                    bottomProgress.postInvalidate();
+                }
+                time = targetTime;
+
+            }
+            @Override
+            public void onButtonClick() {
+                play();
+            }
+        });
         //imageView = (ImageView)findViewById(R.id.imageView);
         //imageView.setOutlineProvider(viewOutlineProvider);
 
@@ -303,136 +371,261 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
 //                return true;
 //            }
 //        });
-        databaseOperator = new DatabaseOperator(this,"OnePlayer.db");
+        databaseOperator = new DatabaseOperator(this, "OnePlayer.db");
 
         //5.0适用
-        if(Build.VERSION.SDK_INT>19) {
-            Log.v("MainActivity","版本号"+Build.VERSION.SDK_INT);
-            localplaylistAdapter = new PlaylistAdapter(localmusicArrayList, getLayoutInflater());
-            netplaylistAdapter = new PlaylistAdapter(null, getLayoutInflater());
-            localmusicListFragment = new LocalMusicFragment();
-            localmusicListFragment.setOnOrderClickListener(new OnOrderClickListener() {
-                @Override
-                public void onOrderClick(int order) {
-                    OrderChanged(order);
-                }
-            });
-            netmusicListFragment = new NetMusicFragment();
-            localmusicListFragment.setOnIntializeCompleListener(new OnIntializeCompleListener() {
-                @Override
-                public void onInitComple() {
-                    OrderChanged(Order);
-                }
-            });
-            netplaylistAdapter.setOnItemClickListener(new OnItemClickListener() {
-                @Override
-                public void onItemClick(View view, int position) {
-                    isNet = true;
-                    if (tempmusicArrayList.get(position).getUrl().equals(currentMusic) && !isNew) {
-                        albumcontainer.setVisibility(View.VISIBLE);
-                        viewPager.setVisibility(View.GONE);
-                        return;
-                    }
-                    isNew = false;
-                    albumcontainer.setVisibility(View.VISIBLE);
-                    viewPager.setVisibility(View.GONE);
-                    if (isPlaying) {
-                        musicService.pause();
-                        isPlaying = false;
-                    }
-                    netcurrentPositon = position;
-                    Log.v("这个positon是我钦点的", position + "");
-                    playButton.setImageResource(R.drawable.ic_pause_circle_fill_white_48dp);
-                    currentMusic = netmusicArrayList.get(position).getUrl();
-                    netplaylistAdapter.url = currentMusic;
-                    netplaylistAdapter.notifyDataSetChanged();
-                    playingFragment.playAnimation();
-                    updateMusic();
-                    basetag.setVisibility(View.GONE);
-                    isAlbuming = true;
-                    queueButton.setImageResource(R.drawable.ic_queue_music_white_48dp);
-                    isPlaying = true;
-                }
-            });
-
-        }else {
-            Log.v("MainActivity","版本号"+Build.VERSION.SDK_INT);
-            localPlaylistAdapterlow = new PlaylistAdapterlow(localmusicArrayList, getLayoutInflater());
-            netPlaylistAdapterlow = new PlaylistAdapterlow(null, getLayoutInflater());
-            localmusicListFragmentLow = new LocalMusicFragmentLow();
-            netmusicListFragmentLow = new NetMusicFragmentLow();
-            localmusicListFragmentLow.setOnOrderClickListener(new OnOrderClickListener() {
-                @Override
-                public void onOrderClick(int order) {
-                    OrderChanged(order);
-                }
-            });
-            localmusicListFragmentLow.setOnIntializeCompleListener(new OnIntializeCompleListener() {
-                @Override
-                public void onInitComple() {
-                    OrderChanged(Order);
-                }
-            });
-            netmusicListFragmentLow.setOnItemClickListener(new OnItemClickListener() {
-                @Override
-                public void onItemClick(View view, int position) {
-                    isNet = true;
-                    if (tempmusicArrayList.get(position).getUrl().equals(currentMusic) && !isNew) {
-                        albumcontainer.setVisibility(View.VISIBLE);
-                        viewPager.setVisibility(View.GONE);
-                        return;
-                    }
-                    isNew = false;
-                    albumcontainer.setVisibility(View.VISIBLE);
-                    viewPager.setVisibility(View.GONE);
-                    if (isPlaying) {
-                        musicService.pause();
-                        isPlaying = false;
-                    }
-                    currentPosition = position;
-                    Log.v("这个positon是我钦点的", position + "");
-                    playButton.setImageResource(R.drawable.ic_pause_circle_fill_white_48dp);
-                    currentMusic = netmusicArrayList.get(position).getUrl();
-                    netPlaylistAdapterlow.url = currentMusic;
-                    netPlaylistAdapterlow.notifyDataSetChanged();
-                    playingFragment.playAnimation();
-                    updateMusic();
-                    basetag.setVisibility(View.GONE);
-                    isAlbuming = true;
-                    queueButton.setImageResource(R.drawable.ic_queue_music_white_48dp);
-                    isPlaying = true;
-                }
-            });
-        }
-        playingFragment = new PlayingFragment();
+//        if (Build.VERSION.SDK_INT > 19) {
+//            localplaylistAdapter = new PlaylistAdapter(localmusicArrayList, getLayoutInflater());
+//            netplaylistAdapter = new PlaylistAdapter(null, getLayoutInflater());
+//            localmusicListFragment = new LocalMusicFragment();
+//            localmusicListFragment.setOnOrderClickListener(new OnOrderClickListener() {
+//                @Override
+//                public void onOrderClick(int order) {
+//                    OrderChanged(order);
+//                }
+//            });
+//            netmusicListFragment = new NetMusicFragment();
+//            localmusicListFragment.setOnIntializeCompleListener(new OnIntializeCompleListener() {
+//                @Override
+//                public void onInitComple() {
+//                    OrderChanged(Order);
+//                }
+//            });
+//            netplaylistAdapter.setOnItemClickListener(new OnItemClickListener() {
+//                @Override
+//                public void onItemClick(View view, int position) {
+//                    isNet = true;
+//                    if (tempmusicArrayList.get(position).getUrl().equals(currentMusic) && !isNew) {
+//                        albumcontainer.setVisibility(View.VISIBLE);
+//                        viewPager.setVisibility(View.GONE);
+//                        return;
+//                    }
+//                    isNew = false;
+//                    albumcontainer.setVisibility(View.VISIBLE);
+//                    viewPager.setVisibility(View.GONE);
+//                    if (isPlaying) {
+//                        musicService.pause();
+//                        isPlaying = false;
+//                    }
+//                    netcurrentPositon = position;
+//                    Log.v("这个positon是我钦点的", position + "");
+//                    playButton.setImageResource(R.drawable.ic_pause_circle_fill_white_48dp);
+//                    currentMusic = netmusicArrayList.get(position).getUrl();
+//                    netplaylistAdapter.url = currentMusic;
+//                    netplaylistAdapter.notifyDataSetChanged();
+//                    playingFragment.playAnimation();
+//                    updateMusic();
+//                    basetag.setVisibility(View.GONE);
+//                    isAlbuming = true;
+//                    queueButton.setImageResource(R.drawable.ic_queue_music_white_48dp);
+//                    isPlaying = true;
+//                }
+//            });
+//
+//        } else {
+//            Log.v("MainActivity", "版本号" + Build.VERSION.SDK_INT);
+//            localPlaylistAdapterlow = new PlaylistAdapterlow(localmusicArrayList, getLayoutInflater());
+//            netPlaylistAdapterlow = new PlaylistAdapterlow(null, getLayoutInflater());
+//            localmusicListFragmentLow = new LocalMusicFragmentLow();
+//            netmusicListFragmentLow = new NetMusicFragmentLow();
+//            localmusicListFragmentLow.setOnOrderClickListener(new OnOrderClickListener() {
+//                @Override
+//                public void onOrderClick(int order) {
+//                    OrderChanged(order);
+//                }
+//            });
+//            localmusicListFragmentLow.setOnIntializeCompleListener(new OnIntializeCompleListener() {
+//                @Override
+//                public void onInitComple() {
+//                    OrderChanged(Order);
+//                }
+//            });
+//            netmusicListFragmentLow.setOnItemClickListener(new OnItemClickListener() {
+//                @Override
+//                public void onItemClick(View view, int position) {
+//                    isNet = true;
+//                    if (tempmusicArrayList.get(position).getUrl().equals(currentMusic) && !isNew) {
+//                        albumcontainer.setVisibility(View.VISIBLE);
+//                        viewPager.setVisibility(View.GONE);
+//                        return;
+//                    }
+//                    isNew = false;
+//                    albumcontainer.setVisibility(View.VISIBLE);
+//                    viewPager.setVisibility(View.GONE);
+//                    if (isPlaying) {
+//                        musicService.pause();
+//                        isPlaying = false;
+//                    }
+//                    currentPosition = position;
+//                    Log.v("这个positon是我钦点的", position + "");
+//                    playButton.setImageResource(R.drawable.ic_pause_circle_fill_white_48dp);
+//                    currentMusic = netmusicArrayList.get(position).getUrl();
+//                    netPlaylistAdapterlow.url = currentMusic;
+//                    netPlaylistAdapterlow.notifyDataSetChanged();
+//                    playingFragment.playAnimation();
+//                    updateMusic();
+//                    basetag.setVisibility(View.GONE);
+//                    isAlbuming = true;
+//                    queueButton.setImageResource(R.drawable.ic_queue_music_white_48dp);
+//                    isPlaying = true;
+//                }
+//            });
+//        }
+//        playingFragment = new PlayingFragment();
+        oneFragments = new ArrayList<>();
+        oneSingerlistFragment = new OneSingerListFragment();
+        oneAblumListFragment = new OneAblumListFragment();
+        onePlayListFragment = new OnePlayListFragment();
+        oneSingerDetailFragment = new OneSingerDetailFragment();
+        oneAblumDetailFragment = new OneAblumDetailFragment();
+        oneFragments.add(oneSingerlistFragment);
+        oneFragments.add(oneAblumListFragment);
+        oneFragments.add(onePlayListFragment);
+        oneFragments.add(oneSingerDetailFragment);
+        oneFragments.add(oneAblumDetailFragment);
         fragmentTransaction = getFragmentManager().beginTransaction();
-        fragmentTransaction.add(R.id.albumcontainer, playingFragment);
-        fragmentTransaction.commit();
+//        fragmentTransaction.add(R.id.albumcontainer, playingFragment);
+//        fragmentTransaction.commit();
         //musicListFragment.init(this);
-        viewPager = (ViewPager)findViewById(R.id.id_viewpager);
-        FragmentPagerAdapter fragmentPagerAdapter = new FragmentPagerAdapter(getSupportFragmentManager()) {
+//        fragmentPagerAdapter = new FragmentPagerAdapter(getSupportFragmentManager()) {
+//            @Override
+//            public Fragment getItem(int position) {
+////                if (Build.VERSION.SDK_INT > 19) {
+//                if(oneFragments!=null) {
+//                    if(isSingerDetail){
+//                        if(position==0){
+//                            position=3;
+//                        }
+//                    }
+//                    if(isAblumDetail){
+//                        if(position==1){
+//                            position=4;
+//                        }
+//                    }
+//                    Log.v("MainActivity","返回fragment序号"+position);
+//                    return oneFragments.get(position);
+//                }
+////                } else {
+////                    if (position == 0) {
+////                        return localmusicListFragmentLow;
+////                    } else return netmusicListFragmentLow;
+////                }
+//                return null;
+//            }
+//
+//            @Override
+//            public int getCount() {
+//                return 3;
+//            }
+//
+//            @Override
+//            public int getItemPosition(Object object) {
+//                if(isAblumDetail){
+//                    if(object instanceof OneAblumListFragment){
+//                        Log.v("MainActivity","进入专辑细节");
+//                        return POSITION_NONE;
+//                    }
+//                }else {
+//                    if (object instanceof OneAblumDetailFragment) {
+//                        Log.v("MainActivity","退出专辑细节");
+//                        return POSITION_NONE;
+//                    }
+//                }
+//                if (isSingerDetail){
+//                    if(object instanceof OneSingerListFragment){
+//                        Log.v("MainActivity","进入歌手细节");
+//                        return POSITION_NONE;
+//                    }
+//                }else {
+//                    if(object instanceof OneSingerDetailFragment){
+//                        Log.v("MainActivity","退出歌手细节");
+//                        return POSITION_NONE;
+//
+//                    }
+//                }
+//                return POSITION_UNCHANGED;
+//
+//            }
+//
+//            @Override
+//            public Object instantiateItem(ViewGroup container, int position) {
+//                Log.v("MainActivity","实例化item"+position);
+//                return super.instantiateItem(container, position);
+//            }
+//        };
+        fragmentStatePagerAdapter = new FragmentStatePagerAdapter(getSupportFragmentManager()) {
             @Override
-            public android.support.v4.app.Fragment getItem(int position) {
-                if(Build.VERSION.SDK_INT>19) {
-                    if (position == 0) {
-                        return localmusicListFragment;
-                    } else if(position == 1) {
-                        return netmusicListFragment;
+            public Fragment getItem(int position) {
+//                if (Build.VERSION.SDK_INT > 19) {
+                if(oneFragments!=null) {
+                    if(isSingerDetail){
+                        if(position==0){
+                            position=3;
+                        }
                     }
-                }else{
-                    if (position == 0) {
-                        return localmusicListFragmentLow;
-                    } else return netmusicListFragmentLow;
+                    if(isAblumDetail){
+                        if(position==1){
+                            position=4;
+                        }
+                    }
+                    Log.v("MainActivity","返回fragment序号"+position);
+                    return oneFragments.get(position);
                 }
+//                } else {
+//                    if (position == 0) {
+//                        return localmusicListFragmentLow;
+//                    } else return netmusicListFragmentLow;
+//                }
                 return null;
             }
 
             @Override
             public int getCount() {
-                return 2;
+                return 3;
+            }
+
+            @Override
+            public int getItemPosition(Object object) {
+                if(isAblumDetail){
+                    if(object instanceof OneAblumListFragment){
+                        Log.v("MainActivity","进入专辑细节");
+                        return POSITION_NONE;
+                    }
+                }else {
+                    if (object instanceof OneAblumDetailFragment) {
+                        Log.v("MainActivity","退出专辑细节");
+                        return POSITION_NONE;
+                    }
+                }
+                if (isSingerDetail){
+                    if(object instanceof OneSingerListFragment){
+                        Log.v("MainActivity","进入歌手细节");
+                        return POSITION_NONE;
+                    }
+                }else {
+                    if(object instanceof OneSingerDetailFragment){
+                        Log.v("MainActivity","退出歌手细节");
+                        return POSITION_NONE;
+
+                    }
+                }
+                return POSITION_UNCHANGED;
+
+            }
+
+            @Override
+            public Object instantiateItem(ViewGroup container, int position) {
+                Log.v("MainActivity","实例化item"+position);
+                return super.instantiateItem(container, position);
             }
         };
-        viewPager.setAdapter(fragmentPagerAdapter);
+        DisplayMetrics dm = getResources().getDisplayMetrics();
+        cursorWidth = dm.widthPixels / 3;
+        ViewGroup.LayoutParams layoutParams = cursor.getLayoutParams();
+        layoutParams.width = cursorWidth;
+        cursor.setLayoutParams(layoutParams);
+        Log.v("MainActivity","游标宽度"+cursorWidth);
+        viewPager.setAdapter(fragmentStatePagerAdapter);
         viewPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
@@ -440,15 +633,24 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
 
             @Override
             public void onPageSelected(int position) {
-                if(position==1){
-                    moveCursor(0, local.getWidth());
-                    local.setTextColor(Color.parseColor("#000000"));
-                    internet.setTextColor(Color.parseColor("#FFFFFF"));
-                }else{
-                    moveCursor(local.getWidth(), 0);
-                    local.setTextColor(Color.parseColor("#FFFFFF"));
-                    internet.setTextColor(Color.parseColor("#000000"));
-                    isNet = false;
+                if (position == singer) {
+                    moveCursor(currentFragmentPosition*cursorWidth, 0);
+                    singerTagText.setTextColor(Color.WHITE);
+                    albumTagText.setTextColor(Color.BLACK);
+                    songTagText.setTextColor(Color.BLACK);
+                    currentFragmentPosition = singer;
+                } else if(position==album){
+                    moveCursor(currentFragmentPosition*cursorWidth, cursorWidth);
+                    albumTagText.setTextColor(Color.WHITE);
+                    singerTagText.setTextColor(Color.BLACK);
+                    songTagText.setTextColor(Color.BLACK);
+                    currentFragmentPosition = album;
+                } else if(position==song){
+                    moveCursor(currentFragmentPosition*cursorWidth, 2*cursorWidth);
+                    songTagText.setTextColor(Color.WHITE);
+                    singerTagText.setTextColor(Color.BLACK);
+                    albumTagText.setTextColor(Color.BLACK);
+                    currentFragmentPosition = song;
                 }
                 viewPager.setCurrentItem(position);
             }
@@ -458,6 +660,21 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
                 Log.v("页面滚动状态改变", state + "");
             }
         });
+//        switch (Order) {
+//            case -3:
+//                tempmusicArrayList = songArraylist;
+//                selectPage(song);
+//                break;
+//            case -1:
+//                tempmusicArrayList = getLastPlayedSinger(singerArraylist,lastPlayedMusic.getArtist());
+//                selectPage(singer);
+//                break;
+//            case -2:
+//                tempmusicArrayList = getLastPlayedAlbum(albumArraylist,lastPlayedMusic.getAlbum());
+//                selectPage(song);
+//                break;
+//        }
+
         deepload.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(final View v) {
@@ -482,25 +699,23 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
                                         if (msg.what == 0x127) {
                                             System.out.println("接到 手斜");
                                             v.setClickable(true);
-                                            localmusicArrayList = msg.getData().getParcelableArrayList("music");
-                                            Comparator<Music> comparator = new Comparator<Music>() {
-                                                @Override
-                                                public int compare(Music lhs, Music rhs) {
-                                                    return  Mandarin2Pinyin(lhs.getDisplayName()).toLowerCase().compareTo(Mandarin2Pinyin(rhs.getDisplayName()).toLowerCase());
-                                                }
-                                            };
-                                            Collections.sort(localmusicArrayList, comparator);
+                                            tempmusicArrayList = msg.getData().getParcelableArrayList("music");
+                                            musicProvider = new MusicProvider(tempmusicArrayList);
+                                            songArraylist = musicProvider.getSongs();
+                                            singerArraylist = musicProvider.getSingers();
+                                            albumArraylist = musicProvider.getAlbums();
+                                            tempmusicArrayList = songArraylist;
                                             if (databaseOperator == null) {
                                                 databaseOperator = new DatabaseOperator(MainActivity.this, "OnePlayer.db");
                                             }
-                                            databaseOperator.saveMusics(localmusicArrayList);
-                                            if (isNull&&localmusicArrayList.size()!=0) {
+                                            databaseOperator.saveMusics(tempmusicArrayList);
+                                            if (isNull && tempmusicArrayList.size() != 0) {
                                                 isNull = false;
                                                 initialize();
                                             } else {
                                                 Toast.makeText(MainActivity.this, "扫描完毕", Toast.LENGTH_SHORT).show();
-                                                localplaylistAdapter.setDatasource(localmusicArrayList);
-                                                localmusicListFragment.getRecyclerView().setAdapter(localplaylistAdapter);
+                                                //localplaylistAdapter.setDatasource(localmusicArrayList);
+                                                //localmusicListFragment.getRecyclerView().setAdapter(localplaylistAdapter);
                                                 fragmentTransaction = getFragmentManager().beginTransaction();
                                                 fragmentTransaction.remove(serchingfragment);
                                                 fragmentTransaction.commit();
@@ -543,12 +758,12 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
             }
         });
         update.setOnClickListener(this);
-        System.out.println("扫描后的数目" + localmusicArrayList.size());
-        if(localmusicArrayList.size()==0){
+        System.out.println("扫描后的数目" + tempmusicArrayList.size());
+        if (tempmusicArrayList.size() == 0) {
             System.out.println("获得为空");
             Toast.makeText(this, "抱歉，没有歌曲", Toast.LENGTH_SHORT).show();
             isNull = true;
-            playButton.setClickable(false);
+            oneSeekBar.setClickable(false);
             nextButton.setClickable(false);
             previousButton.setClickable(false);
             playModeButton.setClickable(false);
@@ -558,145 +773,210 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
         //设置监听事件
 
         previousButton.setOnClickListener(this);
-        playButton.setOnClickListener(this);
         nextButton.setOnClickListener(this);
         playModeButton.setOnClickListener(this);
         queueButton.setOnClickListener(this);
-        local.setOnClickListener(this);
-        internet.setOnClickListener(this);
+        singerTagText.setOnClickListener(this);
+        albumTagText.setOnClickListener(this);
+        songTagText.setOnClickListener(this);
+        bottomControllBar.setOnClickListener(this);
+        playButton.setOnClickListener(this);
+        //mainContentBar.setOnClickListener(this);
+        mainContentBar.setBottom_controll_bar((RelativeLayout) mainContentBar.getChildAt(0));
         //取得最后一次播放的音乐
         initHandler();
         initService();
-        initNotification(0);
+        //initNotification(0);
         initReceiver();
-        updateToolbar();
+        updateMusicInfo();
         updateSeekbar();
-        initOnePlayer(currentMusic);
-
-        seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            int stopPosition;
-
+        initOnePlayer(currentMusic.getUrl());
+        visualizer = new Visualizer(onePlayer.mediaPlayer.getAudioSessionId());
+        visualizer.setCaptureSize(64);
+        visualizer.setDataCaptureListener(new Visualizer.OnDataCaptureListener() {
             @Override
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                stopPosition = progress;
-                progressText.setText(ten2sixty(progress));
+            public void onWaveFormDataCapture(Visualizer visualizer, byte[] waveform, int samplingRate) {
+                //Log.v("MainActivity", "initialize()捕获到波数据" + waveform[0] + waveform[1]);
+
             }
 
             @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {
-                isPlaying = false;
-                playButton.setClickable(false);
+            public void onFftDataCapture(Visualizer visualizer, byte[] fft, int samplingRate) {
+                //Log.v("MainActivity", "onFftDataCapture()捕获到fft数据" + fft[0] + fft[1]);
+                //playingFragment.setWaveData(fft);
+                setWaveData(fft);
             }
-
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {
-                playButton.setClickable(true);
-                if (!isNew) {
-                    System.out.println("直接seekto");
-                    playButton.setImageResource(R.drawable.ic_pause_circle_fill_white_48dp);
-                    musicService.seekTo(stopPosition * 1000);
-                    isPlaying = false;
-                    play();
-                } else {
-                    seekBar.setProgress(0);
-                    progressText.setText(ten2sixty(0));
-                }
-                time = stopPosition;
-            }
-        });
+        }, Visualizer.getMaxCaptureRate()/2, false, true);
+//        seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+//            int stopPosition;
+//
+//            @Override
+//            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+//                stopPosition = progress;
+//                progressText.setText(ten2sixty(progress));
+//            }
+//
+//            @Override
+//            public void onStartTrackingTouch(SeekBar seekBar) {
+//                isPlaying = false;
+//                playButton.setClickable(false);
+//            }
+//
+//            @Override
+//            public void onStopTrackingTouch(SeekBar seekBar) {
+//                playButton.setClickable(true);
+//                if (!isNew) {
+//                    System.out.println("直接seekto");
+//                    playButton.setImageResource(R.drawable.ic_pause_circle_fill_white_48dp);
+//                    musicService.seekTo(stopPosition * 1000);
+//                    isPlaying = false;
+//                    play();
+//                } else {
+//                    seekBar.setProgress(0);
+//                    progressText.setText(ten2sixty(0));
+//                }
+//                time = stopPosition;
+//            }
+//        });
 
         playMode = cycle;
 
 
     }
+    public void setWaveData(byte[] data){
+        oneWaveFromView.setData(data);
+
+    }
 
 
 
-    public void play(){
+    private ArrayList<Music> getLastPlayedAlbum(ArrayList<Music> albumArraylist, String albumName){
+        ArrayList<Music> defaultList = new ArrayList<>();
+        for(Music album : albumArraylist){
+            if(album.getDisplayName().equals(albumName)){
+                return album.getSecondItems();
+            }
+        }
+        return defaultList;
+    }
+    private ArrayList<Music> getLastPlayedSinger(ArrayList<Music> singerArraylist,String albumName){
+        ArrayList<Music> defaultList = new ArrayList<>();
+        for(Music singer : singerArraylist){
+            if(singer.getDisplayName().equals(albumName)){
+                return singer.getSecondItems();
+            }
+        }
+        return defaultList;
+    }
+
+
+    private void play() {
         //开始播放
-        if(!isPlaying) {
-            playingFragment.playAnimation();
-            if(isNew) {
-                albumcontainer.setVisibility(View.VISIBLE);
-                viewPager.setVisibility(View.GONE);
-                basetag.setVisibility(View.GONE);
+        if (!isPlaying) {
+            //playingFragment.playAnimation();
+            visualizer.setEnabled(true);
+            if (isNew) {
+                //albumcontainer.setVisibility(View.VISIBLE);
+                //viewPager.setVisibility(View.GONE);
+                //basetag.setVisibility(View.GONE);
                 isAlbuming = true;
-                queueButton.setImageResource(R.drawable.ic_queue_music_white_48dp);
+                //queueButton.setImageResource(R.drawable.ic_queue_music_white_48dp);
                 notifiPositionChanged();
-
-                System.out.println("初次启动");
+                //System.out.println("初次启动");
                 sharedPreferences = getSharedPreferences("Last", Activity.MODE_PRIVATE);
                 saveLastPlayed();
                 if (handler == null) {
                     initHandler();
                 }
                 isPlaying = true;
-                playButton.setImageResource(R.drawable.ic_pause_circle_fill_white_48dp);
-                initNotification(R.drawable.ic_pause_circle_fill_white_48dp);
+                Log.v("MainActivity","初始化开始播放");
+                oneSeekBar.setButtonBitmap(true);
+                if(currentColor==Color.WHITE) {
+                    playButton.setImageResource(R.drawable.ic_pause_circle_fill_white_48dp);
+                }else {
+                    playButton.setImageResource(R.drawable.pause);
+                }
+                initNotification(R.drawable.ic_pause_circle_outline_black_48dp);
                 musicService.setOnePlayer(onePlayer);
                 musicService.startService();
                 isNew = false;
-            }else {
+            } else {
                 musicService.play();
                 isPlaying = true;
-                playButton.setImageResource(R.drawable.ic_pause_circle_fill_white_48dp);
-                initNotification( R.drawable.ic_pause_circle_fill_white_48dp);
+                oneSeekBar.setButtonBitmap(true);
+                Log.v("MainActivity","请开始播放");
+                if(currentColor==Color.WHITE) {
+                    playButton.setImageResource(R.drawable.ic_pause_circle_fill_white_48dp);
+                }else {
+                    playButton.setImageResource(R.drawable.pause);
+                }
+                initNotification(R.drawable.ic_pause_circle_outline_black_48dp);
             }
-        }else {
-            playingFragment.stopAnimation();
+        } else {
+            if (visualizer != null) {
+                visualizer.setEnabled(false);
+            }
+            //playingFragment.stopAnimation();
             //暂停播放
             System.out.println("暂停播放");
-            playButton.setImageResource(R.drawable.ic_play_circle_fill_white_48dp);
-            initNotification( R.drawable.ic_play_circle_fill_white_48dp);
+            if(currentColor==Color.WHITE) {
+                playButton.setImageResource(R.drawable.ic_play_circle_fill_white_48dp);
+            }else {
+                playButton.setImageResource(R.drawable.play);
+            }
+            initNotification(R.drawable.ic_play_circle_outline_black_48dp);
+            oneSeekBar.setButtonBitmap(false);
             isPlaying = false;
             musicService.pause();
         }
 
     }
 
-    public void next(){
+    public void next() {
         stopButtons();
         isNew = false;
-        playingFragment.playAnimation();
-        if(isPlaying){
+        //playingFragment.playAnimation();
+        if (isPlaying) {
             musicService.pause();
             isPlaying = false;
         }
-        if(!isNet){
-            switch (playMode){
+        //if (!isNet) {
+            switch (playMode) {
                 case random:
                     currentPosition = onePlayer.getRandomPosition(musicNumber);
                     break;
                 default:
-                    Log.v("MainActivity","当前位置"+currentPosition+" "+musicNumber);
+                    Log.v("MainActivity", "当前位置" + currentPosition + " " + musicNumber);
                     currentPosition = (currentPosition + 1) % musicNumber;
-                    Log.v("MainActivity","当前位置"+currentPosition);
+                    Log.v("MainActivity", "当前位置" + currentPosition);
                     break;
             }
-            currentMusic = tempmusicArrayList.get(currentPosition).getUrl();
-        }else {
-            switch (playMode){
-                case random:
-                    netcurrentPositon = onePlayer.getRandomPosition(netmusicNumber);
-                    break;
-                default:
-                    netcurrentPositon = (netcurrentPositon + 1) % netmusicNumber;
-                    break;
-            }
-            currentMusic = netmusicArrayList.get(currentPosition).getUrl();
-        }
+            onePlayListFragment.setSelectedPosition(currentPosition);
+            currentMusic = tempmusicArrayList.get(currentPosition);
+//        } else {
+//            switch (playMode) {
+//                case random:
+//                    netcurrentPositon = onePlayer.getRandomPosition(netmusicNumber);
+//                    break;
+//                default:
+//                    netcurrentPositon = (netcurrentPositon + 1) % netmusicNumber;
+//                    break;
+//            }
+//            currentMusic = netmusicArrayList.get(currentPosition).getUrl();
+//        }
         notifiPositionChanged();
         updateMusic();
     }
-    public void previous(){
+
+    public void previous() {
         stopButtons();
         isNew = false;
-        playingFragment.playAnimation();
-        if(isPlaying){
+        //playingFragment.playAnimation();
+        if (isPlaying) {
             musicService.pause();
             isPlaying = false;
         }
-        if(!isNet) {
+//        if (!isNet) {
             switch (playMode) {
                 case random:
                     currentPosition = onePlayer.getRandomPosition(musicNumber);
@@ -708,150 +988,198 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
                     }
                     break;
             }
-            currentMusic = tempmusicArrayList.get(currentPosition).getUrl();
-        }else {
-            switch (playMode){
-                case random:
-                    netcurrentPositon = onePlayer.getRandomPosition(netmusicNumber);
-                    break;
-                default:
-                    netcurrentPositon = (netcurrentPositon - 1) % netmusicNumber;
-                    break;
-            }
-            currentMusic = netmusicArrayList.get(currentPosition).getUrl();
-        }
+            onePlayListFragment.setSelectedPosition(currentPosition);
+            currentMusic = tempmusicArrayList.get(currentPosition);
+//        } else {
+//            switch (playMode) {
+//                case random:
+//                    netcurrentPositon = onePlayer.getRandomPosition(netmusicNumber);
+//                    break;
+//                default:
+//                    netcurrentPositon = (netcurrentPositon - 1) % netmusicNumber;
+//                    break;
+//            }
+//            currentMusic = netmusicArrayList.get(currentPosition).getUrl();
+//        }
         notifiPositionChanged();
         updateMusic();
 
     }
+    private void toPlayView(){
+        Log.v("MainActivity","toPlayView()");
+        mainContentBar.toMaxHeight();
+        isPlayView = true;
+    }
+    private void quitPlayView(){
+        mainContentBar.toMinHeight();
+        isPlayView = false;
+    }
+
     public void onBackPressed() {
-        if(isAlbuming) {
-            albumcontainer.setVisibility(View.GONE);
-            viewPager.setVisibility(View.VISIBLE);
-            basetag.setVisibility(View.VISIBLE);
-            isAlbuming = false;
-            queueButton.setImageResource(R.drawable.ic_album_white_48dp);
-        }else {
-            if(isSingerTwo){
-                OrderChanged(-2);
-                isSingerTwo=false;
-            }else if(isAlbumTwo){
-                OrderChanged(-3);
-                isAlbumTwo=false;
-            }else {
-                AlertDialog.Builder builder = new AlertDialog.Builder(this);
-                builder.setCancelable(false);
-                //builder.setIcon(R.mipmap.ic_launcher);
-                builder.setTitle("退出Oneplayer");
-                builder.setMessage("确定要退出OnePlayer吗？(希望音乐在后台播放直接点击home键即可)");
-                builder.setPositiveButton("嗯，退出", new DialogInterface.OnClickListener() {
-
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.dismiss();
-                        closeNotification();
-                        finish();
-                        //onDestroy();
-                    }
-                });
-                builder.setNegativeButton("还不退呢", new DialogInterface.OnClickListener() {
-
-                    @Override
-                    public void onClick(DialogInterface arg0, int arg1) {
-                        arg0.dismiss();
-                    }
-                });
-                builder.create().show();
+        Log.v("MainActivity","按下返回键");
+//        if (isAlbuming) {
+//            //albumcontainer.setVisibility(View.GONE);
+//            //viewPager.setVisibility(View.VISIBLE);
+//            //basetag.setVisibility(View.VISIBLE);
+//            isAlbuming = false;
+//            queueButton.setImageResource(R.drawable.ic_album_white_48dp);
+//        } else {
+//            if (isSingerTwo) {
+//                OrderChanged(-2);
+//                isSingerTwo = false;
+//            } else if (isAlbumTwo) {
+//                OrderChanged(-3);
+//                isAlbumTwo = false;
+//            } else {
+        if(isPlayView){
+            quitPlayView();
+            return;
+        }
+        if(currentFragmentPosition==singer){
+            if(isSingerDetail){
+                quitSingerDetail();
+                return;
+            }
+        }else if (currentFragmentPosition==album){
+            if(isAblumDetail){
+                quitAblumDetail();
+                return;
             }
         }
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setCancelable(false);
+            //builder.setIcon(R.mipmap.ic_launcher);
+            builder.setTitle("退出Oneplayer");
+            builder.setMessage("确定要退出OnePlayer吗？(希望音乐在后台播放直接点击home键即可)");
+            builder.setPositiveButton("嗯，退出", new DialogInterface.OnClickListener() {
+
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    dialog.dismiss();
+                    closeNotification();
+                    finish();
+                    //onDestroy();
+                }
+            });
+            builder.setNegativeButton("还不退呢", new DialogInterface.OnClickListener() {
+
+                @Override
+                public void onClick(DialogInterface arg0, int arg1) {
+                    arg0.dismiss();
+                }
+            });
+            builder.create().show();
+//            }
+//        }
+
 
     }
 
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
-        initNotification(R.drawable.ic_pause_circle_fill_white_48dp);
+        initNotification(R.drawable.ic_pause_circle_outline_black_48dp);
     }
 
-    public void updateMusic(){
-        playButton.setImageResource(R.drawable.ic_pause_circle_fill_white_48dp);
+    public void updateMusic() {
+        //playButton.setImageResource(R.drawable.ic_pause_circle_fill_white_48dp);
         time = 0;
-        initOnePlayer(currentMusic);
+        initOnePlayer(currentMusic.getUrl());
         musicService.setOnePlayer(onePlayer);
         musicService.startService();
+        if(!visualizer.getEnabled()){
+            visualizer.setEnabled(true);
+        }
         isPlaying = true;
-        if(!isNet){
+        if (!isNet) {
             saveLastPlayed();
         }
-        updateToolbar();
+        updateMusicInfo();
         updateSeekbar();
-        initNotification(R.drawable.ic_pause_circle_fill_white_48dp);
+        initNotification(R.drawable.ic_pause_circle_outline_black_48dp);
     }
-    public void initOnePlayer(String path){
+
+    public void initOnePlayer(String path) {
         Log.v("MainActivity", "initOnePlayer我要用它" + path);
-        if(onePlayer==null) {
+        if (onePlayer == null) {
             onePlayer = new OnePlayer();
+            onePlayer.setOnCompleListener(new OnCompleListener() {
+                @Override
+                public void onComple() {
+                    next();
+                }
+            });
+            onePlayer.setOnPrepareListener(new OnPrepareListener() {
+                @Override
+                public void onPrepare(int duration) {
+                    if (timer == null) {
+                        initTimer();
+                    }
+                    isPlaying = true;
+                    durationText.setText(ten2sixty(duration / 1000));
+                    //seekBar.setMax(duration / 1000);
+                    oneSeekBar.setButtonBitmap(true);
+                    if(currentColor==Color.WHITE) {
+                        playButton.setImageResource(R.drawable.ic_pause_circle_fill_white_48dp);
+                    }else {
+                        playButton.setImageResource(R.drawable.pause);
+                    }
+                    initNotification(R.drawable.ic_pause_circle_outline_black_48dp);
+                    startButtons();
+                }
+            });
+            onePlayer.setOnBufferedUpdateListener(new OnBuffedUpdateListener() {
+                @Override
+                public void onBuffedUpdate(int percent) {
+                    Log.v("主activity", percent + " " + percent * totalTime / 100);
+                    //seekBar.setSecondaryProgress(percent * totalTime / 100);
+                }
+            });
         }
         //原地址
         onePlayer.init(path);
         //onePlayer.init("http://192.168.1.103/OnePlayer/Fall%20Out%20Boy%20-%20The%20Phoenix.mp3");
-        onePlayer.setOnCompleListener(new OnCompleListener() {
-            @Override
-            public void onComple() {
-                next();
-            }
-        });
-        onePlayer.setOnPrepareListener(new OnPrepareListener() {
-            @Override
-            public void onPrepare(int duration) {
-                if (timer == null) {
-                    initTimer();
-                }
-                isPlaying = true;
-                durationText.setText(ten2sixty(duration / 1000));
-                seekBar.setMax(duration / 1000);
-                playButton.setImageResource(R.drawable.ic_pause_circle_fill_white_48dp);
-                startButtons();
-            }
-        });
-        onePlayer.setOnBufferedUpdateListener(new OnBuffedUpdateListener() {
-            @Override
-            public void onBuffedUpdate(int percent) {
-                Log.v("主activity", percent + " " + percent * totalTime / 100);
-                seekBar.setSecondaryProgress(percent * totalTime / 100);
-            }
-        });
-    }
-    public void initNotification(int resId){
-        System.out.println("初始化通知栏");
-        NotificationManager notificationManager = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
-        Intent intent=new Intent(MainActivity.this,MainActivity.class);
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK| Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);//
-        PendingIntent pendingIntent=PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-        RemoteViews remoteViews = new RemoteViews(getPackageName(), R.layout.notification);
-        if(!isNet){
-            remoteViews.setTextViewText(R.id.noti_singer, tempmusicArrayList.get(currentPosition).getArtist());
-            remoteViews.setTextViewText(R.id.noti_name, tempmusicArrayList.get(currentPosition).getDisplayName());
-        }else{
-            remoteViews.setTextViewText(R.id.noti_singer, netmusicArrayList.get(netcurrentPositon).getArtist());
-            remoteViews.setTextViewText(R.id.noti_name, netmusicArrayList.get(netcurrentPositon).getDisplayName());
-        }
 
-        if(resId!=0){
+    }
+    private Bitmap getCurrentBitmap(){
+        return currentMusic.getAlbumBitmap(this);
+    }
+
+    private void initNotification(int resId) {
+        if (tempmusicArrayList == null||tempmusicArrayList.size() == 0) {
+            return;
+        }
+        Bitmap bitmap = getCurrentBitmap();
+        System.out.println("初始化通知栏");
+        NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        Intent intent = new Intent(MainActivity.this, MainActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);//
+        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+        RemoteViews remoteViews = new RemoteViews(getPackageName(), R.layout.notification);
+//        if (!isNet) {
+        remoteViews.setTextViewText(R.id.noti_singer,currentMusic.getArtist());
+        remoteViews.setTextViewText(R.id.noti_name, currentMusic.getDisplayName());
+        remoteViews.setImageViewBitmap(R.id.noti_album_image,bitmap);
+//        } else {
+//            remoteViews.setTextViewText(R.id.noti_singer, netmusicArrayList.get(netcurrentPositon).getArtist());
+//            remoteViews.setTextViewText(R.id.noti_name, netmusicArrayList.get(netcurrentPositon).getDisplayName());
+//        }
+
+        if (resId != 0) {
             remoteViews.setImageViewResource(R.id.noti_playandpause, resId);
         }
         //播放键点击事件
         Intent intent1 = new Intent("playButton");
         PendingIntent pendingIntent1 = PendingIntent.getBroadcast(this, 0, intent1, 0);
-        remoteViews.setOnClickPendingIntent(R.id.noti_playandpause,pendingIntent1);
+        remoteViews.setOnClickPendingIntent(R.id.noti_playandpause, pendingIntent1);
         //下一首点击事件
         Intent intent2 = new Intent("nextButton");
-        PendingIntent pendingIntent2 = PendingIntent.getBroadcast(this,0,intent2,0);
-        remoteViews.setOnClickPendingIntent(R.id.noti_next,pendingIntent2);
+        PendingIntent pendingIntent2 = PendingIntent.getBroadcast(this, 0, intent2, 0);
+        remoteViews.setOnClickPendingIntent(R.id.noti_next, pendingIntent2);
         //上一首点击事件
         Intent intent3 = new Intent("previousButton");
-        PendingIntent pendingIntent3 = PendingIntent.getBroadcast(this,0,intent3,0);
-        remoteViews.setOnClickPendingIntent(R.id.noti_previous,pendingIntent3);
+        PendingIntent pendingIntent3 = PendingIntent.getBroadcast(this, 0, intent3, 0);
+        remoteViews.setOnClickPendingIntent(R.id.noti_previous, pendingIntent3);
 
         //remoteViews.setProgressBar(R.id.noti_seekBar, Integer.parseInt(musicArrayList.get(currentPosition).getDuration()) / 1000, 0, false);
         Notification notification = new Notification.Builder(this)
@@ -861,21 +1189,25 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
                 .setContent(remoteViews)
                 .setContentIntent(pendingIntent)
                 .setWhen(System.currentTimeMillis())
-                .setSmallIcon(R.mipmap.ic_launcher)
+                .setSmallIcon(R.drawable.start_small)
                 .setOngoing(true)
                 .build();
+        notification.priority = Notification.PRIORITY_HIGH;
+        notification.flags = Notification.FLAG_NO_CLEAR;
         notificationManager.notify(0, notification);
         System.out.println("初始化通知栏完毕");
 
 
     }
-    public void closeNotification(){
+
+    public void closeNotification() {
         System.out.println("调用关闭通知");
-        NotificationManager notificationManager = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
+        NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         notificationManager.cancel(0);
     }
-    public void initService(){
-        Log.v("主Activity","初始化服务");
+
+    public void initService() {
+        Log.v("主Activity", "初始化服务");
 
         Intent i = new Intent(MainActivity.this, MusicService.class);
         i.putExtra("isPlaying", isPlaying);
@@ -886,47 +1218,62 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
     }
 
 
-    public void playMode(){
+    public void playMode() {
         int i = transferNum % 3;
-        switch (i){
+        switch (i) {
             case 0:
                 //playByLooping();
                 playMode = looping;
-                playModeButton.setImageResource(R.drawable.ic_repeat_one_white_48dp);
-                Toast.makeText(this,"单曲循环",Toast.LENGTH_SHORT).show();
+                if(currentColor==Color.WHITE) {
+                    playModeButton.setImageResource(R.drawable.ic_repeat_one_white_48dp);
+                }else {
+                    playModeButton.setImageResource(R.drawable.repeat_one);
+                }
+                Toast.makeText(this, "单曲循环", Toast.LENGTH_SHORT).show();
                 break;
             case 1:
                 //playByRandom();
                 playMode = random;
-                playModeButton.setImageResource(R.drawable.ic_shuffle_white_48dp);
-                Toast.makeText(this,"随机播放",Toast.LENGTH_SHORT).show();
+                if(currentColor==Color.WHITE) {
+                    playModeButton.setImageResource(R.drawable.ic_shuffle_white_48dp);
+                }else {
+                    playModeButton.setImageResource(R.drawable.shuffle);
+                }
+                Toast.makeText(this, "随机播放", Toast.LENGTH_SHORT).show();
                 break;
             case 2:
                 //playByCycle();
                 playMode = cycle;
-                playModeButton.setImageResource(R.drawable.ic_repeat_white_48dp);
-                Toast.makeText(this,"列表循环",Toast.LENGTH_SHORT).show();
+                if(currentColor==Color.WHITE) {
+                    playModeButton.setImageResource(R.drawable.ic_repeat_white_48dp);
+                }else {
+                    playModeButton.setImageResource(R.drawable.repeat);
+                }
+                Toast.makeText(this, "列表循环", Toast.LENGTH_SHORT).show();
                 break;
         }
-        transferNum+=1;
+        transferNum += 1;
     }
-    public void queue(){
-        if(viewPager.getVisibility()==View.GONE) {
-            viewPager.setVisibility(View.VISIBLE);
-            albumcontainer.setVisibility(View.GONE);
-            basetag.setVisibility(View.VISIBLE);
-            isAlbuming = false;
-            queueButton.setImageResource(R.drawable.ic_album_white_48dp);
-        }else {
-            viewPager.setVisibility(View.GONE);
-            albumcontainer.setVisibility(View.VISIBLE);
-            basetag.setVisibility(View.GONE);
-            isAlbuming = true;
-            queueButton.setImageResource(R.drawable.ic_queue_music_white_48dp);
-        }
+
+    public void queue() {
+        quitPlayView();
+//        if (viewPager.getVisibility() == View.GONE) {
+//            viewPager.setVisibility(View.VISIBLE);
+//            //albumcontainer.setVisibility(View.GONE);
+//            basetag.setVisibility(View.VISIBLE);
+//            isAlbuming = false;
+//            queueButton.setImageResource(R.drawable.ic_album_white_48dp);
+//        } else {
+//            viewPager.setVisibility(View.GONE);
+//            //albumcontainer.setVisibility(View.VISIBLE);
+//            basetag.setVisibility(View.GONE);
+//            isAlbuming = true;
+//            queueButton.setImageResource(R.drawable.ic_queue_music_white_48dp);
+//        }
 
     }
-//    public void setUrls(){
+
+    //    public void setUrls(){
 //        int i = musicArrayList.size();
 //        String[] urls = new String[i];
 //        for (int j=0;j<i;j++){
@@ -934,30 +1281,38 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
 //        }
 //        onePlayer.setUrls(urls);
 //    }
-    public void updateSeekbar(){
+    public void updateSeekbar() {
         System.out.println("更新seekbar");
-        if(!isNet){
-            totalTime = Integer.parseInt(tempmusicArrayList.get(currentPosition).getDuration()) / 1000;
-            seekBar.setMax(Integer.parseInt(tempmusicArrayList.get(currentPosition).getDuration()) / 1000);
-        }
+//        if(!isNet){
+        totalTime = Integer.parseInt(currentMusic.getDuration()) / 1000;
+//            seekBar.setMax(Integer.parseInt(tempmusicArrayList.get(currentPosition).getDuration()) / 1000);
+//        }
         progressText.setText(ten2sixty(0));
         durationText.setText(ten2sixty(totalTime));
-        seekBar.setSecondaryProgress(0);
+//        seekBar.setSecondaryProgress(0);
+        oneSeekBar.setDegree(0);
+//        ViewGroup.LayoutParams layoutParams = bottomProgress.getLayoutParams();
+//        layoutParams.width = 0;
+//        bottomProgress.setLayoutParams(layoutParams);
+//        bottomProgress.postInvalidate();
+
     }
-    public String ten2sixty(int ten){
+
+    public String ten2sixty(int ten) {
         String sixty;
-        String minute = ten/60+"";
-        String second = ten%60+"";
-        if(ten/60>=0&&ten/60<10){
-            minute = "0"+minute;
+        String minute = ten / 60 + "";
+        String second = ten % 60 + "";
+        if (ten / 60 >= 0 && ten / 60 < 10) {
+            minute = "0" + minute;
         }
-        if(ten%60>=0&&ten%60<10){
-            second = "0"+second;
+        if (ten % 60 >= 0 && ten % 60 < 10) {
+            second = "0" + second;
         }
-        sixty = minute+":"+second;
+        sixty = minute + ":" + second;
         return sixty;
     }
-//    public boolean onKeyDown(int keyCode, KeyEvent event) {
+
+    //    public boolean onKeyDown(int keyCode, KeyEvent event) {
 //
 //        if (keyCode == KeyEvent.KEYCODE_BACK
 //                && event.getRepeatCount() == 0) {
@@ -966,54 +1321,144 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
 //        }
 //        return super.onKeyDown(keyCode, event);
 //    }
-    public void updateToolbar(){
-        //getActionBar().setSubtitle(musicArrayList.get(currentPosition).getArtist());
-        getSupportActionBar().setTitle("");
-        if (!isNet) {
-            ((TextView) findViewById(R.id.toolbar_title)).setText(tempmusicArrayList.get(currentPosition).getDisplayName());
-            Log.v("MainActivity", "updateToolbar当前temp" + tempmusicArrayList.size()+tempmusicArrayList.get(currentPosition).getDisplayName());
-            Log.v("MainActivity", "updateToolbar当前position" + currentPosition+tempmusicArrayList.get(currentPosition).getArtist());
-            ((TextView) findViewById(R.id.toolbar_subtitle)).setText(tempmusicArrayList.get(currentPosition).getArtist());
-        } else {
-            ((TextView) findViewById(R.id.toolbar_title)).setText(netmusicArrayList.get(netcurrentPositon).getDisplayName());
-            ((TextView) findViewById(R.id.toolbar_subtitle)).setText(netmusicArrayList.get(netcurrentPositon).getArtist());
+//    public void updateToolbar() {
+//        //getActionBar().setSubtitle(musicArrayList.get(currentPosition).getArtist());
+////        getSupportActionBar().setTitle("");
+////        if (!isNet) {
+////            ((TextView) findViewById(R.id.toolbar_title)).setText(tempmusicArrayList.get(currentPosition).getDisplayName());
+////            Log.v("MainActivity", "updateToolbar当前temp" + tempmusicArrayList.size() + tempmusicArrayList.get(currentPosition).getDisplayName());
+////            Log.v("MainActivity", "updateToolbar当前position" + currentPosition + tempmusicArrayList.get(currentPosition).getArtist());
+////            ((TextView) findViewById(R.id.toolbar_subtitle)).setText(tempmusicArrayList.get(currentPosition).getArtist());
+////        } else {
+////            ((TextView) findViewById(R.id.toolbar_title)).setText(netmusicArrayList.get(netcurrentPositon).getDisplayName());
+////            ((TextView) findViewById(R.id.toolbar_subtitle)).setText(netmusicArrayList.get(netcurrentPositon).getArtist());
+////        }
+//
+//    }
+    private void updateMusicInfo(){
+        Bitmap albumBitmap = currentMusic.getAlbumBitmap(this);
+        Palette.generateAsync(albumBitmap, new Palette.PaletteAsyncListener() {
+            @Override
+            public void onGenerated(Palette palette) {
+                int musicColor = palette.getDarkVibrantColor(Color.WHITE);
+                bottomControllBar.setBackgroundColor(musicColor);
+                playViewControllBar.setBackgroundColor(musicColor);
+                topToolBar.setBackgroundColor(musicColor);
+                oneWaveFromView.setPaintColor(musicColor);
+                if(!ColorUtil.getContrast(musicColor,currentColor)){
+                    if (currentColor==Color.WHITE){
+                        currentColor = Color.BLACK;
+                    }else {
+                        currentColor = Color.WHITE;
+                    }
+                }
+                initColor();
+            }
+        });
+        bottomAblumImageView.setImageBitmap(albumBitmap);
+        bottomSingerNameText.setText(currentMusic.getArtist());
+        bottomSongNameText.setText(currentMusic.getDisplayName());
+        playViewAblumImageView.setImageBitmap(albumBitmap);
+        topToolBarSingerNameText.setText(currentMusic.getArtist());
+        topToolBarSongNameText.setText(currentMusic.getDisplayName());
+        initNotification(0);
+    }
+    private void initColor(){
+        progressText.setTextColor(currentColor);
+        durationText.setTextColor(currentColor);
+        bottomSingerNameText.setTextColor(currentColor);
+        bottomSongNameText.setTextColor(currentColor);
+        topToolBarSingerNameText.setTextColor(currentColor);
+        topToolBarSongNameText.setTextColor(currentColor);
+        oneSeekBar.setColorInt(currentColor);
+        oneSeekBar.setButtonBitmap(isPlaying);
+        mainContentBar.setBackgroundColor(currentColor);
+        if(currentColor==Color.WHITE){
+            //bottomProgress.setBackgroundColor(currentColor);
+            if(isPlaying){
+                playButton.setImageResource(R.drawable.ic_pause_circle_fill_white_48dp);
+            }else {
+                playButton.setImageResource(R.drawable.ic_play_circle_fill_white_48dp);
+            }
+            previousButton.setImageResource(R.drawable.ic_skip_previous_white_48dp);
+            nextButton.setImageResource(R.drawable.ic_skip_next_white_48dp);
+            queueButton.setImageResource(R.drawable.ic_queue_music_white_48dp);
+            int i = transferNum % 3;
+            switch (i) {
+                case 0:
+                    playModeButton.setImageResource(R.drawable.ic_repeat_white_48dp);
+                    break;
+                case 1:
+                    playModeButton.setImageResource(R.drawable.ic_repeat_one_white_48dp);
+                    break;
+                case 2:
+                    playModeButton.setImageResource(R.drawable.ic_shuffle_white_48dp);
+                    break;
+            }
+        }else if (currentColor==Color.BLACK){
+            //bottomProgress.setBackgroundColor(Color.GRAY);
+            if(isPlaying){
+                playButton.setImageResource(R.drawable.pause);
+            }else {
+                playButton.setImageResource(R.drawable.play);
+            }
+            previousButton.setImageResource(R.drawable.previous);
+            nextButton.setImageResource(R.drawable.next);
+            queueButton.setImageResource(R.drawable.queue);
+            int i = transferNum % 3;
+            switch (i) {
+                case 0:
+                    playModeButton.setImageResource(R.drawable.repeat);
+                    break;
+                case 1:
+                    playModeButton.setImageResource(R.drawable.repeat_one);
+                    break;
+                case 2:
+                    playModeButton.setImageResource(R.drawable.shuffle);
+                    break;
+            }
         }
+    }
 
-    }
-    public void saveLastPlayed(){
-        databaseOperator = new DatabaseOperator(this,"OnePlayer.db");
-        if(sharedPreferences==null){
+
+    public void saveLastPlayed() {
+        databaseOperator = new DatabaseOperator(this, "OnePlayer.db");
+        if (sharedPreferences == null) {
             sharedPreferences = getSharedPreferences("Last", Activity.MODE_PRIVATE);
         }
-        Log.v("MainActivity","储存位置"+currentPosition);
-        Log.v("MainActivity","储存url"+currentMusic);
-        databaseOperator.saveLastplayed(currentPosition, currentMusic, sharedPreferences);
+        Log.v("MainActivity", "储存位置" + currentPosition);
+        Log.v("MainActivity", "储存url" + currentMusic);
+        databaseOperator.saveLastplayed(currentPosition, currentMusic,"Last");
         databaseOperator = null;
     }
-    public void saveOrderMode(int OrderMode){
-        Log.v("MainActivity","saveOrderMode()我钦点存储"+OrderMode);
-        databaseOperator = new DatabaseOperator(this,"OnePlayer.db");
-        if(sharedPreferences==null){
-            sharedPreferences = getSharedPreferences("Last", Activity.MODE_PRIVATE);
-        }
-        databaseOperator.saveOrderMode(sharedPreferences, OrderMode);
-        databaseOperator = null;
-    }
-    public void saveFirstPosition(int Position){
-        databaseOperator = new DatabaseOperator(this,"OnePlayer.db");
-        if(sharedPreferences==null){
+
+//    public void saveOrderMode(int OrderMode) {
+//        Log.v("MainActivity", "saveOrderMode()我钦点存储" + OrderMode);
+//        databaseOperator = new DatabaseOperator(this, "OnePlayer.db");
+//        if (sharedPreferences == null) {
+//            sharedPreferences = getSharedPreferences("Last", Activity.MODE_PRIVATE);
+//        }
+//        databaseOperator.saveOrderMode(OrderMode,"Last");
+//        databaseOperator = null;
+//    }
+
+    public void saveFirstPosition(int Position) {
+        databaseOperator = new DatabaseOperator(this, "OnePlayer.db");
+        if (sharedPreferences == null) {
             sharedPreferences = getSharedPreferences("Last", Activity.MODE_PRIVATE);
         }
         databaseOperator.saveFirstPosition(sharedPreferences, Position);
         databaseOperator = null;
     }
-    public void initReceiver(){
+
+    public void initReceiver() {
         //注册播放广播
         playReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                    play();
-            }};
+                play();
+            }
+        };
         IntentFilter filter = new IntentFilter();
         filter.addAction("playButton");
         registerReceiver(playReceiver, filter);
@@ -1022,10 +1467,11 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
         previousReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                if(isNotiClikable){
+                if (isNotiClikable) {
                     previous();
                 }
-            }};
+            }
+        };
         IntentFilter filter1 = new IntentFilter();
         filter1.addAction("previousButton");
         registerReceiver(previousReceiver, filter1);
@@ -1034,10 +1480,11 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
         nextReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                if(isNotiClikable) {
+                if (isNotiClikable) {
                     next();
                 }
-            }};
+            }
+        };
         IntentFilter filter2 = new IntentFilter();
         filter2.addAction("nextButton");
         registerReceiver(nextReceiver, filter2);
@@ -1060,34 +1507,43 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
 //        Log.v("安装广播已注册", "");
 
 
-
     }
-    protected void initHandler(){
+
+    protected void initHandler() {
         handler = new Handler(new Handler.Callback() {
             @Override
             public boolean handleMessage(Message msg) {
                 //处理开始走时信息
-                if(msg.what==1) {
+                if (msg.what == 1) {
+                    //Log.v("MainActivity","handler查看进度"+time+","+totalTime);
                     progressText.setText(ten2sixty(time));
-                    seekBar.setProgress(time);
+                    float progress = time * 1.0f / totalTime;
+//                    ViewGroup.LayoutParams layoutParams = bottomProgress.getLayoutParams();
+//                    layoutParams.width = (int)progress*3*cursorWidth;
+//                    bottomProgress.setLayoutParams(layoutParams);
+//                    bottomProgress.postInvalidate();
+                    //seekBar.setProgress(time);
+                    oneSeekBar.setProgress(time * 1.0f / totalTime);
+
                 }
                 return false;
             }
-        }){
+        }) {
 
         };
     }
-    public void initTimer(){
+
+    public void initTimer() {
         time = 0;
         timer = new Timer();
         timerTask = new TimerTask() {
             @Override
             public void run() {
-                if(isPlaying) {
+                if (isPlaying) {
                     Message message = new Message();
                     message.what = 1;
                     handler.sendMessage(message);
-                    if(time!=totalTime) {
+                    if (time != totalTime) {
                         time += 1;
                     }
                 }
@@ -1095,7 +1551,8 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
         };
         timer.schedule(timerTask, 0, 1000);
     }
-    public  String getAppVersionName(Context context) {
+
+    public String getAppVersionName(Context context) {
         String versionName = "";
         try {
             PackageManager packageManager = context.getPackageManager();
@@ -1109,19 +1566,20 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
         }
         return versionName;
     }
-    public void checkUpdate(){
+
+    public void checkUpdate() {
         Handler handler = new Handler(new Handler.Callback() {
             @Override
             public boolean handleMessage(Message msg) {
                 try {
-                    if(msg.what==0x001){
-                        if(!isFirstTime) {
+                    if (msg.what == 0x001) {
+                        if (!isFirstTime) {
                             Toast.makeText(MainActivity.this, "服务器连接失败", Toast.LENGTH_SHORT).show();
                         }
                         isFirstTime = false;
-                    }else{
-                        String json = (String)msg.getData().get("json");
-                        if(json!=null) {
+                    } else {
+                        String json = (String) msg.getData().get("json");
+                        if (json != null) {
                             JSONObject response = new JSONObject(json);
                             Log.v("回应", response + "");
                             Boolean isUpdate = response.getBoolean("isUpdate");
@@ -1131,15 +1589,15 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
                                 Log.v("有更新", "蛤蛤");
                                 String url = response.getString("url");
                                 update(url);
-                            }else {
-                                Log.v("老子不更新啦","哈哈哈");
-                                Toast.makeText(MainActivity.this,"没有更新呢！",Toast.LENGTH_SHORT).show();
+                            } else {
+                                Log.v("老子不更新啦", "哈哈哈");
+                                Toast.makeText(MainActivity.this, "没有更新呢！", Toast.LENGTH_SHORT).show();
                             }
                         }
                         isFirstTime = false;
                     }
 
-                }catch (Exception e){
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
                 return false;
@@ -1149,18 +1607,19 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
         JSONObject jsonObject = new JSONObject();
         try {
             jsonObject.put("request", "checkUpdate");
-            jsonObject.put("model", android.os.Build.MODEL);
-            jsonObject.put("sdk", Build.VERSION. SDK_INT);
-            jsonObject.put("system", android.os.Build.VERSION.RELEASE);
+            jsonObject.put("model", Build.MODEL);
+            jsonObject.put("sdk", Build.VERSION.SDK_INT);
+            jsonObject.put("system", Build.VERSION.RELEASE);
             jsonObject.put("app", Data.appName);
-            jsonObject.put("appVersion",getAppVersionName(MainActivity.this));
-            jsonUtil.sendJson(jsonObject,Data.url);
+            jsonObject.put("appVersion", getAppVersionName(MainActivity.this));
+            jsonUtil.sendJson(jsonObject, Data.url);
 
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
-    public void update(final String url){
+
+    public void update(final String url) {
         //ProgressBar progressBar;
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setCancelable(false)
@@ -1212,6 +1671,11 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
                 })
                 .create().show();
     }
+
+    public ArrayList<Music> getTempmusicArrayList() {
+        return this.tempmusicArrayList;
+    }
+
     private void openApk(Context context, String url) {
         Log.v("打开", "apk");
         PackageManager manager = context.getPackageManager();
@@ -1225,60 +1689,114 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
     }
 
     public void stopButtons() {
-        playButton.setClickable(false);
+        oneSeekBar.setClickable(false);
         nextButton.setClickable(false);
         previousButton.setClickable(false);
         isNotiClikable = false;
-
     }
 
     public void startButtons() {
-        playButton.setClickable(true);
+        oneSeekBar.setClickable(true);
         nextButton.setClickable(true);
         previousButton.setClickable(true);
         isNotiClikable = true;
+    }
+    private void selectPage(int page){
+        switch (page){
+            case 0:
+                viewPager.setCurrentItem(singer);
+                singerTagText.setTextColor(Color.parseColor("#FFFFFF"));
+                albumTagText.setTextColor(Color.parseColor("#000000"));
+                songTagText.setTextColor(Color.parseColor("#000000"));
+                moveCursor(currentFragmentPosition*cursorWidth,singer*cursorWidth);
+                currentFragmentPosition = singer;
+                break;
+            case 1:
+                viewPager.setCurrentItem(album);
+                singerTagText.setTextColor(Color.parseColor("#000000"));
+                albumTagText.setTextColor(Color.parseColor("#FFFFFF"));
+                songTagText.setTextColor(Color.parseColor("#000000"));
+                moveCursor(currentFragmentPosition*cursorWidth,album*cursorWidth);
+                currentFragmentPosition = album;
+                break;
+            case 2:
+                viewPager.setCurrentItem(song);
+                singerTagText.setTextColor(Color.parseColor("#000000"));
+                albumTagText.setTextColor(Color.parseColor("#000000"));
+                songTagText.setTextColor(Color.parseColor("#FFFFFF"));
+                moveCursor(currentFragmentPosition*cursorWidth,song*cursorWidth);
+                currentFragmentPosition = song;
+                break;
+            default:break;
+        }
+        //saveOrderMode(page);
     }
 
 
     @Override
     public void onClick(View v) {
-        switch (v.getId()){
-            case R.id.previous : previous(); break;
-            case R.id.next : next(); break;
-            case R.id.playandpause : play(); break;
-            case R.id.update : checkUpdate(); break;
-            case R.id.queue : queue();break;
-            case R.id.playmode : playMode();break;
-            case R.id.local :
-                viewPager.setCurrentItem(0);
-                isNet = false;
-                local.setTextColor(Color.parseColor("#FFFFFF"));
-                internet.setTextColor(Color.parseColor("#000000"));
+        Log.v("MainActivity","onClick()查看id"+v.getId());
+        switch (v.getId()) {
+            case R.id.play_view_previous:
+                previous();
+                break;
+            case R.id.play_view_next:
+                next();
+                break;
+//            case R.id.playandpause:
+//                play();
+//                break;
+            case R.id.update:
+                checkUpdate();
+                break;
+            case R.id.play_view_queue:
+                queue();
+                break;
+            case R.id.play_view_playmode:
+                playMode();
+                break;
+            case R.id.singer_tag:
+                selectPage(0);
+                break;
+            case R.id.album_tag:
+                selectPage(1);
+                break;
+            case R.id.song_tag:
+                selectPage(2);
+                break;
+//            case R.id.main_content_bar:
+//                Log.v("MainActivity","点击MainContenBar");
+//                toPlayView();
+//                break;
+            case R.id.bottom_play_button:
+                play();
+                break;
+            case R.id.bottom_controll_bar:
+                Log.v("MainActivity","点击BottomControllBar");
+                toPlayView();
+                break;
 
-                break;
-            case R.id.internet :
-                viewPager.setCurrentItem(1);
-                local.setTextColor(Color.parseColor("#000000"));
-                internet.setTextColor(Color.parseColor("#FFFFFF"));
-                break;
         }
     }
-    public void moveCursor(int start,int end){
+
+    private void moveCursor(int start, int end) {
+        Log.v("MainActivity","游标移动从"+start+"到"+end);
         TranslateAnimation animation = new TranslateAnimation(start, end, 0, 0);
         animation.setFillAfter(true);// True:停留在停止位置
         animation.setDuration(300);
         cursor.startAnimation(animation);
     }
-    public ArrayList<Music> getInternetMusiclist(){
+
+    public ArrayList<Music> getInternetMusiclist() {
         Handler handler = new Handler(new Handler.Callback() {
             @Override
             public boolean handleMessage(Message msg) {
                 try {
-                    if(msg.what==0x001){
-                        Toast.makeText(MainActivity.this,"服务器连接失败",Toast.LENGTH_SHORT).show();
-                    }else{
-                        String json = (String)msg.getData().get("json");
-                        if(json!=null) {
+                    if (msg.what == 0x001) {
+                        Toast.makeText(MainActivity.this, "服务器连接失败", Toast.LENGTH_SHORT).show();
+                    } else {
+                        String json = (String) msg.getData().get("json");
+                        if (json != null) {
                             JSONObject response = new JSONObject(json);
                             response.getString("musicList");
 //                            if (isUpdate) {
@@ -1294,7 +1812,7 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
 
                     }
 
-                }catch (Exception e){
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
                 return false;
@@ -1304,377 +1822,571 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
         JSONObject jsonObject = new JSONObject();
         try {
             jsonObject.put("request", "getInternetMusiclist");
-            jsonUtil.sendJson(jsonObject,Data.url);
+            jsonUtil.sendJson(jsonObject, Data.url);
 
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return null;
     }
-    public String Mandarin2Pinyin(String src){
-        char[] t1 ;
-        t1=src.toCharArray();
-        String[] t2;
-        HanyuPinyinOutputFormat outputFormat = new HanyuPinyinOutputFormat();
-        outputFormat.setCaseType(HanyuPinyinCaseType.LOWERCASE);
-        outputFormat.setToneType(HanyuPinyinToneType.WITHOUT_TONE);
-        outputFormat.setVCharType(HanyuPinyinVCharType.WITH_V);
-        String t4="";
-        int t0=t1.length;
-        try {
-            for (int i=0;i<t0;i++)
-            {
-                //判断是否为汉字字符
-                if(java.lang.Character.toString(t1[i]).matches("[\\u4E00-\\u9FA5]+"))
-                {
-                    t2 = PinyinHelper.toHanyuPinyinStringArray(t1[i], outputFormat);
-                    t4+=t2[0];
+    public void toSingerDetail(Music music){
+        Log.v("MainActivity","toSingerDetail");
+        isSingerDetail = true;
+        getSupportFragmentManager().beginTransaction().remove(oneSingerlistFragment).commit();
+        //if(oneSingerDetailFragment==null){
+        oneSingerDetailFragment = new OneSingerDetailFragment();
+        //}
+        target = music;
+        //fragmentPagerAdapter.notifyDataSetChanged();
+        fragmentStatePagerAdapter.notifyDataSetChanged();
+    }
+    public void toAblumDetail(Music music){
+        isAblumDetail = true;
+        getSupportFragmentManager().beginTransaction().remove(oneAblumListFragment).commit();
+        //if(oneAblumDetailFragment==null){
+        //oneAblumDetailFragment = new OneAblumDetailFragment();
+        //}
+        target = music;
+        //fragmentPagerAdapter.notifyDataSetChanged();
+        fragmentStatePagerAdapter.notifyDataSetChanged();
+    }
+    public Music getDetailTarget(){
+        return target;
+    }
+
+    private void quitAblumDetail(){
+        isAblumDetail = false;
+        getSupportFragmentManager().beginTransaction().remove(oneAblumDetailFragment).commit();
+        //if(oneAblumListFragment==null) {
+        oneAblumListFragment = new OneAblumListFragment();
+        //}
+        //oneFragments.set(1,oneAblumListFragment);
+        //fragmentPagerAdapter.notifyDataSetChanged();
+        fragmentStatePagerAdapter.notifyDataSetChanged();
+    }
+    private void quitSingerDetail(){
+        Log.v("MainActivity","quitSingerDetail");
+        isSingerDetail = false;
+        getSupportFragmentManager().beginTransaction().remove(oneSingerDetailFragment).commit();
+        //if(oneSingerlistFragment==null) {
+        oneSingerlistFragment = new OneSingerListFragment();
+        //}
+        //oneFragments.set(0,oneSingerlistFragment);
+        //fragmentPagerAdapter.notifyDataSetChanged();
+        fragmentStatePagerAdapter.notifyDataSetChanged();
+    }
+
+
+
+//    public String Mandarin2Pinyin(String src) {
+//        char[] t1;
+//        t1 = src.toCharArray();
+//        String[] t2;
+//        HanyuPinyinOutputFormat outputFormat = new HanyuPinyinOutputFormat();
+//        outputFormat.setCaseType(HanyuPinyinCaseType.LOWERCASE);
+//        outputFormat.setToneType(HanyuPinyinToneType.WITHOUT_TONE);
+//        outputFormat.setVCharType(HanyuPinyinVCharType.WITH_V);
+//        String t4 = "";
+//        int t0 = t1.length;
+//        try {
+//            for (int i = 0; i < t0; i++) {
+//                //判断是否为汉字字符
+//                if (Character.toString(t1[i]).matches("[\\u4E00-\\u9FA5]+")) {
+//                    t2 = PinyinHelper.toHanyuPinyinStringArray(t1[i], outputFormat);
+//                    t4 += t2[0];
+//                } else
+//                    t4 += Character.toString(t1[i]);
+//            }
+//            return t4;
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+//        return t4;
+//    }
+
+//    public void OrderChanged(int i) {
+//        Log.v("MainActivity", "OrderChanged模式代码:" + i);
+//        if (Build.VERSION.SDK_INT > 19) {
+//            recyclerView = localmusicListFragment.getRecyclerView();
+//            switch (i) {
+//                case -1:
+//                    Order = -1;
+//                    localplaylistAdapter.setDatasource(tempmusicArrayList);
+//                    if (recyclerView != null) {
+//                        recyclerView.setAdapter(localplaylistAdapter);
+//                    }
+//                    localplaylistAdapter.setOnItemClickListener(new OnItemClickListener() {
+//                        @Override
+//                        public void onItemClick(View view, int position) {
+//                            if (tempmusicArrayList.get(position).getUrl().equals(currentMusic) && !isNew) {
+//                                albumcontainer.setVisibility(View.VISIBLE);
+//                                viewPager.setVisibility(View.GONE);
+//                                return;
+//                            }
+//                            isNew = false;
+//                            albumcontainer.setVisibility(View.VISIBLE);
+//                            viewPager.setVisibility(View.GONE);
+//                            if (isPlaying) {
+//                                musicService.pause();
+//                                isPlaying = false;
+//                            }
+//                            playButton.setImageResource(R.drawable.ic_pause_circle_fill_white_48dp);
+//                            tempmusicArrayList = localmusicArrayList;
+//                            saveOrderMode(-1);
+//                            musicNumber = tempmusicArrayList.size();
+//                            currentPosition = position;
+//                            currentMusic = tempmusicArrayList.get(position).getUrl();
+//                            Log.v("MainActivity", "OrderChanged当前音乐" + currentMusic);
+//                            notifiPositionChanged();
+//                            playingFragment.playAnimation();
+//                            updateMusic();
+//                            basetag.setVisibility(View.GONE);
+//                            isAlbuming = true;
+//                            queueButton.setImageResource(R.drawable.ic_queue_music_white_48dp);
+//                            isPlaying = true;
+//                        }
+//                    });
+//                    break;
+//                case -2:
+//
+//                    Order = -2;
+//                    localplaylistAdapter.setDataSource(singers);
+//                    localplaylistAdapter.setOnItemClickListener(new OnItemClickListener() {
+//                        @Override
+//                        public void onItemClick(View view, int position) {
+//                            isSingerTwo = true;
+//                            Log.v("MainActivity", "一级菜单点击" + position);
+//                            saveFirstPosition(position);
+//
+//                            tempmusicArrayList = singerArrayLists.get(position);
+//                            musicNumber = tempmusicArrayList.size();
+//                            localplaylistAdapter.setDatasource(tempmusicArrayList);
+//                            localplaylistAdapter.setOnItemClickListener(new OnItemClickListener() {
+//                                @Override
+//                                public void onItemClick(View view, int position) {
+//                                    if (tempmusicArrayList.get(position).getUrl().equals(currentMusic) && !isNew) {
+//                                        albumcontainer.setVisibility(View.VISIBLE);
+//                                        viewPager.setVisibility(View.GONE);
+//                                        return;
+//                                    }
+//                                    saveOrderMode(-2);
+//                                    Log.v("MainActivity", "二级菜单点击" + position);
+//                                    isNew = false;
+//                                    albumcontainer.setVisibility(View.VISIBLE);
+//                                    viewPager.setVisibility(View.GONE);
+//                                    if (isPlaying) {
+//                                        musicService.pause();
+//                                        isPlaying = false;
+//                                    }
+//                                    playButton.setImageResource(R.drawable.ic_pause_circle_fill_white_48dp);
+//                                    currentPosition = position;
+//                                    currentMusic = tempmusicArrayList.get(position).getUrl();
+//
+//                                    localplaylistAdapter.url = currentMusic;
+//                                    localplaylistAdapter.singer = tempmusicArrayList.get(currentPosition).getArtist();
+//                                    localplaylistAdapter.album = tempmusicArrayList.get(currentPosition).getAlbum();
+//                                    localplaylistAdapter.notifyDataSetChanged();
+//                                    playingFragment.playAnimation();
+//                                    updateMusic();
+//                                    basetag.setVisibility(View.GONE);
+//                                    isAlbuming = true;
+//                                    queueButton.setImageResource(R.drawable.ic_queue_music_white_48dp);
+//                                    isPlaying = true;
+//                                }
+//                            });
+//                            Log.v("MainActivity", "二级菜单初始化完毕");
+//                            if (recyclerView != null) {
+//                                Log.v("MainActivity", "一级适配器设立");
+//                                recyclerView.setAdapter(localplaylistAdapter);
+//                            }
+//                        }
+//                    });
+//                    if (recyclerView != null) {
+//                        Log.v("MainActivity", "二级适配器设立");
+//                        recyclerView.setAdapter(localplaylistAdapter);
+//                    }
+//                    break;
+//                case -3:
+//
+//                    Order = -3;
+//                    localplaylistAdapter.setDataSource(albums);
+//                    localplaylistAdapter.setOnItemClickListener(new OnItemClickListener() {
+//                        @Override
+//                        public void onItemClick(View view, int position) {
+//                            isAlbumTwo = true;
+//                            tempmusicArrayList = albumArrayLists.get(position);
+//                            musicNumber = tempmusicArrayList.size();
+//                            localplaylistAdapter.setDatasource(tempmusicArrayList);
+//                            saveFirstPosition(position);
+//                            localplaylistAdapter.setOnItemClickListener(new OnItemClickListener() {
+//                                @Override
+//                                public void onItemClick(View view, int position) {
+//                                    if (tempmusicArrayList.get(position).getUrl().equals(currentMusic) && !isNew) {
+//                                        albumcontainer.setVisibility(View.VISIBLE);
+//                                        viewPager.setVisibility(View.GONE);
+//                                        return;
+//                                    }
+//                                    saveOrderMode(-3);
+//                                    isNew = false;
+//                                    albumcontainer.setVisibility(View.VISIBLE);
+//                                    viewPager.setVisibility(View.GONE);
+//                                    if (isPlaying) {
+//                                        musicService.pause();
+//                                        isPlaying = false;
+//                                    }
+//                                    playButton.setImageResource(R.drawable.ic_pause_circle_fill_white_48dp);
+//                                    currentPosition = position;
+//                                    currentMusic = tempmusicArrayList.get(position).getUrl();
+//                                    localplaylistAdapter.url = currentMusic;
+//                                    localplaylistAdapter.singer = tempmusicArrayList.get(currentPosition).getArtist();
+//                                    localplaylistAdapter.album = tempmusicArrayList.get(currentPosition).getAlbum();
+//                                    localplaylistAdapter.notifyDataSetChanged();
+//                                    playingFragment.playAnimation();
+//                                    updateMusic();
+//                                    basetag.setVisibility(View.GONE);
+//                                    isAlbuming = true;
+//                                    queueButton.setImageResource(R.drawable.ic_queue_music_white_48dp);
+//                                    isPlaying = true;
+//                                }
+//                            });
+//                            if (recyclerView != null) {
+//                                recyclerView.setAdapter(localplaylistAdapter);
+//                            }
+//                        }
+//                    });
+//                    if (recyclerView != null) {
+//                        recyclerView.setAdapter(localplaylistAdapter);
+//                    }
+//                    break;
+//            }
+//        } else {
+//            listView = localmusicListFragmentLow.getListView();
+//            switch (i) {
+//                case -1:
+//
+//                    Order = -1;
+//
+//                    localPlaylistAdapterlow.setDatasource(tempmusicArrayList);
+//                    if (listView != null) {
+//                        listView.setAdapter(localPlaylistAdapterlow);
+//                    }
+//                    localmusicListFragmentLow.setOnItemClickListener(new OnItemClickListener() {
+//                        @Override
+//                        public void onItemClick(View view, int position) {
+//                            if (tempmusicArrayList.get(position).getUrl() == currentMusic && !isNew) {
+//                                playingFragment.playAnimation();
+//                                albumcontainer.setVisibility(View.VISIBLE);
+//                                viewPager.setVisibility(View.GONE);
+//                                basetag.setVisibility(View.GONE);
+//                                ;
+//                                isPlaying = true;
+//                                return;
+//                            }
+//                            saveOrderMode(-1);
+//                            isNew = false;
+//                            albumcontainer.setVisibility(View.VISIBLE);
+//                            viewPager.setVisibility(View.GONE);
+//                            if (isPlaying) {
+//                                musicService.pause();
+//                                isPlaying = false;
+//                            }
+//                            playButton.setImageResource(R.drawable.ic_pause_circle_fill_white_48dp);
+//                            tempmusicArrayList = localmusicArrayList;
+//                            musicNumber = tempmusicArrayList.size();
+//                            currentPosition = position;
+//                            currentMusic = tempmusicArrayList.get(position).getUrl();
+//                            notifiPositionChanged();
+//                            playingFragment.playAnimation();
+//                            updateMusic();
+//                            basetag.setVisibility(View.GONE);
+//                            isAlbuming = true;
+//                            queueButton.setImageResource(R.drawable.ic_queue_music_white_48dp);
+//                            isPlaying = true;
+//                        }
+//                    });
+//                    break;
+//                case -2:
+//
+//                    Order = -2;
+//                    Log.v("MainActivity", "按歌手排序");
+//                    localPlaylistAdapterlow.setDataSource(singers);
+//                    localmusicListFragmentLow.setOnItemClickListener(new OnItemClickListener() {
+//                        @Override
+//                        public void onItemClick(View view, int position) {
+//                            isSingerTwo = true;
+//                            Log.v("MainActivity", "一级菜单点击" + position);
+//                            tempmusicArrayList = singerArrayLists.get(position);
+//                            musicNumber = tempmusicArrayList.size();
+//                            localPlaylistAdapterlow.setDatasource(tempmusicArrayList);
+//                            saveFirstPosition(position);
+//                            localmusicListFragmentLow.setOnItemClickListener(new OnItemClickListener() {
+//                                @Override
+//                                public void onItemClick(View view, int position) {
+//                                    if (tempmusicArrayList.get(position).getUrl().equals(currentMusic) && !isNew) {
+//                                        albumcontainer.setVisibility(View.VISIBLE);
+//                                        viewPager.setVisibility(View.GONE);
+//                                        return;
+//                                    }
+//                                    saveOrderMode(-2);
+//                                    Log.v("MainActivity", "二级菜单点击" + position);
+//                                    isNew = false;
+//                                    albumcontainer.setVisibility(View.VISIBLE);
+//                                    viewPager.setVisibility(View.GONE);
+//                                    if (isPlaying) {
+//                                        musicService.pause();
+//                                        isPlaying = false;
+//                                    }
+//                                    playButton.setImageResource(R.drawable.ic_pause_circle_fill_white_48dp);
+//                                    currentPosition = position;
+//                                    currentMusic = tempmusicArrayList.get(position).getUrl();
+//                                    notifiPositionChanged();
+//                                    playingFragment.playAnimation();
+//                                    updateMusic();
+//                                    basetag.setVisibility(View.GONE);
+//                                    isAlbuming = true;
+//                                    queueButton.setImageResource(R.drawable.ic_queue_music_white_48dp);
+//                                    isPlaying = true;
+//                                }
+//                            });
+//                            if (listView != null) {
+//                                listView.setAdapter(localPlaylistAdapterlow);
+//                            }
+//                        }
+//                    });
+//                    if (listView != null) {
+//                        listView.setAdapter(localPlaylistAdapterlow);
+//                    }
+//                    break;
+//                case -3:
+//
+//                    Order = -3;
+//                    localPlaylistAdapterlow.setDataSource(albums);
+//                    localmusicListFragmentLow.setOnItemClickListener(new OnItemClickListener() {
+//                        @Override
+//                        public void onItemClick(View view, int position) {
+//                            isAlbumTwo = true;
+//                            tempmusicArrayList = albumArrayLists.get(position);
+//                            musicNumber = tempmusicArrayList.size();
+//                            localPlaylistAdapterlow.setDatasource(tempmusicArrayList);
+//                            saveFirstPosition(position);
+//                            localmusicListFragmentLow.setOnItemClickListener(new OnItemClickListener() {
+//                                @Override
+//                                public void onItemClick(View view, int position) {
+//                                    if (tempmusicArrayList.get(position).getUrl().equals(currentMusic) && !isNew) {
+//                                        albumcontainer.setVisibility(View.VISIBLE);
+//                                        viewPager.setVisibility(View.GONE);
+//                                        return;
+//                                    }
+//                                    saveOrderMode(-3);
+//                                    isNew = false;
+//                                    albumcontainer.setVisibility(View.VISIBLE);
+//                                    viewPager.setVisibility(View.GONE);
+//                                    if (isPlaying) {
+//                                        musicService.pause();
+//                                        isPlaying = false;
+//                                    }
+//                                    playButton.setImageResource(R.drawable.ic_pause_circle_fill_white_48dp);
+//                                    currentPosition = position;
+//                                    currentMusic = tempmusicArrayList.get(position).getUrl();
+//                                    notifiPositionChanged();
+//                                    playingFragment.playAnimation();
+//                                    updateMusic();
+//                                    basetag.setVisibility(View.GONE);
+//                                    isAlbuming = true;
+//                                    queueButton.setImageResource(R.drawable.ic_queue_music_white_48dp);
+//                                    isPlaying = true;
+//                                }
+//                            });
+//                            if (listView != null) {
+//                                listView.setAdapter(localPlaylistAdapterlow);
+//                            }
+//                        }
+//                    });
+//                    if (listView != null) {
+//                        listView.setAdapter(localPlaylistAdapterlow);
+//                    }
+//                    break;
+//            }
+//        }
+//
+//    }
+//    private void setOrderMode(){
+//        switch (Order) {
+//            case -3:
+//                tempmusicArrayList = songArraylist;
+//                break;
+//            case -1:
+//                tempmusicArrayList = singerArraylist.ge;
+//                break;
+//            case -2:
+//                tempmusicArrayList = getLastPlayedAlbum(albumArraylist,lastPlayedMusic.getAlbum());
+//                break;
+//        }
+//    }
+
+    public void itemSelected(Music music) {
+        if (music.isPlayable()) {
+//            switch (currentFragmentPosition){
+//                case 0:
+//                    Order = -1;
+//                    break;
+//                case 1:
+//                    Order = -2;
+//                    break;
+//                case 2:
+//                    Order = -3;
+//                    break;
+//            }
+//            setOrderMode();
+            selectMusic(music);
+        } else {
+            switch (currentFragmentPosition){
+                case 0:
+                    toSingerDetail(music);
+                    break;
+                case 1:
+                    toAblumDetail(music);
+                    break;
+            }
+        }
+    }
+
+    public void selectMusic(Music music) {
+        if (music.equals(currentMusic) && !isNew) {
+            return;
+        }
+        currentPosition = findPosition(tempmusicArrayList,music);
+        onePlayListFragment.setSelectedPosition(currentPosition);
+        //saveOrderMode(-3);
+        isNew = false;
+        //albumcontainer.setVisibility(View.VISIBLE);
+        //viewPager.setVisibility(View.GONE);
+        if (isPlaying) {
+            musicService.pause();
+            isPlaying = false;
+        }
+        if(currentColor==Color.WHITE) {
+            playButton.setImageResource(R.drawable.pause);
+        }else {
+            playButton.setImageResource(R.drawable.ic_pause_circle_fill_white_48dp);
+        }
+        //currentPosition = position;
+        currentMusic = music;
+        //playingFragment.playAnimation();
+        updateMusic();
+        toPlayView();
+        //basetag.setVisibility(View.GONE);
+        //isAlbuming = true;
+        //queueButton.setImageResource(R.drawable.ic_queue_music_white_48dp);
+        //isPlaying = true;
+    }
+    private int findPosition(ArrayList<Music> musicArrayList,Music music){
+        for(Music music1 : musicArrayList){
+            if (music1.getDisplayName().equals(music.getDisplayName())){
+                if(music1.getArtist().equals(music.getArtist())){
+                    if(music1.getAlbum().equals(music.getAlbum())){
+                        return musicArrayList.indexOf(music1);
+                    }
                 }
-                else
-                    t4+=java.lang.Character.toString(t1[i]);
-            }
-            return t4;
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return t4;
-    }
-    public void OrderChanged(int i) {
-        Log.v("MainActivity","OrderChanged模式代码:"+i);
-        if(Build.VERSION.SDK_INT>19){
-            recyclerView = localmusicListFragment.getRecyclerView();
-            switch (i) {
-                case -1:
-                    Order = -1;
-                    localplaylistAdapter.setDatasource(tempmusicArrayList);
-                    if (recyclerView!=null){
-                        recyclerView.setAdapter(localplaylistAdapter);
-                    }
-                    localplaylistAdapter.setOnItemClickListener(new OnItemClickListener() {
-                        @Override
-                        public void onItemClick(View view, int position) {
-                            if (tempmusicArrayList.get(position).getUrl().equals(currentMusic) && !isNew) {
-                                albumcontainer.setVisibility(View.VISIBLE);
-                                viewPager.setVisibility(View.GONE);
-                                return;
-                            }
-                            isNew = false;
-                            albumcontainer.setVisibility(View.VISIBLE);
-                            viewPager.setVisibility(View.GONE);
-                            if (isPlaying) {
-                                musicService.pause();
-                                isPlaying = false;
-                            }
-                            playButton.setImageResource(R.drawable.ic_pause_circle_fill_white_48dp);
-                            tempmusicArrayList = localmusicArrayList;
-                            saveOrderMode(-1);
-                            musicNumber = tempmusicArrayList.size();
-                            currentPosition = position;
-                            currentMusic = tempmusicArrayList.get(position).getUrl();
-                            Log.v("MainActivity","OrderChanged当前音乐"+currentMusic);
-                            notifiPositionChanged();
-                            playingFragment.playAnimation();
-                            updateMusic();
-                            basetag.setVisibility(View.GONE);
-                            isAlbuming = true;
-                            queueButton.setImageResource(R.drawable.ic_queue_music_white_48dp);
-                            isPlaying = true;
-                        }
-                    });
-                    break;
-                case -2:
-
-                    Order = -2;
-                    localplaylistAdapter.setDataSource(singers);
-                    localplaylistAdapter.setOnItemClickListener(new OnItemClickListener() {
-                        @Override
-                        public void onItemClick(View view, int position) {
-                            isSingerTwo = true;
-                            Log.v("MainActivity", "一级菜单点击" + position);
-                            saveFirstPosition(position);
-
-                            tempmusicArrayList = singerArrayLists.get(position);
-                            musicNumber = tempmusicArrayList.size();
-                            localplaylistAdapter.setDatasource(tempmusicArrayList);
-                            localplaylistAdapter.setOnItemClickListener(new OnItemClickListener() {
-                                @Override
-                                public void onItemClick(View view, int position) {
-                                    if (tempmusicArrayList.get(position).getUrl().equals(currentMusic) && !isNew) {
-                                        albumcontainer.setVisibility(View.VISIBLE);
-                                        viewPager.setVisibility(View.GONE);
-                                        return;
-                                    }
-                                    saveOrderMode(-2);
-                                    Log.v("MainActivity", "二级菜单点击" + position);
-                                    isNew = false;
-                                    albumcontainer.setVisibility(View.VISIBLE);
-                                    viewPager.setVisibility(View.GONE);
-                                    if (isPlaying) {
-                                        musicService.pause();
-                                        isPlaying = false;
-                                    }
-                                    playButton.setImageResource(R.drawable.ic_pause_circle_fill_white_48dp);
-                                    currentPosition = position;
-                                    currentMusic = tempmusicArrayList.get(position).getUrl();
-
-                                    localplaylistAdapter.url = currentMusic;
-                                    localplaylistAdapter.singer = tempmusicArrayList.get(currentPosition).getArtist();
-                                    localplaylistAdapter.album = tempmusicArrayList.get(currentPosition).getAlbum();
-                                    localplaylistAdapter.notifyDataSetChanged();
-                                    playingFragment.playAnimation();
-                                    updateMusic();
-                                    basetag.setVisibility(View.GONE);
-                                    isAlbuming = true;
-                                    queueButton.setImageResource(R.drawable.ic_queue_music_white_48dp);
-                                    isPlaying = true;
-                                }
-                            });
-                            Log.v("MainActivity", "二级菜单初始化完毕" );
-                            if (recyclerView != null) {
-                                Log.v("MainActivity", "一级适配器设立" );
-                                recyclerView.setAdapter(localplaylistAdapter);
-                            }
-                        }
-                    });
-                    if (recyclerView!=null){
-                        Log.v("MainActivity", "二级适配器设立" );
-                        recyclerView.setAdapter(localplaylistAdapter);
-                    }
-                    break;
-                case -3:
-
-                    Order = -3;
-                    localplaylistAdapter.setDataSource(albums);
-                    localplaylistAdapter.setOnItemClickListener(new OnItemClickListener() {
-                        @Override
-                        public void onItemClick(View view, int position) {
-                            isAlbumTwo = true;
-                            tempmusicArrayList = albumArrayLists.get(position);
-                            musicNumber = tempmusicArrayList.size();
-                            localplaylistAdapter.setDatasource(tempmusicArrayList);
-                            saveFirstPosition(position);
-                            localplaylistAdapter.setOnItemClickListener(new OnItemClickListener() {
-                                @Override
-                                public void onItemClick(View view, int position) {
-                                    if (tempmusicArrayList.get(position).getUrl().equals(currentMusic) && !isNew) {
-                                        albumcontainer.setVisibility(View.VISIBLE);
-                                        viewPager.setVisibility(View.GONE);
-                                        return;
-                                    }
-                                    saveOrderMode(-3);
-                                    isNew = false;
-                                    albumcontainer.setVisibility(View.VISIBLE);
-                                    viewPager.setVisibility(View.GONE);
-                                    if (isPlaying) {
-                                        musicService.pause();
-                                        isPlaying = false;
-                                    }
-                                    playButton.setImageResource(R.drawable.ic_pause_circle_fill_white_48dp);
-                                    currentPosition = position;
-                                    currentMusic = tempmusicArrayList.get(position).getUrl();
-                                    localplaylistAdapter.url = currentMusic;
-                                    localplaylistAdapter.singer = tempmusicArrayList.get(currentPosition).getArtist();
-                                    localplaylistAdapter.album = tempmusicArrayList.get(currentPosition).getAlbum();
-                                    localplaylistAdapter.notifyDataSetChanged();
-                                    playingFragment.playAnimation();
-                                    updateMusic();
-                                    basetag.setVisibility(View.GONE);
-                                    isAlbuming = true;
-                                    queueButton.setImageResource(R.drawable.ic_queue_music_white_48dp);
-                                    isPlaying = true;
-                                }
-                            });
-                            if (recyclerView != null) {
-                                recyclerView.setAdapter(localplaylistAdapter);
-                            }
-                        }
-                    });
-                    if (recyclerView!=null){
-                        recyclerView.setAdapter(localplaylistAdapter);
-                    }
-                    break;
-            }
-        }else{
-            listView = localmusicListFragmentLow.getListView();
-            switch (i) {
-                case -1:
-
-                    Order = -1;
-
-                    localPlaylistAdapterlow.setDatasource(tempmusicArrayList);
-                    if(listView!=null){
-                        listView.setAdapter(localPlaylistAdapterlow);
-                    }
-                    localmusicListFragmentLow.setOnItemClickListener(new OnItemClickListener() {
-                        @Override
-                        public void onItemClick(View view, int position) {
-                            if (tempmusicArrayList.get(position).getUrl() == currentMusic && !isNew) {
-                                playingFragment.playAnimation();
-                                albumcontainer.setVisibility(View.VISIBLE);
-                                viewPager.setVisibility(View.GONE);
-                                basetag.setVisibility(View.GONE);
-                                ;
-                                isPlaying = true;
-                                return;
-                            }
-                            saveOrderMode(-1);
-                            isNew = false;
-                            albumcontainer.setVisibility(View.VISIBLE);
-                            viewPager.setVisibility(View.GONE);
-                            if (isPlaying) {
-                                musicService.pause();
-                                isPlaying = false;
-                            }
-                            playButton.setImageResource(R.drawable.ic_pause_circle_fill_white_48dp);
-                            tempmusicArrayList = localmusicArrayList;
-                            musicNumber = tempmusicArrayList.size();
-                            currentPosition = position;
-                            currentMusic = tempmusicArrayList.get(position).getUrl();
-                            notifiPositionChanged();
-                            playingFragment.playAnimation();
-                            updateMusic();
-                            basetag.setVisibility(View.GONE);
-                            isAlbuming = true;
-                            queueButton.setImageResource(R.drawable.ic_queue_music_white_48dp);
-                            isPlaying = true;
-                        }
-                    });
-                    break;
-                case -2:
-
-                    Order = -2;
-                    Log.v("MainActivity", "按歌手排序");
-                    localPlaylistAdapterlow.setDataSource(singers);
-                    localmusicListFragmentLow.setOnItemClickListener(new OnItemClickListener() {
-                        @Override
-                        public void onItemClick(View view, int position) {
-                            isSingerTwo = true;
-                            Log.v("MainActivity", "一级菜单点击" + position);
-                            tempmusicArrayList = singerArrayLists.get(position);
-                            musicNumber = tempmusicArrayList.size();
-                            localPlaylistAdapterlow.setDatasource(tempmusicArrayList);
-                            saveFirstPosition(position);
-                            localmusicListFragmentLow.setOnItemClickListener(new OnItemClickListener() {
-                                @Override
-                                public void onItemClick(View view, int position) {
-                                    if (tempmusicArrayList.get(position).getUrl().equals(currentMusic) && !isNew) {
-                                        albumcontainer.setVisibility(View.VISIBLE);
-                                        viewPager.setVisibility(View.GONE);
-                                        return;
-                                    }
-                                    saveOrderMode(-2);
-                                    Log.v("MainActivity", "二级菜单点击" + position);
-                                    isNew = false;
-                                    albumcontainer.setVisibility(View.VISIBLE);
-                                    viewPager.setVisibility(View.GONE);
-                                    if (isPlaying) {
-                                        musicService.pause();
-                                        isPlaying = false;
-                                    }
-                                    playButton.setImageResource(R.drawable.ic_pause_circle_fill_white_48dp);
-                                    currentPosition = position;
-                                    currentMusic = tempmusicArrayList.get(position).getUrl();
-                                    notifiPositionChanged();
-                                    playingFragment.playAnimation();
-                                    updateMusic();
-                                    basetag.setVisibility(View.GONE);
-                                    isAlbuming = true;
-                                    queueButton.setImageResource(R.drawable.ic_queue_music_white_48dp);
-                                    isPlaying = true;
-                                }
-                            });
-                            if (listView != null) {
-                                listView.setAdapter(localPlaylistAdapterlow);
-                            }
-                        }
-                    });
-                    if(listView!=null){
-                        listView.setAdapter(localPlaylistAdapterlow);
-                    }
-                    break;
-                case -3:
-
-                    Order = -3;
-                    localPlaylistAdapterlow.setDataSource(albums);
-                    localmusicListFragmentLow.setOnItemClickListener(new OnItemClickListener() {
-                        @Override
-                        public void onItemClick(View view, int position) {
-                            isAlbumTwo = true;
-                            tempmusicArrayList = albumArrayLists.get(position);
-                            musicNumber = tempmusicArrayList.size();
-                            localPlaylistAdapterlow.setDatasource(tempmusicArrayList);
-                            saveFirstPosition(position);
-                            localmusicListFragmentLow.setOnItemClickListener(new OnItemClickListener() {
-                                @Override
-                                public void onItemClick(View view, int position) {
-                                    if (tempmusicArrayList.get(position).getUrl().equals(currentMusic) && !isNew) {
-                                        albumcontainer.setVisibility(View.VISIBLE);
-                                        viewPager.setVisibility(View.GONE);
-                                        return;
-                                    }
-                                    saveOrderMode(-3);
-                                    isNew = false;
-                                    albumcontainer.setVisibility(View.VISIBLE);
-                                    viewPager.setVisibility(View.GONE);
-                                    if (isPlaying) {
-                                        musicService.pause();
-                                        isPlaying = false;
-                                    }
-                                    playButton.setImageResource(R.drawable.ic_pause_circle_fill_white_48dp);
-                                    currentPosition = position;
-                                    currentMusic = tempmusicArrayList.get(position).getUrl();
-                                    notifiPositionChanged();
-                                    playingFragment.playAnimation();
-                                    updateMusic();
-                                    basetag.setVisibility(View.GONE);
-                                    isAlbuming = true;
-                                    queueButton.setImageResource(R.drawable.ic_queue_music_white_48dp);
-                                    isPlaying = true;
-                                }
-                            });
-                            if (listView != null) {
-                                listView.setAdapter(localPlaylistAdapterlow);
-                            }
-                        }
-                    });
-                    if(listView!=null){
-                        listView.setAdapter(localPlaylistAdapterlow);
-                    }
-                    break;
             }
         }
-
+        return -1;
     }
-    public void notifiPositionChanged(){
-        if(!isNet) {
-            if (Build.VERSION.SDK_INT > 19) {
-                localplaylistAdapter.url = currentMusic;
-                localplaylistAdapter.singer = tempmusicArrayList.get(currentPosition).getArtist();
-                localplaylistAdapter.album = tempmusicArrayList.get(currentPosition).getAlbum();
-                localplaylistAdapter.notifyDataSetChanged();
-            } else {
-                localPlaylistAdapterlow.url = currentMusic;
-                localPlaylistAdapterlow.singer = tempmusicArrayList.get(currentPosition).getArtist();
-                localPlaylistAdapterlow.album = tempmusicArrayList.get(currentPosition).getAlbum();
-                localPlaylistAdapterlow.notifyDataSetChanged();
-            }
-        }else{
-            if (Build.VERSION.SDK_INT > 19) {
-                netplaylistAdapter.url = currentMusic;
-                netplaylistAdapter.singer = tempmusicArrayList.get(currentPosition).getArtist();
-                netplaylistAdapter.album = tempmusicArrayList.get(currentPosition).getAlbum();
-                netplaylistAdapter.notifyDataSetChanged();
-            } else {
-                netPlaylistAdapterlow.url = currentMusic;
-                netPlaylistAdapterlow.singer = tempmusicArrayList.get(currentPosition).getArtist();
-                netPlaylistAdapterlow.album = tempmusicArrayList.get(currentPosition).getAlbum();
-                netPlaylistAdapterlow.notifyDataSetChanged();
-            }
+
+    private void toOnePlayList() {
+        if (onePlayListFragment == null) {
+
         }
     }
-    public void setOnIntializeCompleListener(OnIntializeCompleListener onIntializeCompleListener){
-        this.onIntializeCompleListener = onIntializeCompleListener;
+
+    //    private void navigateToBrowser(String mediaId) {
+//        LogHelper.d(TAG, "navigateToBrowser, mediaId=" + mediaId);
+//        MediaBrowserFragment fragment = getBrowseFragment();
+//
+//        if (fragment == null || !TextUtils.equals(fragment.getMediaId(), mediaId)) {
+//            fragment = new MediaBrowserFragment();
+//            fragment.setMediaId(mediaId);
+//            FragmentTransaction transaction = getFragmentManager().beginTransaction();
+//            transaction.setCustomAnimations(
+//                    R.animator.slide_in_from_right, R.animator.slide_out_to_left,
+//                    R.animator.slide_in_from_left, R.animator.slide_out_to_right);
+//            transaction.replace(R.id.container, fragment, FRAGMENT_TAG);
+//            // If this is not the top level media (root), we add it to the fragment back stack,
+//            // so that actionbar toggle and Back will work appropriately:
+//            if (mediaId != null) {
+//                transaction.addToBackStack(null);
+//            }
+//            transaction.commit();
+//        }
+//    }
+    public void notifiPositionChanged() {
+        ////
+        // // TODO: Make sure this auto-generated URL is correct.
+//        if (!isNet) {
+//            if (Build.VERSION.SDK_INT > 19) {
+//                localplaylistAdapter.url = currentMusic;
+//                localplaylistAdapter.singer = tempmusicArrayList.get(currentPosition).getArtist();
+//                localplaylistAdapter.album = tempmusicArrayList.get(currentPosition).getAlbum();
+//                localplaylistAdapter.notifyDataSetChanged();
+//            } else {
+//                localPlaylistAdapterlow.url = currentMusic;
+//                localPlaylistAdapterlow.singer = tempmusicArrayList.get(currentPosition).getArtist();
+//                localPlaylistAdapterlow.album = tempmusicArrayList.get(currentPosition).getAlbum();
+//                localPlaylistAdapterlow.notifyDataSetChanged();
+//            }
+//        } else {
+//            if (Build.VERSION.SDK_INT > 19) {
+//                netplaylistAdapter.url = currentMusic;
+//                netplaylistAdapter.singer = tempmusicArrayList.get(currentPosition).getArtist();
+//                netplaylistAdapter.album = tempmusicArrayList.get(currentPosition).getAlbum();
+//                netplaylistAdapter.notifyDataSetChanged();
+//            } else {
+//                netPlaylistAdapterlow.url = currentMusic;
+//                netPlaylistAdapterlow.singer = tempmusicArrayList.get(currentPosition).getArtist();
+//                netPlaylistAdapterlow.album = tempmusicArrayList.get(currentPosition).getAlbum();
+//                netPlaylistAdapterlow.notifyDataSetChanged();
+//            }
+//        }
     }
 
+//    public void setOnIntializeCompleListener(OnIntializeCompleListener onIntializeCompleListener) {
+//        this.onIntializeCompleListener = onIntializeCompleListener;
+//    }
 
+
+    /**
+     * ATTENTION: This was auto-generated to implement the App Indexing API.
+     * See https://g.co/AppIndexing/AndroidStudio for more information.
+     */
+    public Action getIndexApiAction() {
+        Thing object = new Thing.Builder()
+                .setName("Main Page") // TODO: Define a title for the content shown.
+                // TODO: Make sure this auto-generated URL is correct.
+                .setUrl(Uri.parse("http://[ENTER-YOUR-URL-HERE]"))
+                .build();
+        return new Action.Builder(Action.TYPE_VIEW)
+                .setObject(object)
+                .setActionStatus(Action.STATUS_TYPE_COMPLETED)
+                .build();
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+
+        // ATTENTION: This was auto-generated to implement the App Indexing API.
+        // See https://g.co/AppIndexing/AndroidStudio for more information.
+        client.connect();
+        AppIndex.AppIndexApi.start(client, getIndexApiAction());
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+
+        // ATTENTION: This was auto-generated to implement the App Indexing API.
+        // See https://g.co/AppIndexing/AndroidStudio for more information.
+        AppIndex.AppIndexApi.end(client, getIndexApiAction());
+        client.disconnect();
+    }
 }

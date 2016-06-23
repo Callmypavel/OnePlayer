@@ -3,8 +3,13 @@ package com.example.peacemaker.oneplayer;
 import android.app.AlertDialog;
 import android.content.ContentProvider;
 import android.content.Context;
+import android.database.CharArrayBuffer;
+import android.database.ContentObserver;
 import android.database.Cursor;
+import android.database.DataSetObserver;
 import android.drm.DrmManagerClient;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.media.MediaMetadataRetriever;
 import android.media.MediaPlayer;
 import android.os.Bundle;
@@ -44,6 +49,7 @@ public class OneMusicloader {
             Media.ALBUM,
             Media.ARTIST,
             Media.DURATION,
+            MediaStore.Audio.Media.ALBUM_ID,
     };
     private String where = "mime_type in ('audio/mpeg','audio/x-ms-wma') and bucket_display_name <> 'audio' and is_music > 0 ";
     private String sortOrder = Media.DATA;
@@ -61,22 +67,47 @@ public class OneMusicloader {
     }
 
     protected ArrayList<Music> loadLocalMusic() {
-
-        ArrayList<Music> musicArrayList = new ArrayList<Music>();
-        Cursor cursor = contentResolver.query(contentUri, null, null, null, sortOrder);
-        while (cursor.moveToNext()) {
-            String artist = cursor.getString(cursor.getColumnIndex(Media.ARTIST));
-            String duration = cursor.getString(cursor.getColumnIndex(Media.DURATION));
-            //String size = cursor.getString(cursor.getColumnIndex(Media.SIZE));
-            //String id = cursor.getString(cursor.getColumnIndex(Media._ID));
-            String album = cursor.getString(cursor.getColumnIndex(Media.ALBUM));
-            String displayName = cursor.getString(cursor.getColumnIndex(Media.DISPLAY_NAME));
-            String url = cursor.getString(cursor.getColumnIndex(Media.DATA));
-            Music music = new Music(artist, duration, album, displayName, url);
-            musicArrayList.add(music);
+        Cursor cursor;
+        ArrayList<Music> musicArrayList = new ArrayList<>();
+        if(contentResolver!=null) {
+            cursor = contentResolver.query(contentUri, null, null, null, sortOrder);
+            if(cursor!=null) {
+                while (cursor.moveToNext()) {
+                    String artist = cursor.getString(cursor.getColumnIndex(Media.ARTIST));
+                    String duration = cursor.getString(cursor.getColumnIndex(Media.DURATION));
+                    String size = cursor.getString(cursor.getColumnIndex(Media.SIZE));
+                    String id = cursor.getString(cursor.getColumnIndex(Media._ID));
+                    String album = cursor.getString(cursor.getColumnIndex(Media.ALBUM));
+                    String displayName = cursor.getString(cursor.getColumnIndex(Media.DISPLAY_NAME));
+                    String url = cursor.getString(cursor.getColumnIndex(Media.DATA));
+                    Music music = new Music(artist, duration, album, displayName, url, id, size,true);
+                    musicArrayList.add(music);
+                }
+                cursor.close();
+            }
         }
+
         System.out.println("加载了" + musicArrayList.size() + "首歌");
         return musicArrayList;
+    }
+    public static Bitmap getAlbumArt(String url) {
+        Bitmap bitmap = null;
+        //能够获取多媒体文件元数据的类
+        MediaMetadataRetriever mediaMetadataRetriever = new MediaMetadataRetriever();
+        try {
+            mediaMetadataRetriever.setDataSource(url); //设置数据源
+            byte[] embedPic = mediaMetadataRetriever.getEmbeddedPicture(); //得到字节型数据
+            bitmap = BitmapFactory.decodeByteArray(embedPic, 0, embedPic.length); //转换为图片
+        } catch (Exception e) {
+            //e.printStackTrace();
+        } finally {
+            try {
+                mediaMetadataRetriever.release();
+            } catch (Exception e2) {
+                //e2.printStackTrace();
+            }
+        }
+        return bitmap;
     }
 
     //深度扫描
@@ -173,7 +204,7 @@ public class OneMusicloader {
             title = file.getName();
         }
         System.out.println("标题为:"+title+" 专辑为:"+album+" mime为:"+mime+" 艺术家为:"+artist+" 长度为:"+duration+" 比特率为:"+bitrate+" 日期为:"+date);
-        Music music = new Music(artist, duration, album, title, path);
+        Music music = new Music(artist, duration, album, title, path,false);
         musicArrayList.add(music);
     }
 

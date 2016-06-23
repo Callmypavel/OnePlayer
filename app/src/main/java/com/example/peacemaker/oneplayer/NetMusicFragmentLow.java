@@ -40,7 +40,7 @@ public class NetMusicFragmentLow extends MusicListFragmentLow {
                 button.setText("正在连接服务器...");
             }
         });
-        playlistView.setAdapter(activity.netPlaylistAdapterlow);
+        //playlistView.setAdapter(activity.netPlaylistAdapterlow);
         playlistView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -93,8 +93,8 @@ public class NetMusicFragmentLow extends MusicListFragmentLow {
                                     Log.v("NetMusicFragment列表检查" , music1.getArtist()+music1.getDisplayName());
                                 }
                             }
-                            activity.netmusicArrayList = musicArrayList;
-                            activity.netPlaylistAdapterlow.setDatasource(musicArrayList);
+                           // activity.netmusicArrayList = musicArrayList;
+                           // activity.netPlaylistAdapterlow.setDatasource(musicArrayList);
                         }
 
                     }
