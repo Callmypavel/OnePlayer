@@ -174,6 +174,17 @@ public class Music implements Parcelable{
             //Log.v("Music","领导视察增加二级项现场"+secondItem.getDisplayName());
         }
     }
+
+    @Override
+    public boolean equals(Object o) {
+        Music music = (Music)o;
+        if(music.getUrl().equals(url)){
+            return true;
+        }else {
+            return false;
+        }
+    }
+
     public String cutName(String name){
         String getName = name;
         if(name==null){

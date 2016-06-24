@@ -97,7 +97,7 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
     ListView listView;
     Handler handler;
     SharedPreferences sharedPreferences;
-    ArrayList<Music> tempmusicArrayList;
+    private ArrayList<Music> tempmusicArrayList;
     OnePlayer onePlayer;
     MusicService musicService;
     SerchingFragment serchingfragment;
@@ -192,9 +192,11 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
     private ArrayList<Fragment> oneFragments;
     private FragmentPagerAdapter fragmentPagerAdapter;
     private FragmentStatePagerAdapter fragmentStatePagerAdapter;
+    private int singerListIndex = -1;
+    private int albumListIndex = -1;
     private Boolean isAblumDetail = false;
     private Boolean isSingerDetail = false;
-    private Boolean isPlayView = false;
+    public Boolean isPlayView = false;
     private int currentFragmentPosition = singer;
     public int albumSelectedPosition;
     public int singerSelectedPosition;
@@ -229,14 +231,12 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
             setTheme(R.style.One);
             Log.v("MainActivity", "我选择One主题");
         }
-
         super.onCreate(savedInstanceState);
-
-        if (Build.VERSION.SDK_INT > 19) {
-            setContentView(R.layout.main_activity);
-        } else {
-            setContentView(R.layout.main_activity_low);
-        }
+//        if (Build.VERSION.SDK_INT > 19) {
+        setContentView(R.layout.main_activity);
+//        } else {
+//            setContentView(R.layout.main_activity_low);
+//        }
         initialize();
         checkUpdate();
         // ATTENTION: This was auto-generated to implement the App Indexing API.
@@ -331,6 +331,7 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
                     }else {
                         playButton.setImageResource(R.drawable.ic_pause_circle_fill_white_48dp);
                     }
+                    time = targetTime;
                     musicService.seekTo(time * 1000);
                     isPlaying = false;
                     play();
@@ -342,7 +343,7 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
 //                    bottomProgress.setLayoutParams(layoutParams);
 //                    bottomProgress.postInvalidate();
                 }
-                time = targetTime;
+
 
             }
             @Override
@@ -783,6 +784,12 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
         playButton.setOnClickListener(this);
         //mainContentBar.setOnClickListener(this);
         mainContentBar.setBottom_controll_bar((RelativeLayout) mainContentBar.getChildAt(0));
+        mainContentBar.setOnReachMaxListener(new OnReachMaxListener() {
+            @Override
+            public void onReachMax() {
+                disableListview();
+            }
+        });
         //取得最后一次播放的音乐
         initHandler();
         initService();
@@ -846,6 +853,10 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
     public void setWaveData(byte[] data){
         oneWaveFromView.setData(data);
 
+    }
+    public void setTempmusicArrayList(ArrayList<Music> musicArrayList){
+        tempmusicArrayList = musicArrayList;
+        musicNumber = musicArrayList.size();
     }
 
 
@@ -945,6 +956,7 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
                 case random:
                     currentPosition = onePlayer.getRandomPosition(musicNumber);
                     break;
+
                 default:
                     Log.v("MainActivity", "当前位置" + currentPosition + " " + musicNumber);
                     currentPosition = (currentPosition + 1) % musicNumber;
@@ -1008,11 +1020,52 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
     private void toPlayView(){
         Log.v("MainActivity","toPlayView()");
         mainContentBar.toMaxHeight();
+        //disableListview();
         isPlayView = true;
     }
     private void quitPlayView(){
+        Log.v("MainActivity","quitPlayView()");
+        enableListview();
         mainContentBar.toMinHeight();
         isPlayView = false;
+    }
+    private void disableListview(){
+        Log.v("MainActivity","disableListview()取消点击事件");
+//        if(isSingerDetail){
+//            oneSingerDetailFragment.disable();
+//        }else {
+//            oneSingerlistFragment.disable();
+//        }
+//        if(isAblumDetail){
+//            oneAblumDetailFragment.disable();
+//        }else {
+//            oneAblumListFragment.disable();
+//        }
+//        onePlayListFragment.disable();
+        albumTagText.setVisibility(View.GONE);
+        singerTagText.setVisibility(View.GONE);
+        songTagText.setVisibility(View.GONE);
+//        viewPager.setClickable(false);
+        viewPager.setVisibility(View.GONE);
+    }
+    private void enableListview(){
+        Log.v("MainActivity","enableListview()打开点击事件");
+//        if(isSingerDetail){
+//            oneSingerDetailFragment.enable();
+//        }else {
+//            oneSingerlistFragment.enable();
+//        }
+//        if(isAblumDetail){
+//            oneAblumDetailFragment.enable();
+//        }else {
+//            oneAblumListFragment.enable();
+//        }
+//        onePlayListFragment.enable();
+        albumTagText.setVisibility(View.VISIBLE);
+        singerTagText.setVisibility(View.VISIBLE);
+        songTagText.setVisibility(View.VISIBLE);
+//        viewPager.setClickable(true);
+        viewPager.setVisibility(View.VISIBLE);
     }
 
     public void onBackPressed() {
@@ -1106,7 +1159,12 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
             onePlayer.setOnCompleListener(new OnCompleListener() {
                 @Override
                 public void onComple() {
-                    next();
+                    if(playMode!=looping) {
+                        next();
+                    }else {
+                        currentMusic = tempmusicArrayList.get(currentPosition);
+                        updateMusic();
+                    }
                 }
             });
             onePlayer.setOnPrepareListener(new OnPrepareListener() {
@@ -2223,8 +2281,17 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
 //                break;
 //        }
 //    }
+    public void changeTemp(int mode){
+        if(mode==0){
+            setTempmusicArrayList(singerArraylist.get(singerListIndex).getSecondItems());
+        }else if(mode==1){
+            setTempmusicArrayList(albumArraylist.get(albumListIndex).getSecondItems());
+        }else if(mode==2){
+            setTempmusicArrayList(songArraylist);
+        }
+    }
 
-    public void itemSelected(Music music) {
+    public void itemSelected(Music music,int position) {
         if (music.isPlayable()) {
 //            switch (currentFragmentPosition){
 //                case 0:
@@ -2238,25 +2305,39 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
 //                    break;
 //            }
 //            setOrderMode();
-            selectMusic(music);
+            selectMusic(music,position);
         } else {
             switch (currentFragmentPosition){
                 case 0:
+                    singerListIndex = position;
                     toSingerDetail(music);
                     break;
                 case 1:
+                    albumListIndex = position;
                     toAblumDetail(music);
                     break;
             }
         }
     }
 
-    public void selectMusic(Music music) {
+    public void selectMusic(Music music,int position) {
+        Log.v("MainActivity","selectMusic查看来播放的音乐"+music.getUrl());
         if (music.equals(currentMusic) && !isNew) {
             return;
         }
-        currentPosition = findPosition(tempmusicArrayList,music);
-        onePlayListFragment.setSelectedPosition(currentPosition);
+//        switch (currentFragmentPosition){
+//            case 0:if(isSingerDetail){
+//                    oneSingerDetailFragment.setSelectedPosition(position);
+//                    }
+//                break;
+//            case 1:if(isAblumDetail){
+//                    oneAblumDetailFragment.setSelectedPosition(position);
+//                    }
+//                break;
+//            case 2:break;
+//        }
+        currentPosition = tempmusicArrayList.indexOf(music);
+        onePlayListFragment.setSelectedPosition(songArraylist.indexOf(music));
         //saveOrderMode(-3);
         isNew = false;
         //albumcontainer.setVisibility(View.VISIBLE);

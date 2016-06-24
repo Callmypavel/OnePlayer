@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+     android:layout_width="match_parent"
+    android:layout_height="72dp"
+    >
+    <ImageView
+        android:visibility="gone"
+        android:id="@+id/one_singer_item_singerimage"
+        android:layout_width="40dp"
+        android:layout_height="40dp" />
+    <TextView
+        android:layout_toRightOf="@id/one_singer_item_singerimage"
+        android:id="@+id/one_singer_item_singername"
+        android:text="singer_name"
+        android:textColor="@color/background_floating_material_dark"
+        android:layout_marginLeft="16dp"
+        android:layout_marginTop="16dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+    <TextView
+        android:layout_toRightOf="@id/one_singer_item_singerimage"
+        android:layout_below="@id/one_singer_item_singername"
+        android:id="@+id/one_singer_item_songsnumber"
+        android:text="songs_number"
+        android:layout_marginLeft="16dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+</RelativeLayout>

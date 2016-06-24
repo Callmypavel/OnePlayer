@@ -86,7 +86,7 @@
     <android.support.v4.view.ViewPager
         android:id="@+id/id_viewpager"
         android:layout_width="wrap_content"
-        android:layout_height="500dp"
+        android:layout_height="480dp"
         android:layout_gravity="center"
         android:layout_below="@+id/basetag">
     </android.support.v4.view.ViewPager>

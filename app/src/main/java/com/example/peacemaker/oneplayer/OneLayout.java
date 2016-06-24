@@ -25,6 +25,7 @@ public class OneLayout extends RelativeLayout {
     private int fixedSpeed = 10;
     private Handler handler;
     private RelativeLayout bottom_controll_bar;
+    private OnReachMaxListener onReachMaxListener;
 
     public OneLayout(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -37,6 +38,9 @@ public class OneLayout extends RelativeLayout {
     public OneLayout(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         init();
+    }
+    public void setOnReachMaxListener(OnReachMaxListener onReachMaxListener){
+        this.onReachMaxListener = onReachMaxListener;
     }
 
 
@@ -72,14 +76,19 @@ public class OneLayout extends RelativeLayout {
                 if(msg.what==9526){
                     changeChildHeight();
                 }
+                if(msg.what==9528){
+                    onReachMaxListener.onReachMax();
+                }
                 return false;
             }
         });
+
     }
     public void toMaxHeight(){
         Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
+
                 while(currentHeight<maxHeight) {
                     Message message = new Message();
                     currentHeight += fixedSpeed;
@@ -100,6 +109,9 @@ public class OneLayout extends RelativeLayout {
 
                     }
                 }
+                Message message = new Message();
+                message.what = 9528;
+                handler.sendMessage(message);
                 currentHeight = maxHeight;
 
             }

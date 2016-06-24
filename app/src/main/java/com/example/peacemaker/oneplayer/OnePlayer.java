@@ -95,6 +95,7 @@ public class OnePlayer implements Serializable {
 //                Message message = new Message();
 //                message.what = 0x124;
 //                handler.sendMessage(message);
+
                 if (onCompleListener != null) {
                     onCompleListener.onComple();
                 }
@@ -130,6 +131,9 @@ public class OnePlayer implements Serializable {
 
         System.out.println("stop停止了");
         mediaPlayer.stop();
+    }
+    protected void setLooping(){
+        mediaPlayer.setLooping(true);
     }
 
 

@@ -139,9 +139,9 @@ public class MusicProvider implements Parcelable{
         if(musicArrayList==null){
             return index;
         }
-        for(Music music1 : musicArrayList){
-            if (music1.getDisplayName().equals(music.getDisplayName())){
-                index = musicArrayList.indexOf(music1);
+        for(int i=0;i<musicArrayList.size();i++){
+            if (musicArrayList.get(i).getDisplayName().equals(music.getDisplayName())){
+                index = i;
                 return index;
             }
         }
