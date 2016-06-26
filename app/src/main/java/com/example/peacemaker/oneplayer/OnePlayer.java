@@ -5,6 +5,7 @@ import android.media.MediaPlayer;
 import android.os.Environment;
 import android.os.Handler;
 import android.util.Log;
+import android.widget.Toast;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -31,6 +32,7 @@ public class OnePlayer implements Serializable {
     public MediaPlayer mediaPlayer;
     private Timer timer;
     private TimerTask timerTask;
+    private OnOneErrorListener onOneErrorListener;
     private OnCompleListener onCompleListener;
     private OnPrepareListener onPrepareListener;
     private OnBuffedUpdateListener onBufferedUpdateListener = null;
@@ -68,6 +70,7 @@ public class OnePlayer implements Serializable {
             //mediaPlayer = new MediaPlayer();
             mediaPlayer.reset();
             mediaPlayer.setDataSource(path);
+            Log.v("OnePlayer","init()查看数据源"+path);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -115,6 +118,9 @@ public class OnePlayer implements Serializable {
             @Override
             public boolean onError(MediaPlayer mp, int what, int extra) {
                 Log.v("我看看what", what + " " + extra);
+                if(onOneErrorListener!=null){
+                    onOneErrorListener.setError(what,extra);
+                }
                 return false;
             }
         });
@@ -182,8 +188,9 @@ public class OnePlayer implements Serializable {
     }
     public void setOnBufferedUpdateListener(OnBuffedUpdateListener onBufferedUpdateListener){
         this.onBufferedUpdateListener = onBufferedUpdateListener;
-
-
+    }
+    public void setOnOneErrorListener(OnOneErrorListener onOneErrorListener){
+        this.onOneErrorListener = onOneErrorListener;
     }
     public void release(){
         if(mediaPlayer!=null){

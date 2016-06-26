@@ -20,6 +20,7 @@ import android.provider.MediaStore.Audio.Media;
 import android.content.ContentResolver;
 import android.database.Cursor;
 import android.net.Uri;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
@@ -110,11 +111,13 @@ public class OneMusicloader {
         return bitmap;
     }
 
+
+
     //深度扫描
-    protected ArrayList<Music> getdeepLoad(File file) {
-        deepLoad(file);
-        System.out.println("扫描了"+musicArrayList.size());
-        return musicArrayList;
+    protected void getdeepLoad(File file) {
+        beginDeepLoad(file);
+        //System.out.println("扫描了"+musicArrayList.size());
+        //return musicArrayList;
     }
     public void setFileSearchingListener(FileSearchingListener listener){
         this.listener = listener;
@@ -122,26 +125,38 @@ public class OneMusicloader {
     }
 
 
-    public void deepLoad(File file) {
-
-        File[] files = file.listFiles();
+    public void beginDeepLoad(final File file) {
         // File tempfile = null;
+        Thread thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                deepLoad(file);
+                Message message = new Message();
+                message.what = 0x127;
+                Log.v("OneMusicLoader","handleMessage()0x127");
+                handler.sendMessage(message);
+            }
+        });
+        thread.start();
+
+
+    }
+    private void deepLoad(File file){
+        File[] files = file.listFiles();
         for (File file1 : files) {
-            //如果file1路径为目录
             if (file1.isDirectory()) {
                 deepLoad(file1);
             } else {
                 //listener.onSearch(file1.getName());
-                Message message = new Message();
-                message.what = 0x126;
-                Bundle bundle = new Bundle();
-                bundle.putString("name",file1.getName());
-                message.setData(bundle);
-                handler.sendMessage(message);
                 if (file1.getName().trim().toLowerCase().endsWith(".mp3")) {
-                    System.out.println("获得音乐" + file1.getName());
                     try {
-                        add2MusicList(file1);
+                        Message message = new Message();
+                        message.what = 0x126;
+                        Bundle bundle = new Bundle();
+                        bundle.putString("name",file1.getName());
+                        bundle.putParcelable("music",getMusic(file1));
+                        message.setData(bundle);
+                        handler.sendMessage(message);
                     } catch (Exception e) {
                         System.out.println("尼玛 抛异常了");
                         e.printStackTrace();
@@ -204,8 +219,27 @@ public class OneMusicloader {
             title = file.getName();
         }
         System.out.println("标题为:"+title+" 专辑为:"+album+" mime为:"+mime+" 艺术家为:"+artist+" 长度为:"+duration+" 比特率为:"+bitrate+" 日期为:"+date);
-        Music music = new Music(artist, duration, album, title, path,false);
+        Music music = new Music(artist, duration, album, title, path,true);
         musicArrayList.add(music);
+    }
+    public Music getMusic(File file){
+        String path = file.getPath();
+        Log.v("OneMusicLoader","getMusic()文件路径"+path);
+        MediaMetadataRetriever mediaMetadataRetriever = new MediaMetadataRetriever();
+        mediaMetadataRetriever.setDataSource(path);
+        String title = mediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE);
+        String album = mediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ALBUM);
+        String mime = mediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_MIMETYPE);
+        String artist = mediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST);
+        String duration = mediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION); // 播放时长单位为毫秒
+        String bitrate = mediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_BITRATE);
+        String date = mediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DATE);
+        if(title==null){
+            title = file.getName();
+        }
+        //System.out.println("标题为:"+title+" 专辑为:"+album+" mime为:"+mime+" 艺术家为:"+artist+" 长度为:"+duration+" 比特率为:"+bitrate+" 日期为:"+date);
+        Music music = new Music(artist, duration, album, title, path,true);
+        return music;
     }
 
 }

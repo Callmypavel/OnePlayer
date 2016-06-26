@@ -1,11 +1,12 @@
 package com.example.peacemaker.oneplayer;
 
 import android.app.Activity;
-import android.app.Fragment;
+import android.support.v4.app.Fragment;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.util.Log;
 import android.util.SparseArray;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -22,7 +23,7 @@ import java.util.logging.LogRecord;
 public class SerchingFragment extends Fragment  {
     public TextView folder;
     public TextView filename;
-    public ArrayList<Music> musicArrayList;
+    public ArrayList<Music> musicArrayList = new ArrayList<>();
     OneMusicloader oneMusicloader;
     Handler handler;
 
@@ -49,37 +50,48 @@ public class SerchingFragment extends Fragment  {
             public boolean handleMessage(Message msg) {
                 if(msg.what==0x126){
                     String name = msg.getData().getString("name");
-                    filename.setText(name);
+                    Music music = msg.getData().getParcelable("music");
+                    musicArrayList.add(music);
+                    filename.setText("已增加:"+name);
+                }else if(msg.what==0x127){
+                    Message message = new Message();
+                    Bundle bundle = new Bundle();
+                    MusicProvider musicProvider = new MusicProvider(musicArrayList);
+                    bundle.putParcelable("provider",musicProvider);
+                    message.what = 0x128;
+                    message.setData(bundle);
+                    handler.sendMessage(message);
+                    Log.v("SearchingFragment","handleMessage()0x127");
+                    SerchingFragment.this.onDetach();
                 }
                 return false;
             }
         });
         oneMusicloader = new OneMusicloader(searchhandler);
-        final AsyncTask asyncTask = new AsyncTask() {
-            @Override
-            protected Object doInBackground(Object[] params) {
-                musicArrayList = oneMusicloader.getdeepLoad(file);
-                System.out.println("刚接到的"+musicArrayList);
-                return null;
-            }
-
-            @Override
-            protected void onPostExecute(Object o) {
-                super.onPostExecute(o);
-                System.out.println("执行完毕");
-                SerchingFragment.this.onDetach();
-                Message message = new Message();
-                Bundle bundle = new Bundle();
-                bundle.putParcelableArrayList("music",musicArrayList);
-                message.what = 0x127;
-                message.setData(bundle);
-                handler.sendMessage(message);
-                System.out.println("扫描后的" + musicArrayList);
-                System.out.println("肥皂已扔 蛤蛤");
-            }
-        };
-        asyncTask.execute();
-        System.out.println("onStart()结束了");
+        oneMusicloader.getdeepLoad(file);
+//        final AsyncTask asyncTask = new AsyncTask() {
+//            @Override
+//            protected Object doInBackground(Object[] params) {
+//
+//                System.out.println("刚接到的"+musicArrayList);
+//                return null;
+//            }
+//
+//            @Override
+//            protected void onPostExecute(Object o) {
+//                super.onPostExecute(o);
+////                System.out.println("执行完毕");
+////                Message message = new Message();
+////                Bundle bundle = new Bundle();
+////                bundle.putParcelableArrayList("music",musicArrayList);
+////                message.what = 0x127;
+////                message.setData(bundle);
+////                handler.sendMessage(message);
+////                SerchingFragment.this.onDestroy();
+//            }
+//        };
+//        asyncTask.execute();
+//        System.out.println("onStart()结束了");
     }
 
     @Override

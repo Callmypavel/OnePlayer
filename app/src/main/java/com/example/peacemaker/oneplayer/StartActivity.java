@@ -50,6 +50,7 @@ public class StartActivity extends Activity implements Runnable {
     int FirstPosition = 0;
     String singer;
     String song;
+    OneLogger oneLogger;
     final static int startMainActivity = 0x131;
     final static int godie = 0x132;
     @Override
@@ -61,23 +62,27 @@ public class StartActivity extends Activity implements Runnable {
         }
         super.onCreate(savedInstanceState);
         setContentView(R.layout.start_activity);
+        //oneLogger = new OneLogger();
+        //oneLogger.getLog();
         handler = new Handler(new Handler.Callback() {
             @Override
             public boolean handleMessage(Message msg) {
                 if(msg.what==initFinished){
                     Intent intent = new Intent();
                     //intent.putParcelableArrayListExtra("musicArraylist", musicArrayList);
-                    intent.putExtra("lastPlayedMusic", lastPlayedMusic);
-                    intent.putExtra("currentPosition", currentPosition);
+//                    intent.putExtra("lastPlayedMusic", lastPlayedMusic);
+//                    intent.putExtra("currentPosition", currentPosition);
                     //Log.v("StartActivity", "onCreate检查模式" + OrderMode);
                     //intent.putExtra("FirstPosition", FirstPosition);
                     //Log.v("StartActivity", "onCreate检查第一彩蛋" + FirstPosition);
-                    intent.putExtra("OrderMode", OrderMode);
+//                    intent.putExtra("OrderMode", OrderMode);
                     //Log.v("StartActivity", "onCreate检查第一彩蛋" + FirstPosition);
                     intent.putExtra("musicProvider", musicProvider);
                     Log.v("StartActivity", "传前检查提供者" + musicProvider);
                     intent.setClass(StartActivity.this, MainActivity.class);
                     Log.v("获取完成", "开始新的旅途");
+                    //oneLogger.stopLogging();
+                    //oneLogger = null;
                     startActivity(intent);
                     finish();
                 }
@@ -91,14 +96,14 @@ public class StartActivity extends Activity implements Runnable {
     public void run() {
         if(!isStop){
             init();
-            isStop = true;
+            //isStop = true;
         }
     }
     public void init()  {
         TextView textView = (TextView)findViewById(R.id.entering);
         textView.setVisibility(View.VISIBLE);
         //从数据库中获得音乐
-        DatabaseOperator databaseOperator = new DatabaseOperator(this, "OnePlayer.db");
+//        DatabaseOperator databaseOperator = new DatabaseOperator(this, "OnePlayer.db");
 //        musicArrayList = databaseOperator.getMusics();
         //如果从数据库中取不到歌曲，启动扫描加载
 //        if (musicArrayList.size() == 0) {
@@ -209,28 +214,27 @@ public class StartActivity extends Activity implements Runnable {
 ////        }
         //取得最后一次播放的音乐
         //SharedPreferences sharedPreferences = getSharedPreferences("Last", Activity.MODE_PRIVATE);
-        JSONObject jsonObject = databaseOperator.getLastPlayed();
-        try {
-            currentPosition = jsonObject.getInt("currentPosition");
-            String artist = jsonObject.getString("artist");
-            String duration = jsonObject.getString("duration");
-            String ablum = jsonObject.getString("ablum");
-            String displayName = jsonObject.getString("displayName");
-            String url = jsonObject.getString("url");
-            lastPlayedMusic = new Music(artist,duration,ablum,displayName,url,true);
-            //FirstPosition = jsonObject.getInt("FirstPosition");
-            OrderMode = jsonObject.getInt("OrderMode");
-            Log.v("StartActivity","init检查模式"+OrderMode);
-        }catch (JSONException e){
-            e.printStackTrace();
-            Log.v("StartActivity","json异常");
-        }
-        if(lastPlayedMusic==null){
-            if(musicArrayList.size()!=0){
-                lastPlayedMusic = musicArrayList.get(0);
-            }
-
-        }
+//        JSONObject jsonObject = databaseOperator.getLastPlayed();
+//        try {
+//            currentPosition = jsonObject.getInt("currentPosition");
+//            String artist = jsonObject.getString("artist");
+//            String duration = jsonObject.getString("duration");
+//            String ablum = jsonObject.getString("ablum");
+//            String displayName = jsonObject.getString("displayName");
+//            String url = jsonObject.getString("url");
+//            lastPlayedMusic = new Music(artist,duration,ablum,displayName,url,true);
+//            //FirstPosition = jsonObject.getInt("FirstPosition");
+//            OrderMode = jsonObject.getInt("OrderMode");
+//            Log.v("StartActivity","init检查模式"+OrderMode);
+//        }catch (JSONException e){
+//            e.printStackTrace();
+//            Log.v("StartActivity","json异常");
+//        }
+//        if(lastPlayedMusic==null){
+//            if(musicArrayList.size()!=0){
+//                lastPlayedMusic = musicArrayList.get(0);
+//            }
+//        }
         musicProvider = new MusicProvider(musicArrayList);
         isStop = true;
         Message message = new Message();

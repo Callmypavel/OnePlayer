@@ -98,8 +98,37 @@
     </RelativeLayout>
     <RelativeLayout
         android:background="?android:attr/selectableItemBackground"
-        android:id="@+id/version"
+        android:id="@+id/print_log"
         android:layout_below="@+id/update"
+        android:divider="@android:color/transparent"
+        android:dividerHeight="1dp"
+        android:layout_width="match_parent"
+        android:layout_height="48dp">
+        <ImageView
+            android:layout_marginTop="16dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginLeft="16dp"
+            android:id="@+id/imageView3"
+            android:layout_width="16dp"
+            android:layout_height="16dp"/>
+
+        <TextView
+            android:layout_marginStart="41dp"
+            android:layout_marginLeft="41dp"
+            android:id="@+id/print_log_text"
+            android:textSize="14sp"
+            android:text="打印日志"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignTop="@+id/imageView3"
+            android:layout_toRightOf="@+id/imageView3"
+            android:layout_toEndOf="@+id/imageView3" />
+
+    </RelativeLayout>
+    <RelativeLayout
+        android:background="?android:attr/selectableItemBackground"
+        android:id="@+id/version"
+        android:layout_below="@+id/print_log"
         android:divider="@android:color/transparent"
         android:dividerHeight="1dp"
         android:layout_width="match_parent"
@@ -111,17 +140,21 @@
             android:id="@+id/imageView2"
             android:layout_width="16dp"
             android:layout_height="16dp"/>
+
         <TextView
-            android:layout_marginTop="16dp"
-            android:layout_marginStart="72dp"
-            android:layout_marginLeft="72dp"
+            android:layout_marginStart="41dp"
+            android:layout_marginLeft="41dp"
             android:id="@+id/versioninformation"
             android:textSize="14sp"
             android:text="版本信息"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:layout_alignTop="@+id/imageView2"
+            android:layout_toRightOf="@+id/imageView2"
+            android:layout_toEndOf="@+id/imageView2" />
 
     </RelativeLayout>
+
     <TextView
         android:layout_marginLeft="16dp"
         android:layout_marginTop="16dp"

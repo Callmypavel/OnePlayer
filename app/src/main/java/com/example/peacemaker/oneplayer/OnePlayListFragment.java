@@ -34,7 +34,7 @@ public class OnePlayListFragment extends Fragment {
     private MainActivity activity;
     private OneMusicItemAdapter oneMusicItemAdapter;
     private boolean isEnable = true;
-    private int position;
+    private int selectedPosition = -1;
 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
@@ -48,7 +48,7 @@ public class OnePlayListFragment extends Fragment {
 
     @Override
     public void onStart() {
-        oneMusicItemAdapter.setSelectedPosition(position);
+        //oneMusicItemAdapter.setSelectedPosition(position);
         super.onStart();
     }
 
@@ -60,10 +60,13 @@ public class OnePlayListFragment extends Fragment {
         return view;
     }
     public void setSelectedPosition(int position){
-        this.position = position;
+        this.selectedPosition = position;
         if(oneMusicItemAdapter!=null) {
-            oneMusicItemAdapter.setSelectedPosition(position);
+            oneMusicItemAdapter.notifyDataSetChanged();
         }
+//        if(oneMusicItemAdapter!=null) {
+//            oneMusicItemAdapter.setSelectedPosition(position);
+//        }
     }
     public void disable(){
 //        if(onePlayListView!=null) {
@@ -86,7 +89,7 @@ public class OnePlayListFragment extends Fragment {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 if(oneMusicItemAdapter!=null) {
-                    oneMusicItemAdapter.setSelectedPosition(position);
+                    oneMusicItemAdapter.notifyDataSetChanged();
                     Music music = oneMusicItemAdapter.getItem(position);
                     activity.changeTemp(2);
                     activity.itemSelected(music,position);
@@ -95,7 +98,7 @@ public class OnePlayListFragment extends Fragment {
         });
     }
     public class OneMusicItemAdapter extends ArrayAdapter<Music> {
-        private int selectedPosition=-1;
+        //private int selectedPosition=-1;
         private Activity activity;
 
         @Override
@@ -120,10 +123,10 @@ public class OnePlayListFragment extends Fragment {
             OneViewHolder oneViewHolder = new OneViewHolder();
             return oneViewHolder.getHolderView(convertView,activity,parent,music,state);
         }
-        public void setSelectedPosition(int selectedPosition){
-            this.selectedPosition = selectedPosition;
-            notifyDataSetChanged();
-        }
+//        public void setSelectedPosition(int selectedPosition){
+//            this.selectedPosition = selectedPosition;
+//            notifyDataSetChanged();
+//        }
 
 
         public class OneViewHolder{

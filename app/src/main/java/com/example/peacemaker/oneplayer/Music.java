@@ -5,6 +5,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.util.DisplayMetrics;
 import android.util.Log;
 
 import java.io.Serializable;
@@ -32,7 +33,7 @@ public class Music implements Parcelable{
     private String artist = "<unknown>";
     private String duration;
     private String size;
-    private String id;
+    private String id = "0";
     private String album = "<unknown>";
     private String displayName="<unknown>";
     private String url;
@@ -60,6 +61,16 @@ public class Music implements Parcelable{
         this.isPlayable = isPlayable;
         //this.albumBitmap = albumBitmap;
     }
+    public Music(String artist,String duration,String album,String displayName,String url, String id,boolean isPlayable){
+        this.artist = artist;
+        this.duration = duration;
+        this.isPlayable = isPlayable;
+        this.album = album;
+        this.displayName = cutName(displayName);
+        this.url = url;
+        this.id = id;
+        //this.albumBitmap = albumBitmap;
+    }
     public Music(String artist,String duration,String album,String displayName,String url,boolean isPlayable){
         this.artist = artist;
         this.duration = duration;
@@ -67,6 +78,7 @@ public class Music implements Parcelable{
         this.album = album;
         this.displayName = cutName(displayName);
         this.url = url;
+        this.id = id;
         //this.albumBitmap = albumBitmap;
     }
     public Music(){
@@ -81,6 +93,7 @@ public class Music implements Parcelable{
         url = in.readString();
         isPlayable =in.readByte()!=0;
         musicArrayList = in.readArrayList(getClass().getClassLoader());
+        id = in.readString();
     }
 
     public String getArtist(){
@@ -98,9 +111,9 @@ public class Music implements Parcelable{
         //return size;
     //}
 
-    //public String getId(){
-    //    return id;
-    //}
+    public int getId(){
+        return Integer.parseInt(id);
+    }
 
     public String getAlbum(){
         if(album!=null) {
@@ -109,11 +122,38 @@ public class Music implements Parcelable{
             return "<unknown>";
     }
     public Bitmap getAlbumBitmap(Context context){
+        //Log.v("Music","拿url"+url);
         Bitmap bitmap = OneMusicloader.getAlbumArt(url);
         if(bitmap==null){
             return BitmapFactory.decodeResource(context.getResources(),R.drawable.music);
         }
-        return OneMusicloader.getAlbumArt(url);
+        return bitmap;
+    }
+    public Bitmap getMiddleAlbumArt(Context context) {
+        Bitmap bitmap = getAlbumBitmap(context);
+        DisplayMetrics dm =context.getResources().getDisplayMetrics();
+        int width = dm.widthPixels;
+        bitmap = OneBitmapUtil.zoomImg(bitmap,width/2,width/2);
+        return bitmap;
+    }
+    public Bitmap getSmallAlbumArt(Context context) {
+        Bitmap bitmap = getAlbumBitmap(context);
+        DisplayMetrics dm =context.getResources().getDisplayMetrics();
+        int width = dm.widthPixels;
+        bitmap = OneBitmapUtil.zoomImg(bitmap,width/6,width/6);
+        return bitmap;
+    }
+    public Bitmap getMiddleAlbumArt(Bitmap bitmap,Context context) {
+        DisplayMetrics dm =context.getResources().getDisplayMetrics();
+        int width = dm.widthPixels;
+        bitmap = OneBitmapUtil.zoomImg(bitmap,width/2,width/2);
+        return bitmap;
+    }
+    public Bitmap getSmallAlbumArt(Bitmap bitmap,Context context) {
+        DisplayMetrics dm =context.getResources().getDisplayMetrics();
+        int width = dm.widthPixels;
+        bitmap = OneBitmapUtil.zoomImg(bitmap,width/6,width/6);
+        return bitmap;
     }
 
     public String getDisplayName(){
@@ -229,5 +269,6 @@ public class Music implements Parcelable{
         dest.writeString(url);
         dest.writeByte((byte)(isPlayable ?1:0));
         dest.writeList(musicArrayList);
+        dest.writeString(id);
     }
 }

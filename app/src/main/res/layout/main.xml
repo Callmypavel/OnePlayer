@@ -200,11 +200,13 @@
                 android:src="@drawable/music"
                 android:layout_width="match_parent"
                 android:layout_height="360dp" />
+
             <com.example.peacemaker.oneplayer.OneWaveFromView
                 android:id="@+id/play_view_onewaveform"
-                android:layout_alignBottom="@+id/play_view_album"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
+                android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentStart="true" />
         </RelativeLayout>
         <RelativeLayout
             android:background="@android:color/holo_red_light"
@@ -213,8 +215,8 @@
             android:layout_width="match_parent"
             android:layout_height="162dp"
             android:layout_below="@+id/main_content_view"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentStart="true">
+            android:layout_alignParentBottom="true"
+            >
             <com.example.peacemaker.oneplayer.OneSeekBar
                 android:id="@+id/one_seekbar"
                 android:layout_marginTop="20dp"
@@ -291,8 +293,6 @@
 
 
             </RelativeLayout>
-
-
 
 
 

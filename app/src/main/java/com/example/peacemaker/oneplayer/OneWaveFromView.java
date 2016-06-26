@@ -8,6 +8,7 @@ import android.graphics.Paint;
 import android.graphics.Point;
 import android.graphics.Rect;
 import android.util.AttributeSet;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.Property;
 import android.view.View;
@@ -24,15 +25,16 @@ import java.util.Properties;
 public class OneWaveFromView extends View {
     private int width;
     private byte[] data;
-    private int unitLength;
-    private int offsetX = 20;
-    private int offsetY = 1000;
-    private int block_width;
-    private ArrayList<MusicRect> rects = new ArrayList<>();
+    private float unitLength;
+    private float offsetX = 20;
+    private float offsetY = 1000;
+    private float block_width;
+    private float block_height;
+    private ArrayList<Rect> rects = new ArrayList<>();
     private Point lastPoint = new Point();
     private Paint paint;
     private Rect rect = new Rect(0,0,0,0);
-    private ArrayList<ObjectAnimator> objectAnimators = new ArrayList<>();
+    //private ArrayList<ObjectAnimator> objectAnimators = new ArrayList<>();
     public OneWaveFromView(Context context) {
         super(context);
         Log.v("OneWaveFromView","构造函数()单参构造");
@@ -43,17 +45,17 @@ public class OneWaveFromView extends View {
         Log.v("OneWaveFromView","构造函数()二参构造");
         paint = new Paint();
         paint.setAlpha(150);
-        WindowManager wm = (WindowManager) getContext()
-                .getSystemService(Context.WINDOW_SERVICE);
-        width = wm.getDefaultDisplay().getWidth();
+        DisplayMetrics dm =getResources().getDisplayMetrics();
+        width = dm.widthPixels;
         offsetY = width;
-        unitLength = width/32;
+        unitLength = width/31.f;
         block_width = unitLength*4/5;
-        offsetX = 0;
+        block_height = width*32/135;
+        offsetX = unitLength/5;
         for(int i=0;i<31;i++){
-            int x = i*unitLength+offsetX;
-            Log.v("OneWaveFormView","查看方块情况"+x);
-            MusicRect rect = new MusicRect(x,offsetY-64,x+block_width,offsetY);
+            int x = (int)(i*unitLength+offsetX);
+            //Log.v("OneWaveFormView","查看方块情况"+x);
+            Rect rect = new Rect(x,(int)(offsetY-block_height),(int)(x+block_width),(int)(offsetY));
             rects.add(rect);
 //            ObjectAnimator objectAnimator = new ObjectAnimator();
 //            objectAnimator.setTarget(rect);
@@ -86,6 +88,7 @@ public class OneWaveFromView extends View {
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+        super.onMeasure(widthMeasureSpec,heightMeasureSpec);
         setMeasuredDimension(width, width);
 
     }
@@ -99,19 +102,20 @@ public class OneWaveFromView extends View {
         //Log.v("OneWaveFromView","setData1()"+this.data);
         if(data!=null){
             for(int i=1;i<32;i++){
-                int x = i*unitLength+offsetX;
+                int x = (int)(i*unitLength+offsetX);
                 int value = (int)Math.hypot(data[2*i],data[2*i+1]);
-                int y = offsetY-3*value-200;
+                int y = (int)(offsetY-block_height-3*value);
                 //Log.v("OneWaveFormView", "setData()检查Y" +y);
                 //ObjectAnimator objectAnimator = objectAnimators.get(i-1);
                 //objectAnimator.setIntValues((int)rects.get(i-1).top,y);
                 //Log.v("OneWaveFormView", "onDraw()检查插值" + (int)rects.get(i).top + "," +y);
                 //objectAnimator.setDuration(50);
                 //objectAnimator.start();
-                rects.get(i-1).bottom = offsetY;
+//                rects.get(i-1).bottom = offsetY;
                 rects.get(i-1).top = y;
-                rects.get(i-1).left = x;
-                rects.get(i-1).right = x + block_width;
+
+//                rects.get(i-1).left = x;
+//                rects.get(i-1).right = x + block_width;
 
 
             }

@@ -96,7 +96,7 @@ public class OneAblumDetailFragment extends Fragment{
         });
         Music music = activity.getDetailTarget();
         oneMusicItemAdapter.addAll(music.getSecondItems());
-        albumImageView.setImageBitmap(music.getSecondItems().get(0).getAlbumBitmap(activity));
+        albumImageView.setImageBitmap(music.getSecondItems().get(0).getMiddleAlbumArt(activity));
         albumNameTextView.setText(music.getDisplayName());
         albumDetailTextView.setText(music.getSecondItems().size()+"首歌曲");
         singerNameTextView.setText(music.getSecondItems().get(0).getArtist());

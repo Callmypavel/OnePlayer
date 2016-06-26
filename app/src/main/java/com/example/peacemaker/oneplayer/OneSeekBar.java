@@ -10,6 +10,7 @@ import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.util.AttributeSet;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
@@ -42,23 +43,86 @@ public class OneSeekBar extends View implements View.OnClickListener{
     private float degree = 0;
     private int colorInt = Color.WHITE;
     private OnOneSeekBarListener oneSeekBarListener;
+    public OneSeekBar(Context context) {
+        super(context);
+        initialize(context);
+    }
+
+    public OneSeekBar(Context context, AttributeSet attrs, int defStyle) {
+        super(context, attrs, defStyle);
+        initialize(context);
+
+
+    }
     public OneSeekBar(Context context, AttributeSet attrs) {
         super(context, attrs);
-        play_white_bitmap = BitmapFactory.decodeResource(context.getResources(),R.drawable.ic_play_circle_outline_white_48dp);
-        pause_white_bitmap = BitmapFactory.decodeResource(context.getResources(),R.drawable.ic_pause_circle_outline_white_48dp);
-        play_black_bitmap = BitmapFactory.decodeResource(context.getResources(),R.drawable.ic_play_circle_black_48dp);
-        pause_black_bitmap = BitmapFactory.decodeResource(context.getResources(),R.drawable.ic_pause_circle_black_48dp);
+        initialize(context);
+    }
+    private void initialize(Context context){
+        DisplayMetrics dm =getResources().getDisplayMetrics();
+        radius = (int)(dm.widthPixels/6.f);
+        ringRadius = (int)(dm.widthPixels/27.f);
+        Log.v("OneSeekBar","initialize半径"+radius);
+        centreX = radius;
+        centreY = radius;
+        oval = new RectF(centreX - radius + ringRadius/2, centreY - radius + ringRadius/2, centreX + radius - ringRadius/2, centreY + radius - ringRadius/2);
+        innerRadius = radius - ringRadius;
+        try {
+            play_white_bitmap = OneBitmapUtil.zoomImg(context,R.drawable.ic_play_circle_outline_white_48dp,2*radius,2*radius);
+            pause_white_bitmap = OneBitmapUtil.zoomImg(context,R.drawable.ic_pause_circle_outline_white_48dp,2*radius,2*radius);
+            play_black_bitmap = OneBitmapUtil.zoomImg(context,R.drawable.ic_play_circle_black_48dp,2*radius,2*radius);
+            pause_black_bitmap = OneBitmapUtil.zoomImg(context,R.drawable.ic_pause_circle_black_48dp,2*radius,2*radius);
+        }catch (Exception e){
+            Log.v("OneSeekBar","原图缩放异常");
+            e.printStackTrace();
+            try {
+                play_white_bitmap = OneBitmapUtil.zoomImg(context,R.drawable.white_play_144,2*radius,2*radius);
+                pause_white_bitmap = OneBitmapUtil.zoomImg(context,R.drawable.white_pause_144,2*radius,2*radius);
+                play_black_bitmap = OneBitmapUtil.zoomImg(context,R.drawable.black_play_144,2*radius,2*radius);
+                pause_black_bitmap = OneBitmapUtil.zoomImg(context,R.drawable.black_pause_144,2*radius,2*radius);
+            }catch (Exception e1){
+                Log.v("OneSeekBar","144缩放异常");
+                e.printStackTrace();
+                try {
+                    play_white_bitmap = OneBitmapUtil.zoomImg(context,R.drawable.white_play_96,2*radius,2*radius);
+                    pause_white_bitmap = OneBitmapUtil.zoomImg(context,R.drawable.white_pause_96,2*radius,2*radius);
+                    play_black_bitmap = OneBitmapUtil.zoomImg(context,R.drawable.black_play_96,2*radius,2*radius);
+                    pause_black_bitmap = OneBitmapUtil.zoomImg(context,R.drawable.black_pause_96,2*radius,2*radius);
+                }catch (Exception e2){
+                    Log.v("OneSeekBar","96缩放异常");
+                    e.printStackTrace();
+                    try {
+                        play_white_bitmap = OneBitmapUtil.zoomImg(context,R.drawable.white_play_72,2*radius,2*radius);
+                        pause_white_bitmap = OneBitmapUtil.zoomImg(context,R.drawable.white_pause_72,2*radius,2*radius);
+                        play_black_bitmap = OneBitmapUtil.zoomImg(context,R.drawable.black_play_72,2*radius,2*radius);
+                        pause_black_bitmap = OneBitmapUtil.zoomImg(context,R.drawable.black_pause_72,2*radius,2*radius);
+                    }catch (Exception e3){
+                        Log.v("OneSeekBar","72缩放异常");
+                        e.printStackTrace();
+                        try {
+                            play_white_bitmap = OneBitmapUtil.zoomImg(context,R.drawable.white_play_48,2*radius,2*radius);
+                            pause_white_bitmap = OneBitmapUtil.zoomImg(context,R.drawable.white_pause_48,2*radius,2*radius);
+                            play_black_bitmap = OneBitmapUtil.zoomImg(context,R.drawable.black_play_48,2*radius,2*radius);
+                            pause_black_bitmap = OneBitmapUtil.zoomImg(context,R.drawable.black_pause_48,2*radius,2*radius);
+                        }catch (Exception e4){
+                            Log.v("OneSeekBar","48缩放异常");
+                        }
+                    }
+                }
+            }
+
+        }
+
+        Log.v("OneSeekBar","initialize位图"+play_white_bitmap);
 //        Matrix matrix = new Matrix();
 //        matrix.setRectToRect(new RectF(0, 0, play_bitmap.getWidth(), play_bitmap.getHeight()), new RectF(0, 0, play_bitmap.getWidth()/3, play_bitmap.getHeight()/3), Matrix.ScaleToFit.CENTER);
 //        pause_bitmap = Bitmap.createBitmap(pause_bitmap,0,0,pause_bitmap.getWidth(),pause_bitmap.getHeight(),matrix,true);
 //        play_bitmap = Bitmap.createBitmap(play_bitmap,0,0,play_bitmap.getWidth(),play_bitmap.getHeight(),matrix,true);
         draw_bitmap = play_white_bitmap;
 //        radius = (draw_bitmap.getWidth())/2;
-        ringPaint = new Paint();
-        tintRingPaint = new Paint();
         setPaintColor();
         defaultPaint = new Paint();
-        oval = new RectF();
+        //oval = new RectF();
         Log.v("OneSeekBar","构造函数");
     }
     public void setColorInt(int colorInt){
@@ -67,16 +131,26 @@ public class OneSeekBar extends View implements View.OnClickListener{
         invalidate();
     }
     public void setPaintColor(){
+        if(ringPaint==null) {
+            ringPaint = new Paint();
+        }
         ringPaint.setColor(colorInt);
         ringPaint.setStrokeWidth(ringRadius);
         ringPaint.setAntiAlias(true);
         ringPaint.setStyle(Paint.Style.STROKE);
-        tintRingPaint = new Paint();
+        if(tintRingPaint==null) {
+            tintRingPaint = new Paint();
+        }
         tintRingPaint.setColor(colorInt);
         tintRingPaint.setStrokeWidth(ringRadius);
         tintRingPaint.setAntiAlias(true);
         tintRingPaint.setStyle(Paint.Style.STROKE);
         tintRingPaint.setAlpha(60);
+        if(colorInt==Color.WHITE) {
+            draw_bitmap = play_white_bitmap;
+        }else {
+            draw_bitmap = play_black_bitmap;
+        }
     }
 
     @Override
@@ -96,29 +170,10 @@ public class OneSeekBar extends View implements View.OnClickListener{
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-        int width = getWidth();
-        if(width!=0) {
-            if(radius==0) {
-                radius = getWidth() / 2;
-                centreX = radius;
-                centreY = radius;
-                oval = new RectF(centreX - radius + ringRadius/2, centreY - radius + ringRadius/2, centreX + radius - ringRadius/2, centreY + radius - ringRadius/2);
-                Log.v("OneSeekBar", "onMeasure检查尺寸centreX" + centreX + "radius" + radius + "centreY" + centreY);
-                innerRadius = radius - ringRadius;
-                play_white_bitmap = zoomImg(play_white_bitmap, 2 * radius, 2 * radius);
-                play_black_bitmap = zoomImg(play_black_bitmap, 2 * radius, 2 * radius);
-                pause_white_bitmap = zoomImg(pause_white_bitmap, 2 * radius, 2 * radius);
-                pause_black_bitmap = zoomImg(pause_black_bitmap, 2 * radius, 2 * radius);
-                if(colorInt==Color.WHITE) {
-                    draw_bitmap = play_white_bitmap;
-                }else {
-                    draw_bitmap = play_black_bitmap;
-                }
-            }
-        }
 //        if(radius!=0){
-//            setMeasuredDimension(2*radius,2*radius);
+//
 //        }
+        //Log.v("OneSeekBar", "onMeasure()");
     }
 
     @Override
@@ -204,20 +259,7 @@ public class OneSeekBar extends View implements View.OnClickListener{
         //Log.v("OneSeekBar","setProgress检查进度"+progress);
         setDegree(progress*360);
     }
-    private Bitmap zoomImg(Bitmap bm, int newWidth ,int newHeight){
-        // 获得图片的宽高
-        int width = bm.getWidth();
-        int height = bm.getHeight();
-        // 计算缩放比例
-        float scaleWidth = ((float) newWidth) / width;
-        float scaleHeight = ((float) newHeight) / height;
-        // 取得想要缩放的matrix参数
-        Matrix matrix = new Matrix();
-        matrix.postScale(scaleWidth, scaleHeight);
-        // 得到新的图片
-        Bitmap newbm = Bitmap.createBitmap(bm, 0, 0, width, height, matrix, true);
-        return newbm;
-    }
+
 
     @Override
     public void onClick(View v) {
