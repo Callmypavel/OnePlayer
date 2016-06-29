@@ -99,6 +99,7 @@ public class OneMusicloader {
             mediaMetadataRetriever.setDataSource(url); //设置数据源
             byte[] embedPic = mediaMetadataRetriever.getEmbeddedPicture(); //得到字节型数据
             bitmap = BitmapFactory.decodeByteArray(embedPic, 0, embedPic.length); //转换为图片
+            //Log.v("OneMusicLoader","专辑封面原始大小：宽："+bitmap.getWidth()+",高："+bitmap.getHeight());
         } catch (Exception e) {
             //e.printStackTrace();
         } finally {

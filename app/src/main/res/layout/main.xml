@@ -106,7 +106,7 @@
             <ImageView
                 android:id="@+id/bottom_album_image"
                 android:scaleType="fitXY"
-                android:src="@drawable/album"
+                android:src="@drawable/logo"
                 android:layout_alignParentLeft="true"
                 android:layout_alignParentStart="true"
                 android:layout_width="60dp"

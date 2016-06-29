@@ -39,26 +39,26 @@ public class OneSingerListFragment extends Fragment {
 
     @Override
     public void onAttach(Context context) {
-        Log.v("OneSingerListFragment","onAttach");
+        //Log.v("OneSingerListFragment","onAttach");
         super.onAttach(context);
     }
 
     @Override
     public void onDetach() {
-        Log.v("OneSingerListFragment","onDetach");
+        //Log.v("OneSingerListFragment","onDetach");
         super.onDetach();
     }
 
     @Override
     public void onDestroy() {
         activity.singerSelectedPosition = selectedPosition;
-        Log.v("OneSingerListFragment","onDestroy()死去"+selectedPosition);
+        //Log.v("OneSingerListFragment","onDestroy()死去"+selectedPosition);
         super.onDestroy();
     }
 
     @Override
     public void onDestroyView() {
-        Log.v("OneSingerListFragment","onDestroyView");
+        //Log.v("OneSingerListFragment","onDestroyView");
         super.onDestroyView();
     }
     public void disable(){

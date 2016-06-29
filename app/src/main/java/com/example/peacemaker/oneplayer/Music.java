@@ -133,7 +133,10 @@ public class Music implements Parcelable{
         Bitmap bitmap = getAlbumBitmap(context);
         DisplayMetrics dm =context.getResources().getDisplayMetrics();
         int width = dm.widthPixels;
+        if(bitmap.getWidth()>width/2) {
         bitmap = OneBitmapUtil.zoomImg(bitmap,width/2,width/2);
+        }else {
+        }
         return bitmap;
     }
     public Bitmap getSmallAlbumArt(Context context) {
@@ -146,13 +149,19 @@ public class Music implements Parcelable{
     public Bitmap getMiddleAlbumArt(Bitmap bitmap,Context context) {
         DisplayMetrics dm =context.getResources().getDisplayMetrics();
         int width = dm.widthPixels;
-        bitmap = OneBitmapUtil.zoomImg(bitmap,width/2,width/2);
+        if(bitmap.getWidth()>width/2) {
+            bitmap = OneBitmapUtil.zoomImg(bitmap, width / 2, width / 2);
+        }else {
+        }
         return bitmap;
     }
     public Bitmap getSmallAlbumArt(Bitmap bitmap,Context context) {
         DisplayMetrics dm =context.getResources().getDisplayMetrics();
         int width = dm.widthPixels;
+        if(bitmap.getWidth()>width/6) {
         bitmap = OneBitmapUtil.zoomImg(bitmap,width/6,width/6);
+        }else {
+        }
         return bitmap;
     }
 

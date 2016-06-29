@@ -72,40 +72,41 @@ public class OneSeekBar extends View implements View.OnClickListener{
             pause_white_bitmap = OneBitmapUtil.zoomImg(context,R.drawable.ic_pause_circle_outline_white_48dp,2*radius,2*radius);
             play_black_bitmap = OneBitmapUtil.zoomImg(context,R.drawable.ic_play_circle_black_48dp,2*radius,2*radius);
             pause_black_bitmap = OneBitmapUtil.zoomImg(context,R.drawable.ic_pause_circle_black_48dp,2*radius,2*radius);
-        }catch (Exception e){
+        }catch (OutOfMemoryError outOfMemoryError){
             Log.v("OneSeekBar","原图缩放异常");
-            e.printStackTrace();
+            outOfMemoryError.printStackTrace();
             try {
                 play_white_bitmap = OneBitmapUtil.zoomImg(context,R.drawable.white_play_144,2*radius,2*radius);
                 pause_white_bitmap = OneBitmapUtil.zoomImg(context,R.drawable.white_pause_144,2*radius,2*radius);
                 play_black_bitmap = OneBitmapUtil.zoomImg(context,R.drawable.black_play_144,2*radius,2*radius);
                 pause_black_bitmap = OneBitmapUtil.zoomImg(context,R.drawable.black_pause_144,2*radius,2*radius);
-            }catch (Exception e1){
+            }catch (OutOfMemoryError outOfMemoryError1){
                 Log.v("OneSeekBar","144缩放异常");
-                e.printStackTrace();
+                outOfMemoryError1.printStackTrace();
                 try {
                     play_white_bitmap = OneBitmapUtil.zoomImg(context,R.drawable.white_play_96,2*radius,2*radius);
                     pause_white_bitmap = OneBitmapUtil.zoomImg(context,R.drawable.white_pause_96,2*radius,2*radius);
                     play_black_bitmap = OneBitmapUtil.zoomImg(context,R.drawable.black_play_96,2*radius,2*radius);
                     pause_black_bitmap = OneBitmapUtil.zoomImg(context,R.drawable.black_pause_96,2*radius,2*radius);
-                }catch (Exception e2){
+                }catch (OutOfMemoryError outOfMemoryError2){
                     Log.v("OneSeekBar","96缩放异常");
-                    e.printStackTrace();
+                    outOfMemoryError2.printStackTrace();
                     try {
                         play_white_bitmap = OneBitmapUtil.zoomImg(context,R.drawable.white_play_72,2*radius,2*radius);
                         pause_white_bitmap = OneBitmapUtil.zoomImg(context,R.drawable.white_pause_72,2*radius,2*radius);
                         play_black_bitmap = OneBitmapUtil.zoomImg(context,R.drawable.black_play_72,2*radius,2*radius);
                         pause_black_bitmap = OneBitmapUtil.zoomImg(context,R.drawable.black_pause_72,2*radius,2*radius);
-                    }catch (Exception e3){
+                    }catch (OutOfMemoryError outOfMemoryError3){
                         Log.v("OneSeekBar","72缩放异常");
-                        e.printStackTrace();
+                        outOfMemoryError3.printStackTrace();
                         try {
                             play_white_bitmap = OneBitmapUtil.zoomImg(context,R.drawable.white_play_48,2*radius,2*radius);
                             pause_white_bitmap = OneBitmapUtil.zoomImg(context,R.drawable.white_pause_48,2*radius,2*radius);
                             play_black_bitmap = OneBitmapUtil.zoomImg(context,R.drawable.black_play_48,2*radius,2*radius);
                             pause_black_bitmap = OneBitmapUtil.zoomImg(context,R.drawable.black_pause_48,2*radius,2*radius);
-                        }catch (Exception e4){
+                        }catch (OutOfMemoryError outOfMemoryError4){
                             Log.v("OneSeekBar","48缩放异常");
+                            outOfMemoryError4.printStackTrace();
                         }
                     }
                 }

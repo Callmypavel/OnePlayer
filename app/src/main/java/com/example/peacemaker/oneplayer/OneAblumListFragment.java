@@ -40,6 +40,7 @@ import butterknife.ButterKnife;
 public class OneAblumListFragment extends Fragment {
     @BindView(R.id.one_albumlist_fragment_gridview)
     public GridView oneGridView;
+    private OneImageCache imageCache = new OneImageCache();
     private int selectedPosition;
     private Bitmap defaultBitmap;
     private MainActivity activity;
@@ -104,25 +105,25 @@ public class OneAblumListFragment extends Fragment {
                 if (scrollState == AbsListView.OnScrollListener.SCROLL_STATE_IDLE) {
                     selectedPosition = oneGridView.getFirstVisiblePosition();
                     //Log.v("OneAblumListFragment","停止滚动"+selectedPosition);
-                    boolean needToFresh = false;
-                    if(isFlinging){
-                        needToFresh = true;
-                    }
+//                    boolean needToFresh = false;
+//                    if(isFlinging){
+//                        needToFresh = true;
+//                    }
                     isFlinging = false;
                     isScolling = false;
-                    Log.v("OneAblumListFragment","没在滚动");
-                    if(needToFresh) {
-                        oneAlbumItemAdapter.notifyDataSetChanged();
-                    }
+//                    Log.v("OneAblumListFragment","没在滚动");
+//                    if(needToFresh) {
+//                        oneAlbumItemAdapter.notifyDataSetChanged();
+//                    }
                 }else if (scrollState == AbsListView.OnScrollListener.SCROLL_STATE_FLING) {
-                    if(oneGridView.getFirstVisiblePosition()!=selectedPosition) {
+//                    if(oneGridView.getFirstVisiblePosition()!=selectedPosition) {
                         isFlinging = true;
-                    }
-                    isScolling = true;
-                    Log.v("OneAblumListFragment","正在fling");
+//                    }
+                    //isScolling = true;
+                    //Log.v("OneAblumListFragment","正在fling");
                 }else if(scrollState == AbsListView.OnScrollListener.SCROLL_STATE_TOUCH_SCROLL){
                     isScolling = true;
-                    Log.v("OneAblumListFragment","正在滚动");
+                    //Log.v("OneAblumListFragment","正在滚动");
                 }
             }
 
@@ -189,25 +190,30 @@ public class OneAblumListFragment extends Fragment {
                 oneAblumViewHolder.albumTextView.setText(music.getDisplayName());
                 oneAblumViewHolder.songNumberTextView.setText(music.getSecondItems().size()+"首歌曲");
                 oneAblumViewHolder.albumImageView.setTag(music.getSecondItems().get(0).getId());
-                oneAblumViewHolder.albumImageView.setImageBitmap(defaultBitmap);
-                final Handler handler = new Handler(new Handler.Callback() {
-                    @Override
-                    public boolean handleMessage(Message msg) {
-                        //if(msg.what==music.getId()){
-                            int id = msg.what;
-                            final Bitmap ablumBitmap = msg.getData().getParcelable("ablumBitmap");
-                            Log.v("OneAblumListFragment","查看位置对比:"+position+","+selectedPosition);
-                            //if(position>=selectedPosition&&position<=selectedPosition+5) {
-                            final ImageView imageView = (ImageView) oneGridView.findViewWithTag(id);
-                            if(imageView!=null) {
-                                imageView.setImageBitmap(ablumBitmap);
+                Bitmap bitmap = imageCache.getBitmapFromCache(music.getSecondItems().get(0).getId()+"");
+                if(bitmap==null) {
+                    //Log.v("OneAblumListFragment","缓存中没有图片");
+                    oneAblumViewHolder.albumImageView.setImageBitmap(defaultBitmap);
+                    //if(!isFlinging&&!isScolling) {
+                        final Handler handler = new Handler(new Handler.Callback() {
+                            @Override
+                            public boolean handleMessage(Message msg) {
+                                //if(msg.what==music.getId()){
+                                int id = msg.what;
+                                final Bitmap ablumBitmap = msg.getData().getParcelable("ablumBitmap");
+                                //if(position>=selectedPosition&&position<=selectedPosition+5) {
+                                final ImageView imageView = (ImageView) oneGridView.findViewWithTag(id);
+                                imageCache.addToCache(id+"",ablumBitmap);
+                                if(imageView!=null) {
+                                    imageView.setImageBitmap(ablumBitmap);
+                                    //oneAlbumItemAdapter.notifyDataSetChanged();
+                                    //Log.v("OneAblumListFragment","更新专辑封面:"+id);
+                                }
+                                //}
+                                //}
+                                return false;
                             }
-                            //}
-                        //}
-                        return false;
-                    }
-                });
-                if(!isFlinging) {
+                        });
 //                    final Handler handler = new Handler(new Handler.Callback() {
 //                        @Override
 //                        public boolean handleMessage(Message msg) {
@@ -232,19 +238,19 @@ public class OneAblumListFragment extends Fragment {
 //                    }
 //                });
 //                thread.start();
-                    executorService.submit(new Runnable() {
-                        @Override
-                        public void run() {
-                        Bitmap ablumBitmap = music.getSecondItems().get(0).getMiddleAlbumArt(activity);
-                        Message message = new Message();
-                        Bundle bundle = new Bundle();
-                        bundle.putParcelable("ablumBitmap",ablumBitmap);
-                        message.setData(bundle);
-                        message.what=music.getSecondItems().get(0).getId();
-                        while(isScolling){
-                            //Log.v("OneAblumListFragment","正在滚动");
-                        }
-                        handler.sendMessage(message);
+                        executorService.submit(new Runnable() {
+                            @Override
+                            public void run() {
+                                Bitmap ablumBitmap = music.getSecondItems().get(0).getMiddleAlbumArt(activity);
+                                Message message = new Message();
+                                Bundle bundle = new Bundle();
+                                bundle.putParcelable("ablumBitmap",ablumBitmap);
+                                message.setData(bundle);
+                                message.what=music.getSecondItems().get(0).getId();
+                                //while(isScolling){
+                                //Log.v("OneAblumListFragment","正在滚动");
+                                //}
+                                handler.sendMessage(message);
 //                            final String url = music.getSecondItems().get(0).getUrl();
 //                            handler.post(new Runnable() {
 //                                @Override
@@ -274,9 +280,15 @@ public class OneAblumListFragment extends Fragment {
 //                                    //}
 //                                }
 //                            });
-                        }
-                    });
+                            }
+                        });
+                    //}
+                }else {
+                    //Log.v("OneAblumListFragment","从缓存中获取图片");
+                    oneAblumViewHolder.albumImageView.setImageBitmap(bitmap);
                 }
+
+
 
 
                 return convertView;

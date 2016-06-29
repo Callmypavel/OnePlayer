@@ -77,7 +77,7 @@ public class StartActivity extends Activity implements Runnable {
                     //Log.v("StartActivity", "onCreate检查第一彩蛋" + FirstPosition);
 //                    intent.putExtra("OrderMode", OrderMode);
                     //Log.v("StartActivity", "onCreate检查第一彩蛋" + FirstPosition);
-                    intent.putExtra("musicProvider", musicProvider);
+                    intent.putExtra("musicArrayList", musicArrayList);
                     Log.v("StartActivity", "传前检查提供者" + musicProvider);
                     intent.setClass(StartActivity.this, MainActivity.class);
                     Log.v("获取完成", "开始新的旅途");
@@ -235,7 +235,7 @@ public class StartActivity extends Activity implements Runnable {
 //                lastPlayedMusic = musicArrayList.get(0);
 //            }
 //        }
-        musicProvider = new MusicProvider(musicArrayList);
+
         isStop = true;
         Message message = new Message();
         message.what = initFinished;
