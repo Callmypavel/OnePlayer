@@ -61,7 +61,7 @@ public class PlayingFragment extends Fragment implements Animation.AnimationList
         circleImageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                activity.basetag.setVisibility(View.VISIBLE);
+                //activity.basetag.setVisibility(View.VISIBLE);
                 activity.isAlbuming = false;
                 activity.queueButton.setImageResource(R.drawable.ic_album_white_48dp);
                 //activity.albumcontainer.setVisibility(View.GONE);

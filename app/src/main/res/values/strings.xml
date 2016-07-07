@@ -1,3 +1,20 @@
 <resources>
     <string name="app_name">OnePlayer</string>
+    <string name="deep_load">深度扫描</string>
+    <string name="check_update">检查更新</string>
+    <string name="print_log">打印日志</string>
+    <string name="version_info">版本信息</string>
+    <string name="exit_app">退出应用</string>
+    <string name="init_time">0:00</string>
+    <string name="singer_name">歌手名</string>
+    <string name="song_name">歌名</string>
+    <string name="album_name">专辑名</string>
+    <string name="singer">歌手</string>
+    <string name="song">歌曲</string>
+    <string name="album">专辑</string>
+    <string name="deepload_path">扫描路径</string>
+    <string name="deepload_msg">扫描信息</string>
+    <string name="deepload_begin">开始扫描</string>
+    <string name="manager">管理员</string>
+    <string name="songs_number">几首歌曲</string>
 </resources>

@@ -2,9 +2,13 @@ package com.example.peacemaker.oneplayer;
 
 import android.app.Activity;
 import android.content.Context;
+import android.graphics.Canvas;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -29,27 +33,40 @@ import butterknife.ButterKnife;
  */
 
 public class OnePlayListFragment extends Fragment {
-    @BindView(R.id.one_play_list)
-    public ListView onePlayListView;
+    @BindView(R.id.one_play_recycler_list)
+    public RecyclerView recyclerView;
     private MainActivity activity;
-    private OneMusicItemAdapter oneMusicItemAdapter;
-    private boolean isEnable = true;
-    private int selectedPosition = -1;
+    private LinearLayoutManager linearLayoutManager;
+    private OneSongItemAdapter oneSongItemAdapter;
+
+
+    public void setSelectedPosition(int position){
+        oneSongItemAdapter.setSelectedPosition(position);
+    }
+
 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         activity = (MainActivity) getActivity();
-        if(oneMusicItemAdapter!=null){
-            oneMusicItemAdapter.addAll(activity.getSongArraylist());
-        }
-        oneMusicItemAdapter.notifyDataSetChanged();
-    }
+        oneSongItemAdapter = new OneSongItemAdapter(activity.getSongArraylist());
+        oneSongItemAdapter.setOnItemHitListener(new OnItemHitListener() {
+            @Override
+            public void onItemHit(int position, Music music) {
+                activity.itemSelected(music,position);
+            }
+        });
+        linearLayoutManager = new LinearLayoutManager(activity);
+        recyclerView.setLayoutManager(linearLayoutManager);
+        recyclerView.setAdapter(oneSongItemAdapter);
+        recyclerView.addItemDecoration(new RecyclerView.ItemDecoration() {
+            @Override
+            public void onDraw(Canvas c, RecyclerView parent, RecyclerView.State state) {
+                super.onDraw(c, parent, state);
+            }
+        });
+        recyclerView.setHasFixedSize(true);
 
-    @Override
-    public void onStart() {
-        //oneMusicItemAdapter.setSelectedPosition(position);
-        super.onStart();
     }
 
     @Override
@@ -59,113 +76,77 @@ public class OnePlayListFragment extends Fragment {
         initialize();
         return view;
     }
-    public void setSelectedPosition(int position){
-        this.selectedPosition = position;
-        if(oneMusicItemAdapter!=null) {
-            oneMusicItemAdapter.notifyDataSetChanged();
-        }
-//        if(oneMusicItemAdapter!=null) {
-//            oneMusicItemAdapter.setSelectedPosition(position);
-//        }
-    }
-    public void disable(){
-//        if(onePlayListView!=null) {
-//            onePlayListView.setEnabled(false);
-//            onePlayListView.setClickable(false);
-//        }
-        isEnable = false;
-    }
-    public void enable(){
-//        if(onePlayListView!=null) {
-//            onePlayListView.setEnabled(true);
-//            onePlayListView.setClickable(true);
-//        }
-        isEnable = true;
-    }
+
+
     public void initialize(){
-        oneMusicItemAdapter = new OneMusicItemAdapter(getActivity());
-        onePlayListView.setAdapter(oneMusicItemAdapter);
-        onePlayListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                if(oneMusicItemAdapter!=null) {
-                    oneMusicItemAdapter.notifyDataSetChanged();
-                    Music music = oneMusicItemAdapter.getItem(position);
-                    activity.changeTemp(2);
-                    activity.itemSelected(music,position);
-                }
-            }
-        });
+
     }
-    public class OneMusicItemAdapter extends ArrayAdapter<Music> {
-        //private int selectedPosition=-1;
-        private Activity activity;
-
-        @Override
-        public boolean areAllItemsEnabled() {
-            return isEnable;
+    private class OneSongItemAdapter extends RecyclerView.Adapter<OneSongItemAdapter.OneSongViewHolder>{
+        private ArrayList<Music> musicArrayList;
+        private OnItemHitListener onItemHitListener;
+        private int selectedPosition = -1;
+        public OneSongItemAdapter(ArrayList<Music> musicArrayList){
+            this.musicArrayList = musicArrayList;
+        }
+        public void setOnItemHitListener(OnItemHitListener onItemHitListener){
+            this.onItemHitListener = onItemHitListener;
+        }
+        public void setSelectedPosition(int selectedPosition){
+            this.selectedPosition = selectedPosition;
+            notifyDataSetChanged();
         }
 
-        public OneMusicItemAdapter(Activity context) {
-            super(context, R.layout.music_item, new ArrayList<Music>());
-            activity = context;
+        @Override
+        public OneSongItemAdapter.OneSongViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+            View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.music_item,parent,false);
+            OneSongViewHolder oneSongViewHolder = new OneSongViewHolder(view);
+            return oneSongViewHolder;
         }
 
         @Override
-        public View getView(int position, View convertView, ViewGroup parent) {
-            Music music = getItem(position);
-            int state;
-            if(position==selectedPosition){
-                state = 1;
+        public void onBindViewHolder(final OneSongViewHolder holder, int position) {
+            Music music = musicArrayList.get(position);
+            holder.singerTextView.setText(music.getArtist());
+            holder.songTextView.setText(music.getDisplayName());
+            if(selectedPosition==position){
+                holder.stateImageView.setVisibility(View.VISIBLE);
             }else {
-                state = 0;
+                holder.stateImageView.setVisibility(View.GONE);
             }
-            OneViewHolder oneViewHolder = new OneViewHolder();
-            return oneViewHolder.getHolderView(convertView,activity,parent,music,state);
+            holder.itemView.setTag(music);
+            holder.itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    int position = holder.getLayoutPosition();
+                    if(onItemHitListener!=null&&position!=-1){
+                        onItemHitListener.onItemHit(position,(Music)v.getTag());
+                    }
+                }
+            });
         }
-//        public void setSelectedPosition(int selectedPosition){
-//            this.selectedPosition = selectedPosition;
-//            notifyDataSetChanged();
-//        }
+
+        @Override
+        public int getItemCount() {
+            if(musicArrayList!=null){
+                return musicArrayList.size();
+            }
+            return 0;
+        }
 
 
-        public class OneViewHolder{
-            private int notplaying = 0;
-            private int playing = 1;
-            private int stateTag = 5;
+
+
+        public class OneSongViewHolder extends RecyclerView.ViewHolder{
             private TextView singerTextView;
             private TextView songTextView;
             private ImageView stateImageView;
 
-            View getHolderView(View convertView,Activity activity,ViewGroup parent,Music music,int state) {
-                OneViewHolder oneViewHolder;
-                Integer cacheState = notplaying;
-                if(convertView==null){
-                    convertView = activity.getLayoutInflater().inflate(R.layout.music_item,parent,false);
-                    oneViewHolder = new OneViewHolder();
-                    oneViewHolder.singerTextView = ButterKnife.findById(convertView,R.id.SingerxAlbum);
-                    oneViewHolder.songTextView = ButterKnife.findById(convertView,R.id.MusicName);
-                    oneViewHolder.stateImageView = ButterKnife.findById(convertView,R.id.sound);
-                    convertView.setTag(oneViewHolder);
-                }else {
-                    oneViewHolder = (OneViewHolder) convertView.getTag();
-                    cacheState = (Integer) convertView.getTag(R.id.sound);
-                }
-                oneViewHolder.singerTextView.setText(music.getArtist());
-                oneViewHolder.songTextView.setText(music.getDisplayName());
-                if(cacheState==null||cacheState!=state){
-                    //当回收状态与实际状态不符合，需要重新设置drawable
-                    if (state==notplaying){
-                        oneViewHolder.stateImageView.setVisibility(View.GONE);
-                    }else if (state==playing){
-                        oneViewHolder.stateImageView.setVisibility(View.VISIBLE);
-                    }
-                    convertView.setTag(R.id.sound,state);
-                }
-
-                return convertView;
+            public OneSongViewHolder(View itemView) {
+                super(itemView);
+                singerTextView = ButterKnife.findById(itemView,R.id.SingerxAlbum);
+                songTextView = ButterKnife.findById(itemView,R.id.MusicName);
+                stateImageView = ButterKnife.findById(itemView,R.id.sound);
             }
-
 
         }
 

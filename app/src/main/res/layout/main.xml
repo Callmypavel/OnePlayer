@@ -1,303 +1,126 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent" android:layout_height="match_parent"
-    >
-
-    <android.support.v7.widget.Toolbar
-        android:id="@+id/toolbar"
-        android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:background="?attr/colorPrimary"
-        android:minHeight="?attr/actionBarSize"
-        android:layout_gravity="right">
-        <TextView
-            android:layout_marginTop="20dp"
-            android:textSize="20sp"
-            android:singleLine="true"
-            android:ellipsize="marquee"
-            android:id="@+id/toolbar_title"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textColor="#FFFFFF"
-            android:text="OnePlayer" />
-    </android.support.v7.widget.Toolbar>
-    <RelativeLayout
-        android:id="@+id/basetag"
-        android:background="?attr/colorPrimary"
-        android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:layout_below="@+id/toolbar"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true">
-        <LinearLayout
+<android.support.design.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <android.support.design.widget.AppBarLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
-            <TextView
-                android:layout_weight="1"
-                android:textSize="16sp"
-                android:gravity="center"
-                android:id="@+id/singer_tag"
-                android:background="?android:attr/selectableItemBackground"
-                android:layout_height="50dp"
-                android:textColor="#FFFFFF"
-                android:text="艺术家"
-                android:layout_alignTop="@+id/internet"
-                android:layout_width="0dp" />
-            <TextView
-                android:layout_weight="1"
-                android:textSize="16sp"
-                android:gravity="center"
-                android:textColor="#000000"
-                android:background="?android:attr/selectableItemBackground"
-                android:id="@+id/album_tag"
-                android:layout_height="50dp"
-                android:text="专辑"
-                android:layout_alignParentTop="true"
-                android:layout_toRightOf="@+id/singer_tag"
-                android:layout_toEndOf="@+id/singer_tag"
-                android:layout_width="0dp" />
-            <TextView
-                android:layout_weight="1"
-                android:textSize="16sp"
-                android:gravity="center"
-                android:textColor="#000000"
-                android:background="?android:attr/selectableItemBackground"
-                android:id="@+id/song_tag"
-                android:layout_height="50dp"
-                android:text="歌曲"
-                android:layout_alignParentTop="true"
-                android:layout_toEndOf="@id/album_tag"
-                android:layout_toRightOf="@id/album_tag"
-                android:layout_width="0dp" />
-
-        </LinearLayout>
-        <ImageView
-            android:id="@+id/cursor"
-            android:layout_width="105dp"
-            android:layout_height="3dp"
-            android:scaleType="matrix"
-            android:src="@drawable/cursor"
-            android:layout_alignParentBottom="true"
-            android:layout_alignParentStart="true"
-            android:layout_alignParentLeft="true"/>
-    </RelativeLayout>
-
-    <android.support.v4.view.ViewPager
-        android:id="@+id/id_viewpager"
-        android:layout_width="wrap_content"
-        android:layout_height="480dp"
-        android:layout_gravity="center"
-        android:layout_below="@+id/basetag">
-    </android.support.v4.view.ViewPager>
-    <com.example.peacemaker.oneplayer.OneLayout
-        android:background="#ffffff"
-        android:layout_alignParentBottom="true"
-        android:id="@+id/main_content_bar"
-        android:layout_width="wrap_content"
-        android:layout_height="60dp">
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="60dp"
-            android:id="@+id/bottom_controll_bar"
-            android:layout_alignParentTop="true"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentStart="true">
-            <ImageView
-                android:id="@+id/bottom_album_image"
-                android:scaleType="fitXY"
-                android:src="@drawable/logo"
-                android:layout_alignParentLeft="true"
-                android:layout_alignParentStart="true"
-                android:layout_width="60dp"
-                android:layout_height="60dp" />
-
-            <TextView
-                android:id="@+id/bottom_singer_name"
-                android:layout_marginLeft="10dp"
-                android:layout_below="@+id/bottom_song_name"
-                android:layout_toRightOf="@id/bottom_album_image"
-                android:textColor="#000000"
-                android:maxLines="1"
-                android:maxEms="10"
-                android:ellipsize="marquee"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="歌手名"
-                />
-
-            <ImageButton
-                android:layout_marginRight="30dp"
-                android:layout_marginEnd="30dp"
-                android:layout_centerVertical="true"
-                android:layout_alignParentRight="true"
-                android:background="?android:attr/selectableItemBackground"
-                android:scaleType="fitXY"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:src="@drawable/ic_play_circle_outline_black_48dp"
-                android:text="播放"
-                android:id="@+id/bottom_play_button"
-                />
-
-            <TextView
-                android:id="@+id/bottom_song_name"
-                android:textColor="#000000"
-                android:maxLines="1"
-                android:maxEms="7"
-                android:ellipsize="marquee"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="歌名"
-                android:layout_alignTop="@+id/bottom_play_button"
-                android:layout_alignLeft="@+id/bottom_singer_name"
-                android:layout_alignStart="@+id/bottom_singer_name" />
-
-        </RelativeLayout>
-        <RelativeLayout
-            android:background="@android:color/holo_red_light"
-            android:layout_width="match_parent"
-            android:layout_height="90dp"
-            android:id="@+id/top_tool_bar"
-            android:layout_below="@+id/bottom_controll_bar"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentStart="true">
-            <TextView
-                android:maxLines="1"
-                android:maxEms="10"
-                android:ellipsize="marquee"
-                android:layout_marginLeft="10dp"
-                android:layout_marginTop="30dp"
-                android:id="@+id/top_tool_bar_song_name"
-                android:textColor="#ffffff"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textSize="20sp"
-                android:text="歌名"
-                />
-            <TextView
-                android:maxLines="1"
-                android:maxEms="10"
-                android:ellipsize="marquee"
-                android:id="@+id/top_tool_bar_singer_name"
-                android:layout_marginLeft="10dp"
-                android:layout_below="@+id/top_tool_bar_song_name"
-                android:textColor="@color/background_floating_material_dark"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="歌手名"
-                />
-        </RelativeLayout>
-        <RelativeLayout
-            android:layout_below="@+id/top_tool_bar"
-            android:id="@+id/main_content_view"
-            android:layout_width="wrap_content"
             android:layout_height="wrap_content">
-            <ImageView
-                android:layout_centerHorizontal="true"
-                android:scaleType="fitCenter"
-                android:id="@+id/play_view_album"
-                android:src="@drawable/music"
-                android:layout_width="match_parent"
-                android:layout_height="360dp" />
-
-            <com.example.peacemaker.oneplayer.OneWaveFromView
-                android:id="@+id/play_view_onewaveform"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_alignParentLeft="true"
-                android:layout_alignParentStart="true" />
-        </RelativeLayout>
-        <RelativeLayout
-            android:background="@android:color/holo_red_light"
-            android:layout_margin="10dp"
-            android:id="@+id/play_view_controll_bar"
+        <android.support.v7.widget.Toolbar
+            app:layout_scrollFlags="scroll|enterAlways"
+            android:popupTheme="@style/ThemeOverlay.AppCompat.Light"
+            app:theme="@style/ToolbarTheme"
+            android:title="@string/app_name"
+            android:id="@+id/toolbar"
             android:layout_width="match_parent"
-            android:layout_height="162dp"
-            android:layout_below="@+id/main_content_view"
-            android:layout_alignParentBottom="true"
-            >
-            <com.example.peacemaker.oneplayer.OneSeekBar
-                android:id="@+id/one_seekbar"
-                android:layout_marginTop="20dp"
-                android:layout_width="120dp"
-                android:layout_height="120dp"
-                android:text="播放"
-                android:layout_centerHorizontal="true" />
+            android:layout_height="?attr/actionBarSize"
+            android:background="?attr/colorPrimary" >
+            <!--<ImageView-->
+                <!--android:layout_marginTop="24dp"-->
+                <!--android:background="#00000000"-->
+                <!--android:scaleType="fitCenter"-->
+                <!--android:src="@drawable/ic_menu_white_48dp"-->
+                <!--android:layout_width="30dp"-->
+                <!--android:layout_height="30dp" />-->
+            <!--<TextView-->
+                <!--android:textSize="25sp"-->
+                <!--android:textColor="#ffffff"-->
+                <!--android:layout_marginTop="24dp"-->
+                <!--android:layout_width="wrap_content"-->
+                <!--android:layout_height="wrap_content" />-->
+        </android.support.v7.widget.Toolbar>
+        <android.support.design.widget.TabLayout
+            app:tabIndicatorColor="#ffffff"
+            app:tabSelectedTextColor="#ffffff"
+            app:tabTextColor="#bfbfbf"
+            android:background="?attr/colorPrimary"
+            android:id="@+id/tab_layout"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"/>
+    </android.support.design.widget.AppBarLayout>
+    <android.support.v4.view.ViewPager
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"
+        android:id="@+id/id_viewpager"
+        android:layout_width="match_parent"
+        android:layout_height="530dp" />
 
-                <TextView
-                        android:textSize="19sp"
-                        android:paddingLeft="15dp"
-                        android:textColor="#FFFFFF"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_centerVertical="true"
-                        android:text="0:00"
-                        android:id="@+id/play_view_duration"
-                        android:layout_toRightOf="@id/one_seekbar" />
-                    <ImageButton
-                        android:background="?android:attr/selectableItemBackground"
-                        android:scaleType="centerInside"
-                        android:layout_width="55dp"
-                        android:layout_height="55dp"
-                        android:src="@drawable/ic_repeat_white_48dp"
-                        android:id="@+id/play_view_playmode"
-                        android:layout_alignParentBottom="true"
-                        android:layout_alignRight="@id/play_view_duration" />
+    <!--<RelativeLayout-->
+    <!--android:id="@+id/basetag"-->
+    <!--android:background="?attr/colorPrimary"-->
+    <!--android:layout_width="match_parent"-->
+    <!--android:layout_height="50dp"-->
+    <!--&gt;-->
+    <!--<LinearLayout-->
+    <!--android:layout_alignParentBottom="true"-->
+    <!--android:layout_width="match_parent"-->
+    <!--android:layout_height="match_parent">-->
+    <!--<TextView-->
+    <!--android:layout_weight="1"-->
+    <!--android:textSize="16sp"-->
+    <!--android:gravity="center"-->
+    <!--android:id="@+id/singer_tag"-->
+    <!--android:background="?android:attr/selectableItemBackground"-->
+    <!--android:layout_height="50dp"-->
+    <!--android:textColor="#FFFFFF"-->
+    <!--android:text="@string/singer"-->
+    <!--android:layout_alignTop="@+id/internet"-->
+    <!--android:layout_width="0dp" />-->
+    <!--<TextView-->
+    <!--android:layout_weight="1"-->
+    <!--android:textSize="16sp"-->
+    <!--android:gravity="center"-->
+    <!--android:textColor="#000000"-->
+    <!--android:background="?android:attr/selectableItemBackground"-->
+    <!--android:id="@+id/album_tag"-->
+    <!--android:layout_height="50dp"-->
+    <!--android:text="@string/album"-->
+    <!--android:layout_alignParentTop="true"-->
+    <!--android:layout_toRightOf="@+id/singer_tag"-->
+    <!--android:layout_toEndOf="@+id/singer_tag"-->
+    <!--android:layout_width="0dp" />-->
+    <!--<TextView-->
+    <!--android:layout_weight="1"-->
+    <!--android:textSize="16sp"-->
+    <!--android:gravity="center"-->
+    <!--android:textColor="#000000"-->
+    <!--android:background="?android:attr/selectableItemBackground"-->
+    <!--android:id="@+id/song_tag"-->
+    <!--android:layout_height="50dp"-->
+    <!--android:text="@string/song"-->
+    <!--android:layout_alignParentTop="true"-->
+    <!--android:layout_toEndOf="@id/album_tag"-->
+    <!--android:layout_toRightOf="@id/album_tag"-->
+    <!--android:layout_width="0dp" />-->
 
-                    <ImageButton
-                        android:background="?android:attr/selectableItemBackground"
-                        android:scaleType="fitXY"
-                        android:layout_width="60dp"
-                        android:layout_height="60dp"
-                        android:src="@drawable/ic_skip_next_white_48dp"
-                        android:text="下一首"
-                        android:id="@+id/play_view_next"
-                        android:layout_centerVertical="true"
-                        android:layout_toRightOf="@id/play_view_duration"
-                        />
-                    <TextView
-                        android:textSize="19sp"
-                        android:paddingRight="15dp"
-                        android:textColor="#FFFFFF"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_centerVertical="true"
-                        android:text="0:00"
-                        android:id="@+id/play_view_progress"
-                        android:layout_toLeftOf="@id/one_seekbar" />
+    <!--</LinearLayout>-->
+    <!--<ImageView-->
+    <!--android:id="@+id/cursor"-->
+    <!--android:layout_width="105dp"-->
+    <!--android:layout_height="3dp"-->
+    <!--android:scaleType="matrix"-->
+    <!--android:src="@drawable/cursor"-->
+    <!--android:layout_alignParentBottom="true"-->
+    <!--android:layout_alignParentStart="true"-->
+    <!--android:layout_alignParentLeft="true"/>-->
+    <!--</RelativeLayout>-->
+        <!--<ImageView-->
+            <!--android:src="@drawable/ic_menu_white_48dp"-->
+            <!--android:layout_width="30dp"-->
+            <!--android:layout_height="30dp" />-->
+        <!--<TextView-->
+            <!--android:layout_marginLeft="20dp"-->
+            <!--android:textSize="20sp"-->
+            <!--android:singleLine="true"-->
+            <!--android:ellipsize="marquee"-->
+            <!--android:id="@+id/toolbar_title"-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:textColor="#FFFFFF"-->
+            <!--android:text="OnePlayer" />-->
+    <!--</android.support.v7.widget.Toolbar>-->
 
 
-                    <ImageButton
-                        android:background="?android:attr/selectableItemBackground"
-                        android:scaleType="centerInside"
-                        android:layout_width="55dp"
-                        android:layout_height="55dp"
-                        android:src="@drawable/ic_queue_music_white_48dp"
-                        android:id="@+id/play_view_queue"
-                        android:layout_alignParentBottom="true"
-                        android:layout_toRightOf="@+id/play_view_previous"
-                        android:layout_toEndOf="@+id/play_view_previous" />
-
-                    <ImageButton
-                        android:background="?android:attr/selectableItemBackground"
-                        android:scaleType="fitXY"
-                        android:layout_width="60dp"
-                        android:layout_height="60dp"
-                        android:src="@drawable/ic_skip_previous_white_48dp"
-                        android:text="上一首"
-                        android:id="@+id/play_view_previous"
-                        android:layout_alignTop="@+id/play_view_next"
-                        android:layout_toLeftOf="@+id/play_view_progress"
-                        android:layout_toStartOf="@+id/play_view_progress" />
-
-
-            </RelativeLayout>
-
-
-
-
-    </com.example.peacemaker.oneplayer.OneLayout>
 
 
     <!--<RelativeLayout-->
@@ -422,7 +245,7 @@
 
 
 
-</RelativeLayout>
+</android.support.design.widget.CoordinatorLayout>
 
 
 

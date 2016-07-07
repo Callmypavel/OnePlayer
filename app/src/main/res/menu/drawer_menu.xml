@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/deepload_item"
+            android:icon="@drawable/ic_youtube_searched_for_black_48dp"
+            android:title="@string/deep_load"/>
+
+        <item
+            android:id="@+id/checkupdate_item"
+            android:icon="@drawable/ic_update_black_48dp"
+            android:title="@string/check_update"/>
+        <item
+            android:id="@+id/print_log_item"
+            android:icon="@drawable/ic_assignment_black_48dp"
+            android:title="@string/print_log"/>
+        <item
+            android:id="@+id/info_item"
+            android:icon="@drawable/ic_help_outline_black_48dp"
+            android:title="@string/version_info"/>
+        <item
+            android:id="@+id/exit_item"
+            android:icon="@drawable/ic_exit_to_app_black_48dp"
+            android:title="@string/exit_app"/>
+
+    </group>
+
+</menu>

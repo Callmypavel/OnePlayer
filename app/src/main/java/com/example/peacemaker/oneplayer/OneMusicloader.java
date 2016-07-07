@@ -55,6 +55,7 @@ public class OneMusicloader {
     private String where = "mime_type in ('audio/mpeg','audio/x-ms-wma') and bucket_display_name <> 'audio' and is_music > 0 ";
     private String sortOrder = Media.DATA;
     private String artist;
+    private boolean isStop = false;
 
     public OneMusicloader(ContentResolver contentResolver) {
         this.contentResolver = contentResolver;
@@ -124,6 +125,10 @@ public class OneMusicloader {
         this.listener = listener;
 
     }
+    public void stopLoading(){
+        isStop = true;
+    }
+
 
 
     public void beginDeepLoad(final File file) {
@@ -131,11 +136,14 @@ public class OneMusicloader {
         Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
-                deepLoad(file);
-                Message message = new Message();
-                message.what = 0x127;
-                Log.v("OneMusicLoader","handleMessage()0x127");
-                handler.sendMessage(message);
+                isStop = false;
+                deepload2(file);
+                if(!isStop) {
+                    Message message = new Message();
+                    message.what = 0x127;
+                    Log.v("OneMusicLoader", "handleMessage()0x127");
+                    handler.sendMessage(message);
+                }
             }
         });
         thread.start();
@@ -143,103 +151,170 @@ public class OneMusicloader {
 
     }
     private void deepLoad(File file){
-        File[] files = file.listFiles();
-        for (File file1 : files) {
-            if (file1.isDirectory()) {
-                deepLoad(file1);
-            } else {
-                //listener.onSearch(file1.getName());
-                if (file1.getName().trim().toLowerCase().endsWith(".mp3")) {
-                    try {
-                        Message message = new Message();
-                        message.what = 0x126;
-                        Bundle bundle = new Bundle();
-                        bundle.putString("name",file1.getName());
-                        bundle.putParcelable("music",getMusic(file1));
-                        message.setData(bundle);
-                        handler.sendMessage(message);
-                    } catch (Exception e) {
-                        System.out.println("尼玛 抛异常了");
-                        e.printStackTrace();
+        MediaMetadataRetriever mediaMetadataRetriever = new MediaMetadataRetriever();
+        if(!isStop) {
+            File[] files = file.listFiles();
+            int max = files.length-1;
+            for (int i=0;i<max;i++) {
+                File file1 = files[i];
+                if (file1.isDirectory()) {
+                    deepLoad(file1);
+                } else {
+                    Message message = new Message();
+                    message.what = 0x125;
+                    Bundle bundle = new Bundle();
+                    bundle.putString("name", file1.getName());
+                    bundle.putFloat("percent", i/(max*1.0f));
+                    message.setData(bundle);
+                    handler.sendMessage(message);
+                    //listener.onSearch(file1.getName());
+                    if (file1.getName().trim().toLowerCase().endsWith(".mp3")) {
+                        try {
+                            message = new Message();
+                            message.what = 0x126;
+                            bundle = new Bundle();
+                            bundle.putString("name", file1.getName());
+                            bundle.putParcelable("music", getMusic(file1,mediaMetadataRetriever));
+                            message.setData(bundle);
+                            handler.sendMessage(message);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
                     }
-                }
-                if (file1.getName().trim().toLowerCase().endsWith(".lrc")){
-                    System.out.println("捕获大逆不道之罪人"+file1.getName());
+                    if (file1.getName().trim().toLowerCase().endsWith(".lrc")) {
+                        System.out.println("捕获大逆不道之罪人" + file1.getName());
+                    }
                 }
             }
         }
 
     }
     public void deepload2(File file){
-        int num = 0;
+        MediaMetadataRetriever mediaMetadataRetriever = new MediaMetadataRetriever();
+        Message message;
+        Bundle bundle;
         LinkedList directorylist = new LinkedList();
         File files[] = file.listFiles();
         for (File file1 : files) {
-            if (file1.isDirectory())
+            message = new Message();
+            message.what = 0x125;
+            bundle = new Bundle();
+            bundle.putString("name", file1.getName());
+            bundle.putFloat("percent", 0);
+            message.setData(bundle);
+            handler.sendMessage(message);
+            if (file1.isDirectory()) {
                 directorylist.add(file1);
-            else{
-
-                System.out.println(file1.getAbsolutePath());
-                num++;
+            } else{
+                Music music = getMusic(file1,mediaMetadataRetriever);
+                if(music!=null) {
+                    message = new Message();
+                    message.what = 0x126;
+                    bundle = new Bundle();
+                    bundle.putParcelable("music",music);
+                    message.setData(bundle);
+                    handler.sendMessage(message);
+                }
             }
         }
         File tmp;
-        while (!directorylist.isEmpty()) {
-            tmp = (File)directorylist.removeFirst();//首个目录
+        while (!directorylist.isEmpty()&&!isStop) {
+            tmp = (File)directorylist.removeFirst();
             if (tmp.isDirectory()) {
                 if (tmp.listFiles() == null)
                     continue;
                 for (File file2 : tmp.listFiles()) {
-                    if (file2.isDirectory())
-                        directorylist.add(file2);//目录则加入目录列表，关键
-                    else{
-                        add2MusicList(file2);
-                        System.out.println(file2);
-                        num++;
+                    if (file2.isDirectory()) {
+                        directorylist.add(file2);
+                    }else{
+                        Music music = getMusic(file2,mediaMetadataRetriever);
+                        if(music!=null) {
+                            message = new Message();
+                            message.what = 0x126;
+                            bundle = new Bundle();
+                            bundle.putParcelable("music",music);
+                            message.setData(bundle);
+                            handler.sendMessage(message);
+                        }
                     }
+                    message = new Message();
+                    message.what = 0x125;
+                    bundle = new Bundle();
+                    bundle.putString("name", file2.getName());
+                    message.setData(bundle);
+                    handler.sendMessage(message);
                 }
             } else {
-                add2MusicList(tmp);
-                System.out.println(tmp);
-                num++;
+                Music music = getMusic(tmp,mediaMetadataRetriever);
+                if(music!=null) {
+                    message = new Message();
+                    message.what = 0x126;
+                    bundle = new Bundle();
+                    bundle.putParcelable("music",music);
+                    message.setData(bundle);
+                    handler.sendMessage(message);
+                }
+            }
+
+
+        }
+    }
+    public void add2MusicList(File file,MediaMetadataRetriever mediaMetadataRetriever){
+        String filename = file.getName().trim().toLowerCase();
+        //Log.v("OneMusicLoader","凶手稽查"+filename);
+        if (filename.endsWith(".mp3")||filename.endsWith(".ogg")||filename.endsWith(".flac")) {
+            String path = file.getPath();
+            if(mediaMetadataRetriever==null) {
+                mediaMetadataRetriever = new MediaMetadataRetriever();
+            }
+            try {
+                mediaMetadataRetriever.setDataSource(path);
+                String title = mediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE);
+                String album = mediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ALBUM);
+                String mime = mediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_MIMETYPE);
+                String artist = mediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST);
+                String duration = mediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION); // 播放时长单位为毫秒
+                String bitrate = mediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_BITRATE);
+                String date = mediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DATE);
+                if(title==null){
+                    title = file.getName();
+                }
+                //System.out.println("标题为:"+title+" 专辑为:"+album+" mime为:"+mime+" 艺术家为:"+artist+" 长度为:"+duration+" 比特率为:"+bitrate+" 日期为:"+date);
+                Music music = new Music(artist, duration, album, title, path,true);
+                musicArrayList.add(music);
+            }catch (Exception e){
+
+            }
+
+        }
+    }
+    public Music getMusic(File file,MediaMetadataRetriever mediaMetadataRetriever){
+        Music music = null;
+        String filename = file.getName().trim().toLowerCase();
+        if (filename.endsWith(".mp3")||filename.endsWith(".ogg")||filename.endsWith(".flac")) {
+            mediaMetadataRetriever = new MediaMetadataRetriever();
+            String path = file.getPath();
+            if(mediaMetadataRetriever==null) {
+                mediaMetadataRetriever = new MediaMetadataRetriever();
+            }
+            try {
+                mediaMetadataRetriever.setDataSource(path);
+                String title = mediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE);
+                String album = mediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ALBUM);
+                String mime = mediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_MIMETYPE);
+                String artist = mediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST);
+                String duration = mediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION); // 播放时长单位为毫秒
+                String bitrate = mediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_BITRATE);
+                String date = mediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DATE);
+                if (title == null) {
+                    title = file.getName();
+                }
+                //System.out.println("标题为:"+title+" 专辑为:"+album+" mime为:"+mime+" 艺术家为:"+artist+" 长度为:"+duration+" 比特率为:"+bitrate+" 日期为:"+date);
+                music = new Music(artist, duration, album, title, path, true);
+            }catch (Exception e){
+
             }
         }
-    }
-    public void add2MusicList(File file){
-        String path = file.getPath();
-        MediaMetadataRetriever mediaMetadataRetriever = new MediaMetadataRetriever();
-        mediaMetadataRetriever.setDataSource(path);
-        String title = mediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE);
-        String album = mediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ALBUM);
-        String mime = mediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_MIMETYPE);
-        String artist = mediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST);
-        String duration = mediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION); // 播放时长单位为毫秒
-        String bitrate = mediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_BITRATE);
-        String date = mediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DATE);
-        if(title==null){
-            title = file.getName();
-        }
-        System.out.println("标题为:"+title+" 专辑为:"+album+" mime为:"+mime+" 艺术家为:"+artist+" 长度为:"+duration+" 比特率为:"+bitrate+" 日期为:"+date);
-        Music music = new Music(artist, duration, album, title, path,true);
-        musicArrayList.add(music);
-    }
-    public Music getMusic(File file){
-        String path = file.getPath();
-        Log.v("OneMusicLoader","getMusic()文件路径"+path);
-        MediaMetadataRetriever mediaMetadataRetriever = new MediaMetadataRetriever();
-        mediaMetadataRetriever.setDataSource(path);
-        String title = mediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE);
-        String album = mediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ALBUM);
-        String mime = mediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_MIMETYPE);
-        String artist = mediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST);
-        String duration = mediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION); // 播放时长单位为毫秒
-        String bitrate = mediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_BITRATE);
-        String date = mediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DATE);
-        if(title==null){
-            title = file.getName();
-        }
-        //System.out.println("标题为:"+title+" 专辑为:"+album+" mime为:"+mime+" 艺术家为:"+artist+" 长度为:"+duration+" 比特率为:"+bitrate+" 日期为:"+date);
-        Music music = new Music(artist, duration, album, title, path,true);
         return music;
     }
 

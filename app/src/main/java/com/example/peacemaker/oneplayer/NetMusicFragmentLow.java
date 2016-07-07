@@ -31,7 +31,7 @@ public class NetMusicFragmentLow extends MusicListFragmentLow {
     public void init() {
         System.out.println("fragment初始化");
         //this.playlistAdapter = playlistAdapter;
-        activity.databaseOperator = new DatabaseOperator(activity,"OnePlayer.db");
+        //activity.databaseOperator = new DatabaseOperator(activity,"OnePlayer.db");
         playlistView = (ListView)activity.findViewById(R.id.netlist_low);
         button = (Button)activity.findViewById(R.id.net_tips_low);
         button.setOnClickListener(new View.OnClickListener() {

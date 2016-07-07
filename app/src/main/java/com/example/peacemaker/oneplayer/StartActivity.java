@@ -7,6 +7,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
@@ -33,7 +34,7 @@ import java.util.Locale;
 /**
  * Created by 请叫我保尔 on 2015/10/23.
  */
-public class StartActivity extends Activity implements Runnable {
+public class StartActivity extends AppCompatActivity{
     Boolean isStop = false;
     final static int initFinished = 0x130;
     ArrayList<Music> musicArrayList;
@@ -89,19 +90,24 @@ public class StartActivity extends Activity implements Runnable {
                 return false;
             }
         });
-        new Thread(this).start();
+        Thread thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                init();
+            }
+        });
+        thread.start();
+        //new Thread(this).start();
     }
 
-    @Override
-    public void run() {
-        if(!isStop){
-            init();
-            //isStop = true;
-        }
-    }
+//    @Override
+//    public void run() {
+//        //if(!isStop){
+//            init();
+//            //isStop = true;
+//        //}
+//    }
     public void init()  {
-        TextView textView = (TextView)findViewById(R.id.entering);
-        textView.setVisibility(View.VISIBLE);
         //从数据库中获得音乐
 //        DatabaseOperator databaseOperator = new DatabaseOperator(this, "OnePlayer.db");
 //        musicArrayList = databaseOperator.getMusics();
@@ -236,7 +242,7 @@ public class StartActivity extends Activity implements Runnable {
 //            }
 //        }
 
-        isStop = true;
+        //isStop = true;
         Message message = new Message();
         message.what = initFinished;
         handler.sendMessage(message);

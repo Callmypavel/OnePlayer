@@ -16,7 +16,7 @@ import butterknife.BindView;
 /**
  * Created by ouyan_000 on 2015/8/18.
  */
-public class Music implements Parcelable{
+public class Music implements Parcelable {
     private static final long serialVersionUID = 2L;
     public static Parcelable.Creator<Music>  CREATOR =
             new Creator<Music>() {
@@ -37,6 +37,7 @@ public class Music implements Parcelable{
     private String album = "<unknown>";
     private String displayName="<unknown>";
     private String url;
+    private Bitmap middleBitmap;
     //private Bitmap albumBitmap;
     private ArrayList<Music> musicArrayList;
     private boolean isPlayable;
@@ -96,12 +97,16 @@ public class Music implements Parcelable{
         id = in.readString();
     }
 
+    @Override
+    public String toString() {
+        return super.toString();
+    }
+
     public String getArtist(){
         if(artist!=null) {
         return artist;
     }else
         return "<unknown>";
-
     }
     public String getDuration(){
         return duration;
@@ -125,19 +130,25 @@ public class Music implements Parcelable{
         //Log.v("Music","拿url"+url);
         Bitmap bitmap = OneMusicloader.getAlbumArt(url);
         if(bitmap==null){
+            //Log.v("Music","娶不到专辑图");
             return BitmapFactory.decodeResource(context.getResources(),R.drawable.music);
         }
         return bitmap;
     }
     public Bitmap getMiddleAlbumArt(Context context) {
-        Bitmap bitmap = getAlbumBitmap(context);
-        DisplayMetrics dm =context.getResources().getDisplayMetrics();
-        int width = dm.widthPixels;
-        if(bitmap.getWidth()>width/2) {
-        bitmap = OneBitmapUtil.zoomImg(bitmap,width/2,width/2);
+        if(middleBitmap==null) {
+            Bitmap bitmap = getAlbumBitmap(context);
+            DisplayMetrics dm = context.getResources().getDisplayMetrics();
+            int width = dm.widthPixels;
+            if (bitmap.getWidth() > width / 2) {
+                bitmap = OneBitmapUtil.zoomImg(bitmap, width / 2, width / 2);
+            } else {
+            }
+            middleBitmap = bitmap;
+            return bitmap;
         }else {
+            return middleBitmap;
         }
-        return bitmap;
     }
     public Bitmap getSmallAlbumArt(Context context) {
         Bitmap bitmap = getAlbumBitmap(context);

@@ -49,49 +49,55 @@ public class MusicProvider implements Parcelable{
     public MusicProvider(ArrayList<Music> musicSource) {
         this.musicSource = musicSource;
         if(musicSource!=null) {
-            singers = new ArrayList<>();
-            albums = new ArrayList<>();
-            Comparator<Music> comparator = new Comparator<Music>() {
-                @Override
-                public int compare(Music lhs, Music rhs) {
-                    return Mandarin2Pinyin(lhs.getDisplayName()).toLowerCase().compareTo(Mandarin2Pinyin(rhs.getDisplayName()).toLowerCase());
+            if(musicSource.size()!=0) {
+                singers = new ArrayList<>();
+                albums = new ArrayList<>();
+                Comparator<Music> comparator = new Comparator<Music>() {
+                    @Override
+                    public int compare(Music lhs, Music rhs) {
+                        if(lhs!=null&&rhs!=null) {
+                            return Mandarin2Pinyin(lhs.getDisplayName()).toLowerCase().compareTo(Mandarin2Pinyin(rhs.getDisplayName()).toLowerCase());
+                        }else {
+                            return 0;
+                        }
+                    }
+                };
+                Collections.sort(musicSource, comparator);
+                for (Music music : musicSource) {
+                    Music music1 = new Music(music.getArtist());
+                    ArrayList<Music> secondItems;
+                    int singerIndex = getIndex(singers, music1);
+                    if (singerIndex == -1) {
+                        Log.v("MusicProvider", "新增歌手" + music.getArtist() + "的" + music.getDisplayName());
+                        secondItems = new ArrayList<>();
+                        secondItems.add(music);
+                        music1.setSecondItems(secondItems);
+                        singers.add(music1);
+                    } else {
+                        Log.v("MusicProvider", "更新歌手" + music.getArtist() + "的" + music.getDisplayName());
+                        singers.get(singerIndex).addSecondItem(music);
+                    }
+                    Music music2 = new Music(music.getAlbum());
+                    int albumIndex = getIndex(albums, music2);
+                    if (albumIndex == -1) {
+                        secondItems = new ArrayList<>();
+                        secondItems.add(music);
+                        music2.setSecondItems(secondItems);
+                        albums.add(music2);
+                    } else {
+                        albums.get(albumIndex).addSecondItem(music);
+                    }
                 }
-            };
-            Collections.sort(musicSource, comparator);
-            for (Music music : musicSource) {
-                Music music1 = new Music(music.getArtist());
-                ArrayList<Music> secondItems;
-                int singerIndex = getIndex(singers, music1);
-                if (singerIndex == -1) {
-                    Log.v("MusicProvider","新增歌手"+music.getArtist()+"的"+music.getDisplayName());
-                    secondItems = new ArrayList<>();
-                    secondItems.add(music);
-                    music1.setSecondItems(secondItems);
-                    singers.add(music1);
-                } else {
-                    Log.v("MusicProvider","更新歌手"+music.getArtist()+"的"+music.getDisplayName());
-                    singers.get(singerIndex).addSecondItem(music);
+                Collections.sort(singers, comparator);
+                for (Music singer : singers) {
+                    Collections.sort(singer.getSecondItems(), comparator);
+                    //Log.v("MusicProvider","抽查歌手"+singer.getSecondItems());
+                    //Log.v("MusicProvider","抽查歌手歌曲"+singer.getSecondItems().get(0).getDisplayName());
                 }
-                Music music2 = new Music(music.getAlbum());
-                int albumIndex = getIndex(albums, music2);
-                if (albumIndex == -1) {
-                    secondItems = new ArrayList<>();
-                    secondItems.add(music);
-                    music2.setSecondItems(secondItems);
-                    albums.add(music2);
-                } else {
-                    albums.get(albumIndex).addSecondItem(music);
+                Collections.sort(albums, comparator);
+                for (Music album : albums) {
+                    Collections.sort(album.getSecondItems(), comparator);
                 }
-            }
-            Collections.sort(singers, comparator);
-            for (Music singer : singers) {
-                Collections.sort(singer.getSecondItems(), comparator);
-                //Log.v("MusicProvider","抽查歌手"+singer.getSecondItems());
-                //Log.v("MusicProvider","抽查歌手歌曲"+singer.getSecondItems().get(0).getDisplayName());
-            }
-            Collections.sort(albums, comparator);
-            for (Music album : albums) {
-                Collections.sort(album.getSecondItems(), comparator);
             }
         }
 

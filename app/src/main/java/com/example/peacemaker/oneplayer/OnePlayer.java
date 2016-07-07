@@ -2,13 +2,17 @@ package com.example.peacemaker.oneplayer;
 
 import android.content.Context;
 import android.media.MediaPlayer;
+import android.media.audiofx.Visualizer;
 import android.os.Environment;
 import android.os.Handler;
+import android.os.Message;
 import android.util.Log;
 import android.widget.Toast;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.sql.Time;
+import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -20,136 +24,196 @@ public class OnePlayer implements Serializable {
     final static int cycle = 1;
     final static int looping = 2;
     final static int random = 3;
-    private Boolean isInit = false;
-    private int time = 0;
+    public Boolean isStarted = false;
+    private int playMode = cycle;
     private int musicNumber;
     //private MainActivity activity;
     private String[] urls;
-    private String playMode;
+    private int currentPosition = 0;
     //private Context context;
     private String path;
     private Handler handler;
-    public MediaPlayer mediaPlayer;
+    private int currentTime = 0;
+    private Visualizer visualizer;
     private Timer timer;
     private TimerTask timerTask;
+    public MediaPlayer mediaPlayer;
+    private ArrayList<Music> playList;
     private OnOneErrorListener onOneErrorListener;
-    private OnCompleListener onCompleListener;
+    private OnMusicListener onMusicListener;
     private OnPrepareListener onPrepareListener;
-    private OnBuffedUpdateListener onBufferedUpdateListener = null;
-    private static String sdRootPath = Environment.getExternalStorageDirectory().getPath();
-//    public OnePlayer(String path, Context context, Handler handler){
-//        this.handler = handler;
-//        this.path = path;
-//        activity = (MainActivity)context;
-//        System.out.println("检查"+activity);
-//        init(path);
-//    }
-    public OnePlayer(){
-
-       // this.handler = handler;
-//        activity = (MainActivity)context;
+    private OnBuffedUpdateListener onBufferedUpdateListener;
+    public OnePlayer(ArrayList<Music> playList,int currentPosition){
+        setPlayList(playList,currentPosition);
     }
 
 
-    public void init(String path) {
+    public void init(Music music) {
+        if(onMusicListener!=null){
+            onMusicListener.onMusicChanged(music);
+        }
         try {
             if(mediaPlayer==null){
-                Log.v("OnePlayer","init()重新实例化mediaplayer");
                 mediaPlayer = new MediaPlayer();
                 mediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
                     @Override
                     public void onPrepared(MediaPlayer mp) {
+                        initHandler();
+                        initTimer();
                         mediaPlayer.start();
-                        if (onPrepareListener != null) {
-                            onPrepareListener.onPrepare(mediaPlayer.getDuration());
+                        if (onMusicListener != null) {
+                            onMusicListener.onPrepared(mediaPlayer.getDuration());
                         }
 
                     }
                 });
+                visualizer = new Visualizer(mediaPlayer.getAudioSessionId());
+                visualizer.setCaptureSize(64);
+                visualizer.setDataCaptureListener(new Visualizer.OnDataCaptureListener() {
+                    @Override
+                    public void onWaveFormDataCapture(Visualizer visualizer, byte[] waveform, int samplingRate) {
+                    }
+
+                    @Override
+                    public void onFftDataCapture(Visualizer visualizer, byte[] fft, int samplingRate) {
+                        if (onMusicListener != null) {
+                            onMusicListener.onWaveForm(fft);
+                        }
+                    }
+                }, Visualizer.getMaxCaptureRate()/2, false, true);
             }
-            //mediaPlayer = new MediaPlayer();
             mediaPlayer.reset();
             mediaPlayer.setDataSource(path);
-            Log.v("OnePlayer","init()查看数据源"+path);
         } catch (IOException e) {
             e.printStackTrace();
         }
-
-        //mediaPlayer.setAudioStreamType(MediaPlayer.MEDIA_INFO_BUFFERING_START);
-        isInit = false;
+        isStarted = false;
     }
     protected void play(){
-        Log.v("OnePlayer", "播放");
-        if(isInit){
-            //已经初始化，继续播放
-            mediaPlayer.start();
+        if(isStarted){
+            if(mediaPlayer.isPlaying()){
+                pause();
+            }else {
+                mediaPlayer.start();
+            }
         }else {
-            time = 0;
+            currentTime = 0;
             try {
+                mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+                    @Override
+                    public void onCompletion(MediaPlayer mp) {
+                    if (onMusicListener != null) {
+                        onMusicListener.onComple();
+                    }
+                    changeMusic(true);
+                    }
+                });
+                mediaPlayer.setOnBufferingUpdateListener(new MediaPlayer.OnBufferingUpdateListener() {
+                    @Override
+                    public void onBufferingUpdate(MediaPlayer mp, int percent) {
+                    }
+                });
+                mediaPlayer.setOnErrorListener(new MediaPlayer.OnErrorListener() {
+                    @Override
+                    public boolean onError(MediaPlayer mp, int what, int extra) {
+                        if(onMusicListener!=null){
+                            onMusicListener.onError(what,extra);
+                        }
+                        return false;
+                    }
+                });
                 mediaPlayer.prepareAsync();
             }catch (Exception e){
-                Log.v("OnePlayer","IO异常不可避");
             }
-            isInit = true;
+            isStarted = true;
         }
-        mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+    }
+    protected void initHandler() {
+        handler = new Handler(new Handler.Callback() {
             @Override
-            public void onCompletion(MediaPlayer mp) {
-//                Message message = new Message();
-//                message.what = 0x124;
-//                handler.sendMessage(message);
+            public boolean handleMessage(Message msg) {
+                //处理开始走时信息
+                if (msg.what == 1) {
+                   currentTime+=1;
 
-                if (onCompleListener != null) {
-                    onCompleListener.onComple();
-                }
-            }
-        });
-        mediaPlayer.setOnBufferingUpdateListener(new MediaPlayer.OnBufferingUpdateListener() {
-            @Override
-            public void onBufferingUpdate(MediaPlayer mp, int percent) {
-                try {
-                    onBufferedUpdateListener.onBuffedUpdate(percent);
-                } catch (Exception e) {
-                    Log.v("OnePlayer", e.getMessage());
-                }
-            }
-        });
-        mediaPlayer.setOnErrorListener(new MediaPlayer.OnErrorListener() {
-            @Override
-            public boolean onError(MediaPlayer mp, int what, int extra) {
-                Log.v("我看看what", what + " " + extra);
-                if(onOneErrorListener!=null){
-                    onOneErrorListener.setError(what,extra);
                 }
                 return false;
             }
         });
-
-        //mediaPlayer.setAudioStreamType(MediaPlayer.MEDIA_INFO_BUFFERING_START);
+    }
+    public void initTimer() {
+        timer = new Timer();
+        timerTask = new TimerTask() {
+            @Override
+            public void run() {
+                if (mediaPlayer.isPlaying()) {
+                    Message message = new Message();
+                    message.what = 1;
+                    handler.sendMessage(message);
+                }
+            }
+        };
+        timer.schedule(timerTask, 0, 1000);
+    }
+    public void setPlayList(ArrayList<Music> playList,int currentPosition){
+        this.playList = playList;
+        this.currentPosition = currentPosition;
+        if(playList!=null) {
+            musicNumber = playList.size();
+            init(playList.get(currentPosition));
+        }
+    }
+    public void setMusicListener(OnMusicListener onMusicListener){
+        this.onMusicListener = onMusicListener;
+    }
+    public void setPlayMode(int playMode){
+        this.playMode = playMode;
     }
     protected void pause(){
-        //timerTask.cancel();
-        //timer = null;
-
         mediaPlayer.pause();
     }
     protected void stop(){
-
-        System.out.println("stop停止了");
         mediaPlayer.stop();
     }
+    public void selectMusic(Music music){
+        init(music);
+        play();
+        if(onMusicListener!=null){
+            onMusicListener.onMusicChanged(music);
+        }
+    }
+    public void changeMusic(boolean isNext){
+        if (mediaPlayer.isPlaying()) {
+            pause();
+        }
+        switch (playMode) {
+            case random:
+                currentPosition = getRandomPosition(musicNumber);
+                break;
+            default:
+                if(isNext) {
+                    currentPosition = (currentPosition + 1) % musicNumber;
+                }else {
+                    currentPosition = currentPosition - 1;
+                    if (currentPosition < 0) {
+                        currentPosition += musicNumber;
+                    }
+                }
+                break;
+        }
+        init(playList.get(currentPosition));
+        play();
+    }
+
     protected void setLooping(){
         mediaPlayer.setLooping(true);
     }
 
 
-    protected void setmusicNumber(int musicNumber){
-        this.musicNumber = musicNumber;
-    }
+
 
     protected int getRandomPosition(int musicNumber){
         int position = (int) (Math.random()*musicNumber);
-        System.out.println("获得的随机数" + position);
         return position;
     }
     protected void setUrls(String[] urls){
@@ -178,10 +242,7 @@ public class OnePlayer implements Serializable {
     //    return (MainActivity)context;
     //}
 
-    public void setOnCompleListener(OnCompleListener onCompleListener){
-        this.onCompleListener = onCompleListener;
 
-    }
     public void setOnPrepareListener(OnPrepareListener onPrepareListener){
         this.onPrepareListener = onPrepareListener;
 

@@ -2,14 +2,11 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="480dp">
-    <GridView
+    <android.support.v7.widget.RecyclerView
         android:paddingLeft="5dp"
         android:paddingRight="5dp"
         android:paddingTop="5dp"
-        android:verticalSpacing="10dp"
-        android:horizontalSpacing="5dp"
-        android:numColumns="2"
-        android:id="@+id/one_albumlist_fragment_gridview"
+        android:id="@+id/one_albumlist_fragment_recyclerView"
         android:layout_width="match_parent"
-        android:layout_height="480dp"/>
+        android:layout_height="match_parent"/>
 </LinearLayout>

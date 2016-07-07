@@ -1,9 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
-    android:id="@+id/noti_background"
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    android:background="#ffffff"
-    android:layout_width="match_parent" android:layout_height="65dp">
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+        <import type="com.example.peacemaker.oneplayer.Music" />
+        <variable
+            name="music"
+            type="Music" />
+    </data>
+    <RelativeLayout
+        android:id="@+id/noti_background"
+        android:background="#ffffff"
+        android:layout_width="match_parent" android:layout_height="65dp">
     <ImageView
         android:scaleType="fitCenter"
         android:src="@drawable/logo"
@@ -74,3 +82,4 @@
         android:layout_toLeftOf="@+id/noti_playandpause" />
 
 </RelativeLayout>
+    </layout>

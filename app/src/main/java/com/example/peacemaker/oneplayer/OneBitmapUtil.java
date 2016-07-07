@@ -3,7 +3,12 @@ package com.example.peacemaker.oneplayer;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Matrix;
+import android.graphics.Paint;
+import android.graphics.Rect;
+import android.util.DisplayMetrics;
 import android.util.Log;
 
 import java.io.ByteArrayInputStream;
@@ -33,6 +38,41 @@ public class OneBitmapUtil {
         Bitmap bitmap = BitmapFactory.decodeResource(context.getResources(),resId);
         bitmap = zoomImg(bitmap,newWidth,newHeight);
         return bitmap;
+    }
+    public static Bitmap zoomImg(Context context,int resId, int scaleTimes){
+        DisplayMetrics dm =context.getResources().getDisplayMetrics();
+        int width = dm.widthPixels;
+        Bitmap bitmap = BitmapFactory.decodeResource(context.getResources(),resId);
+        bitmap = zoomImg(bitmap,width/scaleTimes,width/scaleTimes);
+        return bitmap;
+    }
+    public static Bitmap drawTextToBitmap(Bitmap bitmap, String singer, String name, String number,int textColor,int ref){
+        float scale = bitmap.getWidth()/ref;
+        Bitmap bitmap1 = bitmap.copy(Bitmap.Config.ARGB_8888, true);
+        Canvas canvas = new Canvas(bitmap1);
+        int height = canvas.getHeight();
+        int width = canvas.getWidth();
+        Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);//抗锯齿
+        paint.setColor(textColor);
+        int textSize = (int) (18 * scale);
+        paint.setTextSize(textSize);
+        paint.setDither(true); //获取更清晰的图像采样
+        paint.setFilterBitmap(true);//过滤一些
+        Rect bounds = new Rect();
+        paint.setShadowLayer(1f, 0f, 1f, Color.WHITE);
+        paint.getTextBounds(singer, 0, singer.length(), bounds);
+        int x = (bitmap.getWidth() - bounds.width())/10*9 ;
+        int y = (bitmap.getHeight() + bounds.height())/10*9;
+        canvas.drawText(singer, x , y, paint);
+//        paint.getTextBounds(name, 0, name.length(), bounds);
+//        canvas.drawText(name,width-name.length()*textColor,height-3*textSize, paint);
+//        paint.getTextBounds(singer, 0, singer.length(), bounds);
+//        paint.setTextSize((int) (18 * scale));
+//        canvas.drawText(singer,width-singer.length()*textColor,height-2*textSize, paint);
+//        paint.getTextBounds(number, 0, number.length(), bounds);
+//        paint.setTextSize((int) (18 * scale));
+//        canvas.drawText(number,width-number.length()*textColor,height-textSize, paint);
+        return bitmap1;
     }
     public static Bitmap compressBitmap(Bitmap bitmap){
 //        ByteArrayOutputStream baos = new ByteArrayOutputStream();
