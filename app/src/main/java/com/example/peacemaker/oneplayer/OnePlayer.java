@@ -25,7 +25,7 @@ public class OnePlayer implements Serializable {
     final static int looping = 2;
     final static int random = 3;
     public Boolean isStarted = false;
-    private int playMode = cycle;
+    public int playMode = cycle;
     private int musicNumber;
     //private MainActivity activity;
     private String[] urls;
@@ -44,6 +44,10 @@ public class OnePlayer implements Serializable {
     private OnPrepareListener onPrepareListener;
     private OnBuffedUpdateListener onBufferedUpdateListener;
     public OnePlayer(ArrayList<Music> playList,int currentPosition){
+        setPlayList(playList,currentPosition);
+    }
+    public OnePlayer(ArrayList<Music> playList,int currentPosition,OnMusicListener onMusicListener){
+        this.onMusicListener = onMusicListener;
         setPlayList(playList,currentPosition);
     }
 
@@ -169,13 +173,22 @@ public class OnePlayer implements Serializable {
     public void setPlayMode(int playMode){
         this.playMode = playMode;
     }
+    public void changePlayMode(){
+        if(playMode<3){
+            playMode+=1;
+        }else {
+            playMode = 1;
+        }
+
+    }
     protected void pause(){
         mediaPlayer.pause();
     }
     protected void stop(){
         mediaPlayer.stop();
     }
-    public void selectMusic(Music music){
+    public void selectMusic(Music music,int position){
+        currentPosition = position;
         init(music);
         play();
         if(onMusicListener!=null){

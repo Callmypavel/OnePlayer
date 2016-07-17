@@ -46,6 +46,11 @@ public class MusicProvider implements Parcelable{
         albums = in.readArrayList(getClass().getClassLoader());
 
     }
+    public int getCount(){
+        if(musicSource!=null){
+            return musicSource.size();
+        }else return 0;
+    }
     public MusicProvider(ArrayList<Music> musicSource) {
         this.musicSource = musicSource;
         if(musicSource!=null) {

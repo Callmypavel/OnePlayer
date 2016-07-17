@@ -8,6 +8,7 @@ import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.databinding.DataBindingUtil;
 import android.graphics.Bitmap;
@@ -17,6 +18,7 @@ import android.os.IBinder;
 import android.support.v7.graphics.Palette;
 import android.util.Log;
 import android.widget.RemoteViews;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 
@@ -34,6 +36,7 @@ public class OneApplication extends Application{
     private int themeColor = Color.WHITE;
     private Bitmap currentBitmap;
     private int musicColor = Color.WHITE;
+    private boolean isWhite = true;
     private ArrayList<Music> albumArraylist;
     private ArrayList<Music> singerArraylist;
     private ArrayList<Music> songArraylist;
@@ -42,14 +45,17 @@ public class OneApplication extends Application{
     BroadcastReceiver previousReceiver;
     BroadcastReceiver nextReceiver;
     private ArrayList<Music> tempmusicArrayList;
-    OnePlayer onePlayer;
+    private OnePlayer onePlayer;
     MusicService musicService;
+    private boolean isNull = true;
     int musicNumber;
     Visualizer visualizer;
     Boolean isPlaying = false;
     private Boolean isNew = true;
     private int currentColor;
     private OneActivity oneActivity;
+    private boolean isNotiClikable = true;
+
     public void setCurrentMusic(Music currentMusic){
         this.currentMusic = currentMusic;
     }
@@ -62,16 +68,19 @@ public class OneApplication extends Application{
     public Music getTargetMusic(){
         return targetMusic;
     }
-    public void setMusicProvider(MusicProvider musicProvider){
+    public void setOneActivity(MusicProvider musicProvider,final OneActivity oneActivity){
+        this.oneActivity = oneActivity;
         this.musicProvider = musicProvider;
         singerArraylist = musicProvider.getSingers();
         albumArraylist = musicProvider.getAlbums();
         songArraylist = musicProvider.getSongs();
-        onePlayer = new OnePlayer(songArraylist,0);
-    }
-    public void setOneActivity(final OneActivity oneActivity){
-        this.oneActivity = oneActivity;
-        onePlayer.setMusicListener(new OnMusicListener() {
+        if (musicProvider.getCount() == 0) {
+            Toast.makeText(this, "抱歉，没有歌曲", Toast.LENGTH_SHORT).show();
+            isNull = true;
+            oneActivity.banClick();
+            return;
+        }
+        onePlayer = new OnePlayer(songArraylist, 0, new OnMusicListener() {
             @Override
             public void onComple() {
             }
@@ -79,8 +88,8 @@ public class OneApplication extends Application{
             @Override
             public void onMusicChanged(Music music) {
                 currentMusic = music;
-                currentBitmap = music.getMiddleAlbumArt(OneApplication.this);
                 initNotification(true,currentBitmap);
+                updateMusicInfo();
             }
 
             @Override
@@ -103,6 +112,7 @@ public class OneApplication extends Application{
                 oneActivity.setWaveData(data);
             }
         });
+
     }
     private void updateMusicInfo(){
         currentBitmap = currentMusic.getMiddleAlbumArt(this);
@@ -110,7 +120,10 @@ public class OneApplication extends Application{
             @Override
             public void onGenerated(Palette palette) {
                 musicColor = palette.getDarkVibrantColor(Color.WHITE);
-
+                if(!ColorUtil.getContrast(musicColor,currentColor)){
+                    isWhite = !isWhite;
+                }
+                initColor();
             }
         });
     }
@@ -123,6 +136,28 @@ public class OneApplication extends Application{
     public boolean isNew(){
         return onePlayer.isStarted;
     }
+    public void changePlayMode(){
+        onePlayer.changePlayMode();
+    }
+    public int getPlayMode(){
+        return onePlayer.playMode;
+    }
+    public int getCurrentColor(){
+        return this.currentColor;
+    }
+    public boolean isWhite(){
+
+    }
+
+
+    public void get
+    public void queue(){
+        oneActivity.quitPlayView();
+    }
+    public void toPlayView(){
+        oneActivity.toPlayView();
+    }
+
 
     public void next() {
         onePlayer.changeMusic(true);
@@ -131,8 +166,13 @@ public class OneApplication extends Application{
     public void previous() {
         onePlayer.changeMusic(false);
     }
-    public void selectMusic(Music music){
-        onePlayer.selectMusic(music);
+    public void selectMusic(Music music,boolean isDetail,int position){
+        if(isDetail) {
+            onePlayer.setPlayList(getTargetMusic().getSecondItems(), position);
+        }else {
+            onePlayer.setPlayList(songArraylist, position);
+        }
+        onePlayer.selectMusic(music,position);
     }
     private void initNotification(boolean isPlayState,Bitmap bitmap) {
         if (tempmusicArrayList == null||tempmusicArrayList.size() == 0) {
@@ -197,6 +237,46 @@ public class OneApplication extends Application{
         notificationManager.notify(0, notification);
 
 
+    }
+
+
+    public void initReceiver() {
+        //注册播放广播
+        playReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                play();
+            }
+        };
+        IntentFilter filter = new IntentFilter();
+        filter.addAction("playButton");
+        registerReceiver(playReceiver, filter);
+
+        //上一首广播
+        previousReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                if (isNotiClikable) {
+                    previous();
+                }
+            }
+        };
+        IntentFilter filter1 = new IntentFilter();
+        filter1.addAction("previousButton");
+        registerReceiver(previousReceiver, filter1);
+
+        //下一首广播
+        nextReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                if (isNotiClikable) {
+                    next();
+                }
+            }
+        };
+        IntentFilter filter2 = new IntentFilter();
+        filter2.addAction("nextButton");
+        registerReceiver(nextReceiver, filter2);
     }
 
     public void closeNotification() {

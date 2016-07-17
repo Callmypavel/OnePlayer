@@ -150,7 +150,6 @@ public class OneLayout extends RelativeLayout {
             }
         });
         ViewDataBinding binding = DataBindingUtil.bind(this);
-        binding.set
 
 
     }

@@ -125,7 +125,7 @@
             android:scaleType="centerInside"
             android:layout_width="48dp"
             android:layout_height="48dp"
-            android:src="@drawable/ic_repeat_white_48dp"
+            android:src="@drawable/repeat_white"
             android:id="@+id/playmode"
             android:layout_marginTop="44dp"
             android:layout_marginLeft="304dp" />

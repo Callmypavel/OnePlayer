@@ -7,6 +7,9 @@
         <import type="com.example.peacemaker.oneplayer.Music" />
         <import type="com.example.peacemaker.oneplayer.OneHandler" />
         <variable
+            name="playMode"
+            type="int" />
+        <variable
             name="music"
             type="Music" />
         <variable
@@ -31,10 +34,58 @@
             name="handler"
             type="OneHandler"/>
     </data>
-    <RelativeLayout
+    <android.support.design.widget.CoordinatorLayout
+        android:fitsSystemWindows="true"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
-        <include layout="one_album_detail"
+        android:layout_height="550dp">
+        <android.support.design.widget.AppBarLayout
+            android:id="@+id/ablum_detail_appbar"
+            android:fitsSystemWindows="true"
+            android:layout_width="match_parent"
+            android:layout_height="300dp"
+            >
+            <android.support.design.widget.CollapsingToolbarLayout
+                android:id="@+id/albuim_detail_collapsing_toolbar_layout"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                app:contentScrim="?attr/colorPrimary"
+                android:fitsSystemWindows="true"
+                bind:title="@{music.displayName}"
+                app:expandedTitleMarginStart="48dp"
+                app:layout_scrollFlags="scroll|exitUntilCollapsed">
+                <ImageView
+                    android:src="@{music.getMiddleAlbumArt()}"
+                    android:id="@+id/one_albumlist_album_detail_image"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:fitsSystemWindows="true"
+                    android:scaleType="centerCrop"
+                    app:layout_collapseMode="parallax"
+                    app:layout_collapseParallaxMultiplier="0.7"  >
+                </ImageView>
+                <android.support.v7.widget.Toolbar
+                    android:navigationIcon="@drawable/ic_arrow_back_white_48dp"
+                    android:theme="@style/ToolbarTheme"
+                    android:id="@+id/one_album_detail_toolbar"
+                    android:layout_width="match_parent"
+                    android:layout_height="?attr/actionBarSize"
+                    app:layout_collapseMode="pin" >
+
+                </android.support.v7.widget.Toolbar>
+            </android.support.design.widget.CollapsingToolbarLayout>
+        </android.support.design.widget.AppBarLayout>
+
+        <android.support.v7.widget.RecyclerView
+            android:requiresFadingEdge="none"
+            app:layout_behavior="@string/appbar_scrolling_view_behavior"
+            android:layout_below="@id/ablum_detail_appbar"
+            android:id="@+id/one_albumlist_album_detail_recycler"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+        </android.support.v7.widget.RecyclerView>
+        <include
+            layout="@layout/one_layout"
+            bind:playMode="@{playMode}"
             bind:music="@{music}"
             bind:isPlaying="@{isPlaying}"
             bind:isWhite="@{isWhite}"
@@ -42,208 +93,9 @@
             bind:currentColor="@{currentColor}"
             bind:currentTime="@{currentTime}"
             bind:duration="@{duration}"
-            bind:handler="@{handler}"
-            />
-        <com.example.peacemaker.oneplayer.OneLayout
-            android:background="#ffffff"
-            android:layout_alignParentBottom="true"
-            android:id="@+id/main_content_bar"
-            android:layout_width="wrap_content"
-            android:layout_height="60dp">
-            <RelativeLayout
-                android:layout_width="match_parent"
-                android:layout_height="60dp"
-                android:id="@+id/bottom_controll_bar"
-                android:layout_alignParentTop="true"
-                android:layout_alignParentLeft="true"
-                android:layout_alignParentStart="true">
-                <ImageView
-                    android:id="@+id/bottom_album_image"
-                    android:scaleType="fitXY"
-                    android:src="@{music.getMiddleAlbumArt()}"
-                    android:layout_width="60dp"
-                    android:layout_height="60dp"
-                    android:layout_alignParentTop="true"
-                    android:layout_alignParentLeft="true"
-                    android:layout_alignParentStart="true" />
+            bind:handler="@{handler}" />
+    </android.support.design.widget.CoordinatorLayout>
 
-                <TextView
-                    android:id="@+id/bottom_song_name"
-                    android:textColor="#000000"
-                    android:maxLines="1"
-                    android:maxEms="7"
-                    android:ellipsize="marquee"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@{music.displayName}"
-                    android:layout_alignTop="@+id/bottom_play_button"
-                    android:layout_alignLeft="@+id/bottom_singer_name"
-                    android:layout_alignStart="@+id/bottom_singer_name" />
-                <TextView
-                    android:id="@+id/bottom_singer_name"
-                    android:textColor="#000000"
-                    android:maxLines="1"
-                    android:maxEms="10"
-                    android:ellipsize="marquee"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@{music.getArtist()}"
-                    android:layout_marginLeft="10dp"
-                    android:layout_below="@+id/bottom_song_name"
-                    android:layout_toRightOf="@+id/bottom_album_image"
-                    android:layout_toEndOf="@+id/bottom_album_image"
-                    />
-                <ImageButton
-                    android:onClick="@{handler.onButtonClick}"
-                    android:layout_marginRight="30dp"
-                    android:layout_marginEnd="30dp"
-                    android:layout_centerVertical="true"
-                    android:layout_alignParentRight="true"
-                    android:background="?android:attr/selectableItemBackground"
-                    android:scaleType="fitXY"
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
-                    android:src="@{isPlaying?(isWhite?@drawable/ic_play_circle_fill_white_48dp:@drawable/ic_play_circle_outline_black_48dp):(isWhite?@drawable/ic_pause_circle_fill_white_48dp:@drawable/ic_pause_circle_outline_black_48dp)}"
-                    android:id="@+id/bottom_play_button"
-                    />
-
-            </RelativeLayout>
-            <RelativeLayout
-                android:background="@{currentColor}"
-                android:layout_width="match_parent"
-                android:layout_height="90dp"
-                android:id="@+id/top_tool_bar"
-                android:layout_below="@+id/bottom_controll_bar"
-                android:layout_alignParentLeft="true"
-                android:layout_alignParentStart="true">
-                <TextView
-                    android:maxLines="1"
-                    android:maxEms="10"
-                    android:ellipsize="marquee"
-                    android:layout_marginLeft="10dp"
-                    android:layout_marginTop="30dp"
-                    android:id="@+id/top_tool_bar_song_name"
-                    android:textColor="#ffffff"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textSize="20sp"
-                    android:text="@{music.displayName}"
-                    />
-                <TextView
-                    android:maxLines="1"
-                    android:maxEms="10"
-                    android:ellipsize="marquee"
-                    android:id="@+id/top_tool_bar_singer_name"
-                    android:layout_marginLeft="10dp"
-                    android:layout_below="@+id/top_tool_bar_song_name"
-                    android:textColor="@color/background_floating_material_dark"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@{music.getArtist()}"
-                    />
-            </RelativeLayout>
-            <RelativeLayout
-                android:layout_below="@+id/top_tool_bar"
-                android:id="@+id/main_content_view"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content">
-                <ImageView
-                    android:layout_centerHorizontal="true"
-                    android:scaleType="fitCenter"
-                    android:id="@+id/play_view_album"
-                    android:src="@{music.getMiddleAlbumArt()}"
-                    android:layout_width="match_parent"
-                    android:layout_height="360dp" />
-
-                <com.example.peacemaker.oneplayer.OneWaveFromView
-                    android:id="@+id/play_view_onewaveform"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentLeft="true"
-                    android:layout_alignParentStart="true" />
-            </RelativeLayout>
-            <RelativeLayout
-                android:background="@{currentColor}"
-                android:layout_margin="10dp"
-                android:id="@+id/play_view_controll_bar"
-                android:layout_width="match_parent"
-                android:layout_height="162dp"
-                android:layout_below="@+id/main_content_view"
-                android:layout_alignParentBottom="true"
-                >
-                <com.example.peacemaker.oneplayer.OneSeekBar
-                    android:id="@+id/one_seekbar"
-                    android:layout_marginTop="20dp"
-                    android:layout_width="120dp"
-                    android:layout_height="120dp"
-                    android:layout_centerHorizontal="true" />
-
-                <TextView
-                    android:textSize="19sp"
-                    android:paddingLeft="15dp"
-                    android:textColor="#FFFFFF"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_centerVertical="true"
-                    android:text="@{music.duration}"
-                    android:id="@+id/play_view_duration"
-                    android:layout_toRightOf="@id/one_seekbar" />
-                <ImageButton
-                    android:background="?android:attr/selectableItemBackground"
-                    android:scaleType="centerInside"
-                    android:layout_width="55dp"
-                    android:layout_height="55dp"
-                    android:src="@drawable/ic_repeat_white_48dp"
-                    android:id="@+id/play_view_playmode"
-                    android:layout_alignParentBottom="true"
-                    android:layout_alignRight="@id/play_view_duration" />
-
-                <ImageButton
-                    android:background="?android:attr/selectableItemBackground"
-                    android:scaleType="fitXY"
-                    android:layout_width="60dp"
-                    android:layout_height="60dp"
-                    android:src="@drawable/ic_skip_next_white_48dp"
-                    android:id="@+id/play_view_next"
-                    android:layout_centerVertical="true"
-                    android:layout_toRightOf="@id/play_view_duration"
-                    />
-                <TextView
-                    android:textSize="19sp"
-                    android:paddingRight="15dp"
-                    android:textColor="#FFFFFF"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_centerVertical="true"
-                    android:text="@{currentTime}"
-                    android:id="@+id/play_view_progress"
-                    android:layout_toLeftOf="@id/one_seekbar" />
-
-
-                <ImageButton
-                    android:background="?android:attr/selectableItemBackground"
-                    android:scaleType="centerInside"
-                    android:layout_width="55dp"
-                    android:layout_height="55dp"
-                    android:src="@drawable/ic_queue_music_white_48dp"
-                    android:id="@+id/play_view_queue"
-                    android:layout_alignParentBottom="true"
-                    android:layout_toRightOf="@+id/play_view_previous"
-                    android:layout_toEndOf="@+id/play_view_previous" />
-
-                <ImageButton
-                    android:background="?android:attr/selectableItemBackground"
-                    android:scaleType="fitXY"
-                    android:layout_width="60dp"
-                    android:layout_height="60dp"
-                    android:src="@drawable/ic_skip_previous_white_48dp"
-                    android:id="@+id/play_view_previous"
-                    android:layout_alignTop="@+id/play_view_next"
-                    android:layout_toLeftOf="@+id/play_view_progress"
-                    android:layout_toStartOf="@+id/play_view_progress" />
-            </RelativeLayout>
-        </com.example.peacemaker.oneplayer.OneLayout>
-    </RelativeLayout>
 
 
 </layout>
