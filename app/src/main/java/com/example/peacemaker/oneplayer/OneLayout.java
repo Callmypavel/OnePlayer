@@ -29,34 +29,10 @@ public class OneLayout extends RelativeLayout {
     private int screenWidth;
     private int currentHeight;
     private int childcurrentHeight;
-    private int fixedSpeed = 15;
+    private int fixedSpeed = 20;
     private Handler handler;
     private RelativeLayout bottom_controll_bar;
     private OnReachMaxListener onReachMaxListener;
-    @BindView(R.id.bottom_song_name)
-    public TextView bottomSongNameText;
-    @BindView(R.id.bottom_singer_name)
-    public TextView bottomSingerNameText;
-    @BindView(R.id.bottom_album_image)
-    public ImageView bottomAblumImageView;
-    @BindView(R.id.bottom_controll_bar)
-    public RelativeLayout bottomControllBar;
-    @BindView(R.id.top_tool_bar_song_name)
-    public TextView topToolBarSongNameText;
-    @BindView(R.id.top_tool_bar_singer_name)
-    public TextView topToolBarSingerNameText;
-    @BindView(R.id.top_tool_bar)
-    public RelativeLayout topToolBar;
-    @BindView(R.id.play_view_album)
-    public ImageView playViewAblumImageView;
-    @BindView(R.id.play_view_controll_bar)
-    public RelativeLayout playViewControllBar;
-    @BindView(R.id.bottom_play_button)
-    public ImageButton playButton;
-    @BindView(R.id.main_content_bar)
-    public OneLayout mainContentBar;
-    @BindView(R.id.play_view_onewaveform)
-    public OneWaveFromView oneWaveFromView;
 
     public OneLayout(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -149,7 +125,7 @@ public class OneLayout extends RelativeLayout {
                 return false;
             }
         });
-        ViewDataBinding binding = DataBindingUtil.bind(this);
+
 
 
     }
@@ -187,6 +163,7 @@ public class OneLayout extends RelativeLayout {
         thread.start();
     }
     public void toMinHeight(){
+
         Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {

@@ -17,4 +17,5 @@
 <resources>
     <dimen name="shape_size">180dp</dimen>
     <dimen name="elevation_step">8dp</dimen>
+    <dimen name="statusbar_height">25dp</dimen>
 </resources>

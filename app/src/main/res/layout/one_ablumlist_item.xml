@@ -1,6 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
+<layout xmlns:bind="http://schemas.android.com/apk/res-auto"
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    >
+    <data>
+        <import type="android.graphics.Bitmap"/>
+        <import type="com.example.peacemaker.oneplayer.Music" />
+        <variable
+            name="music"
+            type="Music" />
+        <variable
+            name="songsnumber"
+            type="String"/>
+        <variable
+            name="image"
+            type="Bitmap"/>
+    </data>
+<RelativeLayout
+    android:tag="@{music}"
     android:orientation="vertical" android:layout_width="180dp"
     android:layout_height="260dp">
     <android.support.v7.widget.CardView
@@ -14,7 +31,6 @@
             android:layout_height="wrap_content">
             <ImageView
                 android:layout_alignParentTop="true"
-
                 android:scaleType="fitCenter"
                 android:id="@+id/one_albumlist_album_image"
                 android:layout_width="170dp"
@@ -26,7 +42,7 @@
                 android:maxLines="1"
                 android:layout_below="@id/one_albumlist_album_image"
                 android:id="@+id/one_albumlist_album_name"
-                android:text="专辑名"
+                android:text="@{music.displayName}"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content" />
             <TextView
@@ -35,7 +51,7 @@
                 android:maxLines="1"
                 android:layout_below="@+id/one_albumlist_album_name"
                 android:id="@+id/one_albumlist_singer_name"
-                android:text="歌手名"
+                android:text="@{music.secondItems.get(0).artist}"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content" />
             <TextView
@@ -44,7 +60,7 @@
                 android:maxLines="1"
                 android:layout_below="@+id/one_albumlist_singer_name"
                 android:id="@+id/one_albumlist_song_number"
-                android:text="几首歌曲"
+                android:text="@{songsnumber}"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content" />
         </RelativeLayout>
@@ -52,3 +68,4 @@
 
 
 </RelativeLayout>
+</layout>

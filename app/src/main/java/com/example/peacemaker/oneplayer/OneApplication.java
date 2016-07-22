@@ -11,12 +11,16 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.databinding.DataBindingUtil;
+import android.databinding.ObservableBoolean;
+import android.databinding.ObservableField;
+import android.databinding.ObservableInt;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.media.audiofx.Visualizer;
 import android.os.IBinder;
 import android.support.v7.graphics.Palette;
 import android.util.Log;
+import android.view.View;
 import android.widget.RemoteViews;
 import android.widget.Toast;
 
@@ -27,59 +31,86 @@ import java.util.ArrayList;
  */
 
 public class OneApplication extends Application{
-    private Music currentMusic;
-    private Music targetMusic;
-    public int currentPosition;
-    private static int singer = 0;
-    private static int album = 1;
-    private static int song = 2;
     private int themeColor = Color.WHITE;
-    private Bitmap currentBitmap;
-    private int musicColor = Color.WHITE;
-    private boolean isWhite = true;
-    private ArrayList<Music> albumArraylist;
-    private ArrayList<Music> singerArraylist;
+    private boolean isNull = false;
     private ArrayList<Music> songArraylist;
     MusicProvider musicProvider;
     BroadcastReceiver playReceiver;
     BroadcastReceiver previousReceiver;
     BroadcastReceiver nextReceiver;
-    private ArrayList<Music> tempmusicArrayList;
-    private OnePlayer onePlayer;
-    MusicService musicService;
-    private boolean isNull = true;
-    int musicNumber;
-    Visualizer visualizer;
-    Boolean isPlaying = false;
-    private Boolean isNew = true;
-    private int currentColor;
+    public OnePlayer onePlayer;
     private OneActivity oneActivity;
     private boolean isNotiClikable = true;
+    public MusicState musicState = new MusicState();
+    public Music currentMusic;
+    private Music targetMusic;
+    private int duration = 0;
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+//        OneLogger oneLogger = new OneLogger();
+//        oneLogger.getLog();
+    }
 
     public void setCurrentMusic(Music currentMusic){
-        this.currentMusic = currentMusic;
+        Log.v("OneApplication","setCurrentMusic()"+currentMusic.getDisplayName());
+        if(this.currentMusic==null){
+            this.currentMusic = new Music();
+        }
+        this.currentMusic.update(currentMusic);
+
     }
     public void setTargetMusic(Music targetMusic){
         this.targetMusic = targetMusic;
     }
-    public Music getCurrentMusic(){
-        return currentMusic;
+    public void unRegister(){
+        if(playReceiver!=null) {
+            unregisterReceiver(playReceiver);
+            unregisterReceiver(nextReceiver);
+            unregisterReceiver(previousReceiver);
+        }
+    }
+    public ArrayList<Music> getSingerArrayList(){
+        if(musicProvider!=null){
+            return musicProvider.getSingers();
+        }
+        return null;
+    }
+    public ArrayList<Music> getSongArrayList(){
+        if(musicProvider!=null){
+            return musicProvider.getSongs();
+        }
+        return null;
+    }
+    public ArrayList<Music> getAblumArrayList(){
+        if(musicProvider!=null){
+            return musicProvider.getAlbums();
+        }
+        return null;
+    }
+    private OneActivity getOneActivty(){
+        return oneActivity;
     }
     public Music getTargetMusic(){
         return targetMusic;
     }
+    public void setOneActivity(OneActivity oneActivity){
+        this.oneActivity = oneActivity;
+        Log.v("OneApplication","setOneActivity()"+oneActivity);
+    }
     public void setOneActivity(MusicProvider musicProvider,final OneActivity oneActivity){
+        Log.v("OneApplication","setOneActivity()");
         this.oneActivity = oneActivity;
         this.musicProvider = musicProvider;
-        singerArraylist = musicProvider.getSingers();
-        albumArraylist = musicProvider.getAlbums();
         songArraylist = musicProvider.getSongs();
         if (musicProvider.getCount() == 0) {
             Toast.makeText(this, "抱歉，没有歌曲", Toast.LENGTH_SHORT).show();
             isNull = true;
-            oneActivity.banClick();
+            musicState.setIsClickable(false);
             return;
         }
+        initReceiver();
         onePlayer = new OnePlayer(songArraylist, 0, new OnMusicListener() {
             @Override
             public void onComple() {
@@ -87,19 +118,27 @@ public class OneApplication extends Application{
 
             @Override
             public void onMusicChanged(Music music) {
-                currentMusic = music;
-                initNotification(true,currentBitmap);
+                Log.v("OneApplication","onMusicChanged()"+music.getDisplayName());
+                setCurrentMusic(music);
                 updateMusicInfo();
             }
 
             @Override
             public void onMusicTickling(int time) {
-                oneActivity.setMusicProgress(time);
+                //Log.v("OneApplication","onMusicTickling()进度"+time+",总时长"+duration);
+                OneApplication.this.musicState.setProgress(ten2sixty(time));
+                musicState.setPercentage(time*1.f/duration);
+
             }
 
             @Override
             public void onPrepared(int duration) {
-                oneActivity.setMusicDuration(duration);
+                duration = duration/1000;
+                Log.v("OneApplication","onPrepared()总时长"+duration);
+                OneApplication.this.duration = duration;
+                OneApplication.this.musicState.setDuration(ten2sixty(duration));
+                musicState.setIsPlaying(false);
+                initNotification(false,null);
             }
 
             @Override
@@ -109,48 +148,95 @@ public class OneApplication extends Application{
 
             @Override
             public void onWaveForm(byte[] data) {
-                oneActivity.setWaveData(data);
+                //Log.v("OneApplication","onWaveForm()"+data);
+                //Log.v("OneApplication","onWaveForm()"+oneActivity);
+                //if(getOneActivty() instanceof MainActivity){
+                    //Log.v("OneApplication","onWaveForm()这是MainActivity有毒");
+                //}
+                getOneActivty().setWaveData(data);
+            }
+
+            @Override
+            public void onPause() {
+                Log.v("OneApplication","onPause()");
+                musicState.setIsPlaying(true);
+                initNotification(true,null);
+            }
+
+            @Override
+            public void onContinue() {
+                Log.v("OneApplication","onContinue()");
+                musicState.setIsPlaying(false);
+                initNotification(false,null);
+            }
+
+        });
+
+    }
+
+
+    public String ten2sixty(int ten) {
+        String sixty;
+        String minute = ten / 60 + "";
+        String second = ten % 60 + "";
+        if (ten / 60 >= 0 && ten / 60 < 10) {
+            minute = "0" + minute;
+        }
+        if (ten % 60 >= 0 && ten % 60 < 10) {
+            second = "0" + second;
+        }
+        sixty = minute + ":" + second;
+        return sixty;
+    }
+    public void updateMusicInfo(){
+        Log.v("OneApplication","updateMusicInfo()");
+        musicState.setCurrentBitmap(currentMusic.getMiddleAlbumArt(this));
+        Log.v("OneApplication","updateMusicInfo()检查bitmap"+musicState.getCurrentBitmap());
+        Palette.generateAsync(musicState.getCurrentBitmap(), new Palette.PaletteAsyncListener() {
+            @Override
+            public void onGenerated(Palette palette) {
+                musicState.setMusicColor(palette.getDarkVibrantColor(Color.WHITE));
+                int currentColor;
+                if(musicState.getIsWhite()){
+                    currentColor = Color.WHITE;
+                }else {
+                    currentColor = Color.BLACK;
+                }
+                if(!ColorUtil.getContrast(musicState.getMusicColor(),currentColor)){
+                    musicState.setIsWhite(!musicState.getIsWhite());
+                }
+                if(!isNew()) {
+                    initNotification(false, musicState.getCurrentBitmap());
+                }else {
+                    initNotification(true, musicState.getCurrentBitmap());
+                }
             }
         });
 
     }
-    private void updateMusicInfo(){
-        currentBitmap = currentMusic.getMiddleAlbumArt(this);
-        Palette.generateAsync(currentBitmap, new Palette.PaletteAsyncListener() {
-            @Override
-            public void onGenerated(Palette palette) {
-                musicColor = palette.getDarkVibrantColor(Color.WHITE);
-                if(!ColorUtil.getContrast(musicColor,currentColor)){
-                    isWhite = !isWhite;
-                }
-                initColor();
-            }
-        });
-    }
-    public void seekTo(int msec){
-        onePlayer.seekto(msec);
+    public void seekTo(float progress){
+        int second = (int)(progress*duration);
+        Log.v("OneApplication","seekTo()查看秒"+second);
+        musicState.setProgress(ten2sixty(second));
+        onePlayer.seekto(second*1000);
+        //play();
     }
     public void play() {
         onePlayer.play();
     }
     public boolean isNew(){
-        return onePlayer.isStarted;
+        return !onePlayer.isStarted;
     }
     public void changePlayMode(){
         onePlayer.changePlayMode();
+        int playMode = musicState.getPlayMode();
+        if(playMode<3){
+            playMode=playMode+1;
+        }else {
+            playMode=1;
+        }
+        musicState.setPlayMode(playMode);
     }
-    public int getPlayMode(){
-        return onePlayer.playMode;
-    }
-    public int getCurrentColor(){
-        return this.currentColor;
-    }
-    public boolean isWhite(){
-
-    }
-
-
-    public void get
     public void queue(){
         oneActivity.quitPlayView();
     }
@@ -166,28 +252,44 @@ public class OneApplication extends Application{
     public void previous() {
         onePlayer.changeMusic(false);
     }
-    public void selectMusic(Music music,boolean isDetail,int position){
-        if(isDetail) {
-            onePlayer.setPlayList(getTargetMusic().getSecondItems(), position);
+    public void selectMusic(Music music,int position){
+        if(music.isPlayable()) {
+            if(!music.equals(currentMusic)) {
+                if(oneActivity instanceof MainActivity){
+                    onePlayer.setPlayList(musicProvider.getSongs());
+                }else {
+                    onePlayer.setPlayList(targetMusic.getSecondItems());
+                 }
+                onePlayer.selectMusic(music, position);
+                oneActivity.toPlayView();
+            }
+
         }else {
-            onePlayer.setPlayList(songArraylist, position);
+            Log.v("OneApplication","selectMusic()不可播放进入二级菜单"+music.getDisplayName());
+            if(targetMusic==null){
+                targetMusic = new Music();
+            }
+            targetMusic.update(music);
+            ((MainActivity)oneActivity).toSecondItemActivity();
         }
-        onePlayer.selectMusic(music,position);
+
     }
     private void initNotification(boolean isPlayState,Bitmap bitmap) {
-        if (tempmusicArrayList == null||tempmusicArrayList.size() == 0) {
+        Log.v("OneApplication","initNotification()发出通知");
+        int currentColor = musicState.getIsWhite()?Color.WHITE:Color.BLACK;
+        if (isNull) {
             return;
         }
         NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-        Intent intent = new Intent(OneApplication.this, OneApplication.class);
+        Intent intent = new Intent(OneApplication.this, MainActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);//
-        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+        PendingIntent pendingIntent = PendingIntent.getActivity(oneActivity, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
         RemoteViews remoteViews = new RemoteViews(getPackageName(), R.layout.notification);
         remoteViews.setTextViewText(R.id.noti_singer,currentMusic.getArtist());
         remoteViews.setTextViewText(R.id.noti_name, currentMusic.getDisplayName());
         remoteViews.setInt(R.id.noti_singer,"setTextColor",currentColor);
         remoteViews.setInt(R.id.noti_name,"setTextColor",currentColor);
-        remoteViews.setInt(R.id.noti_background,"setBackgroundColor",musicColor);
+        remoteViews.setInt(R.id.noti_background,"setBackgroundColor",musicState.getMusicColor());
         if(bitmap!=null) {
             remoteViews.setImageViewBitmap(R.id.noti_album_image, bitmap);
         }

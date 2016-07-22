@@ -10,5 +10,7 @@ public interface OnMusicListener {
     void onPrepared(int dutation);
     void onError(int what,int extra);
     void onWaveForm(byte[] data);
+    void onPause();
+    void onContinue();
 
 }

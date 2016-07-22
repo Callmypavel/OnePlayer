@@ -1,6 +1,8 @@
 package com.example.peacemaker.oneplayer;
 
 import android.content.Context;
+import android.databinding.BaseObservable;
+import android.databinding.Bindable;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Parcel;
@@ -16,7 +18,7 @@ import butterknife.BindView;
 /**
  * Created by ouyan_000 on 2015/8/18.
  */
-public class Music implements Parcelable {
+public class Music extends BaseObservable implements Parcelable {
     private static final long serialVersionUID = 2L;
     public static Parcelable.Creator<Music>  CREATOR =
             new Creator<Music>() {
@@ -37,7 +39,6 @@ public class Music implements Parcelable {
     private String album = "<unknown>";
     private String displayName="<unknown>";
     private String url;
-    private Bitmap middleBitmap;
     //private Bitmap albumBitmap;
     private ArrayList<Music> musicArrayList;
     private boolean isPlayable;
@@ -101,33 +102,64 @@ public class Music implements Parcelable {
     public String toString() {
         return super.toString();
     }
-
+    @Bindable
     public String getArtist(){
+        //Log.v("Music","获取艺术家"+artist);
         if(artist!=null) {
-        return artist;
-    }else
+            return artist;
+        }else
         return "<unknown>";
     }
-    public String getDuration(){
-        return duration;
+
+    public void setSize(String size) {
+        this.size = size;
     }
 
-   //public String getSize(){
-        //return size;
-    //}
+    public void setId(String id) {
+        this.id = id;
+    }
+
+
+    public void setMusicArrayList(ArrayList<Music> musicArrayList) {
+        this.musicArrayList = musicArrayList;
+    }
+
+    public void setPlayable(boolean playable) {
+        isPlayable = playable;
+    }
+
+    public String getSize() {
+
+        return size;
+    }
+
+    public ArrayList<Music> getMusicArrayList() {
+        return musicArrayList;
+    }
+
+
+
 
     public int getId(){
         return Integer.parseInt(id);
     }
-
+    @Bindable
     public String getAlbum(){
         if(album!=null) {
             return album;
         }else
             return "<unknown>";
     }
+    public void update(Music music){
+        setAlbum(music.getAlbum());
+        setDuration(music.getDuration());
+        setArtist(music.getArtist());
+        setDisplayName(music.getDisplayName());
+        setUrl(music.getUrl());
+        setSecondItems(music.getSecondItems());
+    }
     public Bitmap getAlbumBitmap(Context context){
-        //Log.v("Music","拿url"+url);
+        Log.v("Music","getAlbumBitmap()拿url"+url);
         Bitmap bitmap = OneMusicloader.getAlbumArt(url);
         if(bitmap==null){
             //Log.v("Music","娶不到专辑图");
@@ -136,7 +168,6 @@ public class Music implements Parcelable {
         return bitmap;
     }
     public Bitmap getMiddleAlbumArt(Context context) {
-        if(middleBitmap==null) {
             Bitmap bitmap = getAlbumBitmap(context);
             DisplayMetrics dm = context.getResources().getDisplayMetrics();
             int width = dm.widthPixels;
@@ -144,11 +175,8 @@ public class Music implements Parcelable {
                 bitmap = OneBitmapUtil.zoomImg(bitmap, width / 2, width / 2);
             } else {
             }
-            middleBitmap = bitmap;
+
             return bitmap;
-        }else {
-            return middleBitmap;
-        }
     }
     public Bitmap getSmallAlbumArt(Context context) {
         Bitmap bitmap = getAlbumBitmap(context);
@@ -176,13 +204,19 @@ public class Music implements Parcelable {
         return bitmap;
     }
 
+    @Bindable
     public String getDisplayName(){
         if(displayName!=null) {
             return displayName;
         }else
             return "<unknown>";
     }
+    @Bindable
+    public String getDuration(){
+        return duration;
+    }
 
+    @Bindable
     public String getUrl(){
         if(url!=null) {
             return url;
@@ -195,13 +229,12 @@ public class Music implements Parcelable {
     }
     public void setArtist(String artist){
         this.artist = artist;
+        notifyPropertyChanged(BR.artist);
     }
     public void setDuration(String duration){
         this.duration = duration;
+        notifyPropertyChanged(BR.duration);
     }
-    //public void setSize(String size){
-    //    this.size = size;
-    //}
     public boolean isPlayable(){
         return isPlayable;
     }
@@ -209,14 +242,17 @@ public class Music implements Parcelable {
 
     public void setAlbum(String album){
         this.album = album;
+        notifyPropertyChanged(BR.album);
     }
 
     public void setDisplayName(String displayName){
         this.displayName = displayName;
+        notifyPropertyChanged(BR.displayName);
     }
 
     public void setUrl(String url){
         this.url = url;
+        notifyPropertyChanged(BR.url);
     }
     public void setSecondItems(ArrayList<Music> musicArrayList){
         //Log.v("Music","set二级项现场"+musicArrayList);

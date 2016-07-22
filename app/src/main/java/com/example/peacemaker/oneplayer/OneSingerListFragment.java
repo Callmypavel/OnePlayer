@@ -2,7 +2,11 @@ package com.example.peacemaker.oneplayer;
 
 import android.app.Activity;
 import android.content.Context;
+import android.databinding.DataBindingUtil;
+import android.databinding.ViewDataBinding;
 import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -23,6 +27,7 @@ import android.widget.TextView;
 import com.example.peacemaker.oneplayer.MainActivity;
 import com.example.peacemaker.oneplayer.Music;
 import com.example.peacemaker.oneplayer.R;
+import com.example.peacemaker.oneplayer.databinding.OneSingerlistItemBinding;
 import com.google.android.gms.common.api.Api;
 
 import java.util.ArrayList;
@@ -37,47 +42,42 @@ import butterknife.ButterKnife;
 public class OneSingerListFragment extends Fragment {
     @BindView(R.id.one_singer_recycler)
     public RecyclerView recyclerView;
-    private MainActivity activity;
+    private OneApplication oneApplication;
     private LinearLayoutManager linearLayoutManager;
     private OneSingerItemAdapter oneSingerItemAdapter;
 
 
     @Override
-    public void onDestroy() {
-//        int position = linearLayoutManager.findFirstVisibleItemPosition();
-//        activity.singerSelectedPosition = position;
-//        View view = recyclerView.getChildAt(position);
-//        if (view != null) {
-//            activity.singerSelectedOffset = view.getTop();
-//        }
-        super.onDestroy();
-    }
-
-    @Override
-    public void onDestroyView() {
-        //Log.v("OneSingerListFragment","onDestroyView");
-        super.onDestroyView();
-    }
-
-
-    @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        activity = (MainActivity) getActivity();
-        oneSingerItemAdapter = new OneSingerItemAdapter(activity.getSingerArraylist());
+
+        oneApplication = (OneApplication) getActivity().getApplication();
+        oneSingerItemAdapter = new OneSingerItemAdapter(oneApplication.getSingerArrayList());
         oneSingerItemAdapter.setOnItemHitListener(new OnItemHitListener() {
             @Override
             public void onItemHit(int position, Music music) {
-                activity.itemSelected(music,position);
+                oneApplication.selectMusic(music,position);
             }
         });
-        linearLayoutManager = new LinearLayoutManager(activity);
+        linearLayoutManager = new LinearLayoutManager(oneApplication);
         recyclerView.setLayoutManager(linearLayoutManager);
         recyclerView.setAdapter(oneSingerItemAdapter);
+        final Paint paint = new Paint();
+        paint.setColor(Color.rgb(192,192,192));
         recyclerView.addItemDecoration(new RecyclerView.ItemDecoration() {
             @Override
             public void onDraw(Canvas c, RecyclerView parent, RecyclerView.State state) {
-                super.onDraw(c, parent, state);
+
+                final int left = parent.getPaddingLeft()+20;
+                final int right = parent.getMeasuredWidth() - parent.getPaddingRight()-20;
+                final int childSize = parent.getChildCount() ;
+                for(int i=0 ; i <childSize ; i ++){
+                    final View child = parent.getChildAt(i) ;
+                    RecyclerView.LayoutParams layoutParams = (RecyclerView.LayoutParams) child.getLayoutParams();
+                    final int top = child.getBottom() + layoutParams.bottomMargin ;
+                    final int bottom = top + 2 ;
+                    c.drawRect(left,top,right,bottom,paint);
+                }
             }
         });
         recyclerView.setHasFixedSize(true);
@@ -97,7 +97,7 @@ public class OneSingerListFragment extends Fragment {
     public void initialize(){
 
     }
-    private class OneSingerItemAdapter extends RecyclerView.Adapter<OneSingerItemAdapter.OneSingerViewHolder>{
+    private class OneSingerItemAdapter extends RecyclerView.Adapter<OneSingerViewHolder>{
         private ArrayList<Music> musicArrayList;
         private OnItemHitListener onItemHitListener;
         public OneSingerItemAdapter(ArrayList<Music> musicArrayList){
@@ -109,19 +109,14 @@ public class OneSingerListFragment extends Fragment {
 
         @Override
         public OneSingerViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.one_singerlist_item,parent,false);
-            OneSingerViewHolder oneSingerViewHolder = new OneSingerViewHolder(view);
+            OneSingerViewHolder oneSingerViewHolder = OneSingerViewHolder.createHolder(LayoutInflater.from(parent.getContext()),parent);
             return oneSingerViewHolder;
         }
 
         @Override
         public void onBindViewHolder(final OneSingerViewHolder holder, int position) {
             Music music = musicArrayList.get(position);
-            holder.singerTextView.setText(music.getDisplayName());
-                if(music.getSecondItems()!=null) {
-                    holder.songsnumberTextView.setText(music.getSecondItems().size()+"首歌曲");
-                }
-            holder.itemView.setTag(music);
+            holder.bind(music, music.getSecondItems().size());
             holder.itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -141,55 +136,6 @@ public class OneSingerListFragment extends Fragment {
             }
             return 0;
         }
-
-
-
-
-        public class OneSingerViewHolder extends RecyclerView.ViewHolder{
-            private TextView singerTextView;
-            private TextView songsnumberTextView;
-            private ImageView singerImageView;
-
-            public OneSingerViewHolder(View itemView) {
-                super(itemView);
-                singerTextView = ButterKnife.findById(itemView,R.id.one_singer_item_singername);
-                songsnumberTextView = ButterKnife.findById(itemView,R.id.one_singer_item_songsnumber);
-                singerImageView = ButterKnife.findById(itemView,R.id.one_singer_item_singerimage);
-
-            }
-
-
-
-        }
-
-
-
-//        public class OneViewHolder{
-//            private TextView singerTextView;
-//            private TextView songsnumberTextView;
-//            private ImageView singerImageView;
-//
-//            View getHolderView(View convertView,Activity activity,ViewGroup parent,Music music) {
-//                OneViewHolder oneViewHolder;
-//                if(convertView==null){
-//                    convertView = activity.getLayoutInflater().inflate(R.layout.one_singerlist_item,parent,false);
-//                    oneViewHolder = new OneViewHolder();
-//                    oneViewHolder.singerTextView = ButterKnife.findById(convertView,R.id.one_singer_item_singername);
-//                    oneViewHolder.songsnumberTextView = ButterKnife.findById(convertView,R.id.one_singer_item_songsnumber);
-//                    oneViewHolder.singerImageView = ButterKnife.findById(convertView,R.id.one_singer_item_singerimage);
-//                    convertView.setTag(oneViewHolder);
-//                }else {
-//                    oneViewHolder = (OneViewHolder) convertView.getTag();
-//                }
-//                oneViewHolder.singerTextView.setText(music.getDisplayName());
-//                if(music.getSecondItems()!=null) {
-//                    oneViewHolder.songsnumberTextView.setText(music.getSecondItems().size()+"首歌曲");
-//                }
-//                return convertView;
-//            }
-//
-//
-//        }
 
     }
 

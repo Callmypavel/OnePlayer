@@ -3,6 +3,8 @@ package com.example.peacemaker.oneplayer;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -21,7 +23,6 @@ import android.widget.TextView;
 import com.example.peacemaker.oneplayer.MainActivity;
 import com.example.peacemaker.oneplayer.Music;
 import com.example.peacemaker.oneplayer.R;
-import com.google.android.gms.auth.firstparty.shared.FACLConfig;
 
 import java.util.ArrayList;
 
@@ -35,34 +36,41 @@ import butterknife.ButterKnife;
 public class OnePlayListFragment extends Fragment {
     @BindView(R.id.one_play_recycler_list)
     public RecyclerView recyclerView;
-    private MainActivity activity;
+    private OneApplication oneApplication;
     private LinearLayoutManager linearLayoutManager;
     private OneSongItemAdapter oneSongItemAdapter;
-
-
-    public void setSelectedPosition(int position){
-        oneSongItemAdapter.setSelectedPosition(position);
-    }
 
 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        activity = (MainActivity) getActivity();
-        oneSongItemAdapter = new OneSongItemAdapter(activity.getSongArraylist());
+        oneApplication = (OneApplication) getActivity().getApplication();
+        oneSongItemAdapter = new OneSongItemAdapter(oneApplication.getSongArrayList());
         oneSongItemAdapter.setOnItemHitListener(new OnItemHitListener() {
             @Override
             public void onItemHit(int position, Music music) {
-                activity.itemSelected(music,position);
+                oneApplication.selectMusic(music,position);
             }
         });
-        linearLayoutManager = new LinearLayoutManager(activity);
+        linearLayoutManager = new LinearLayoutManager(oneApplication);
         recyclerView.setLayoutManager(linearLayoutManager);
         recyclerView.setAdapter(oneSongItemAdapter);
+        final Paint paint = new Paint();
+        paint.setColor(Color.rgb(192,192,192));
         recyclerView.addItemDecoration(new RecyclerView.ItemDecoration() {
             @Override
             public void onDraw(Canvas c, RecyclerView parent, RecyclerView.State state) {
-                super.onDraw(c, parent, state);
+
+                final int left = parent.getPaddingLeft()+20;
+                final int right = parent.getMeasuredWidth() - parent.getPaddingRight()-20;
+                final int childSize = parent.getChildCount() ;
+                for(int i=0 ; i <childSize ; i ++){
+                    final View child = parent.getChildAt(i) ;
+                    RecyclerView.LayoutParams layoutParams = (RecyclerView.LayoutParams) child.getLayoutParams();
+                    final int top = child.getBottom() + layoutParams.bottomMargin ;
+                    final int bottom = top + 2 ;
+                    c.drawRect(left,top,right,bottom,paint);
+                }
             }
         });
         recyclerView.setHasFixedSize(true);
@@ -81,39 +89,27 @@ public class OnePlayListFragment extends Fragment {
     public void initialize(){
 
     }
-    private class OneSongItemAdapter extends RecyclerView.Adapter<OneSongItemAdapter.OneSongViewHolder>{
+    private class OneSongItemAdapter extends RecyclerView.Adapter<OneSongViewHolder>{
         private ArrayList<Music> musicArrayList;
         private OnItemHitListener onItemHitListener;
-        private int selectedPosition = -1;
         public OneSongItemAdapter(ArrayList<Music> musicArrayList){
             this.musicArrayList = musicArrayList;
         }
         public void setOnItemHitListener(OnItemHitListener onItemHitListener){
             this.onItemHitListener = onItemHitListener;
         }
-        public void setSelectedPosition(int selectedPosition){
-            this.selectedPosition = selectedPosition;
-            notifyDataSetChanged();
-        }
 
         @Override
-        public OneSongItemAdapter.OneSongViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.music_item,parent,false);
-            OneSongViewHolder oneSongViewHolder = new OneSongViewHolder(view);
+        public OneSongViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+            OneSongViewHolder oneSongViewHolder = OneSongViewHolder.createHolder(LayoutInflater.from(parent.getContext()),parent);
             return oneSongViewHolder;
         }
 
         @Override
         public void onBindViewHolder(final OneSongViewHolder holder, int position) {
             Music music = musicArrayList.get(position);
-            holder.singerTextView.setText(music.getArtist());
-            holder.songTextView.setText(music.getDisplayName());
-            if(selectedPosition==position){
-                holder.stateImageView.setVisibility(View.VISIBLE);
-            }else {
-                holder.stateImageView.setVisibility(View.GONE);
-            }
-            holder.itemView.setTag(music);
+            boolean isShow = music.equals(oneApplication.currentMusic);
+            holder.bind(music,isShow);
             holder.itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -131,23 +127,6 @@ public class OnePlayListFragment extends Fragment {
                 return musicArrayList.size();
             }
             return 0;
-        }
-
-
-
-
-        public class OneSongViewHolder extends RecyclerView.ViewHolder{
-            private TextView singerTextView;
-            private TextView songTextView;
-            private ImageView stateImageView;
-
-            public OneSongViewHolder(View itemView) {
-                super(itemView);
-                singerTextView = ButterKnife.findById(itemView,R.id.SingerxAlbum);
-                songTextView = ButterKnife.findById(itemView,R.id.MusicName);
-                stateImageView = ButterKnife.findById(itemView,R.id.sound);
-            }
-
         }
 
     }

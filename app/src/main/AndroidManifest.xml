@@ -12,7 +12,10 @@
         android:theme="@style/Theme.AppCompat.Light.NoActionBar">
         <activity android:name=".StartActivity" >
         </activity>
-        <activity android:name=".MainActivity">
+        <activity
+            android:name=".MainActivity"
+            android:launchMode="singleTop"
+            >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -21,8 +24,9 @@
         <activity android:name=".SearchActivity"
             android:theme="@style/Theme.CustomDialog">
         </activity>
-        <activity android:name=".OneAblumDetailActivity"
-          >
+        <activity android:name=".OneAblumDetailActivity">
+        </activity>
+        <activity android:name=".OneSingerDetailActivity">
         </activity>
         <service android:name=".MusicService"
             android:exported="false"

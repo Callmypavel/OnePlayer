@@ -4,67 +4,30 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <data>
         <import type="com.example.peacemaker.oneplayer.Music" />
-        <import type="com.example.peacemaker.oneplayer.OneHandler" />
+        <import type="com.example.peacemaker.oneplayer.MusicState" />
+        <import type="com.example.peacemaker.oneplayer.OneClickHandler"/>
         <variable
             name="music"
             type="Music" />
         <variable
-            name="isPlaying"
-            type="boolean" />
-        <variable
-            name="isWhite"
-            type="boolean"/>
-        <variable
-            name="isClickable"
-            type="boolean"/>
-        <variable
-            name="currentColor"
-            type="int"/>
-        <variable
-            name="currentTime"
-            type="int"/>
-        <variable
-            name="duration"
-            type="int"/>
+            name="musicState"
+            type="MusicState"/>
         <variable
             name="handler"
-            type="OneHandler"/>
+            type="OneClickHandler"/>
     </data>
-<LinearLayout
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical">
-
 <android.support.v4.widget.DrawerLayout
     android:fitsSystemWindows="true"
     android:id="@+id/drawer_layout"
     android:layout_gravity="start"
     android:layout_width="match_parent"
     android:layout_height="match_parent" >
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-        <include layout="@layout/main" />
-        <RelativeLayout
-            android:layout_above="@+id/main_content_bar"
-            android:id="@+id/fragment_container"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
-        </RelativeLayout>
-        <include
-            layout="@layout/one_layout"
-            bind:playMode="@{playMode}"
+    <include layout="@layout/main"
+            bind:musicState="@{musicState}"
             bind:music="@{music}"
-            bind:isPlaying="@{isPlaying}"
-            bind:isWhite="@{isWhite}"
-            bind:isClickable="@{isClickable}"
-            bind:currentColor="@{currentColor}"
-            bind:currentTime="@{currentTime}"
-            bind:duration="@{duration}"
-            bind:handler="@{handler}" />
-    </RelativeLayout>
-
+            bind:handler="@{handler}"/>
     <android.support.design.widget.NavigationView
+        android:fitsSystemWindows="true"
         android:id="@+id/navigation_view"
         android:layout_width="260dp"
         android:layout_height="match_parent"
@@ -74,5 +37,4 @@
 
     <!--<include layout="@layout/music_list" />-->
 </android.support.v4.widget.DrawerLayout>
-</LinearLayout>
     </layout>

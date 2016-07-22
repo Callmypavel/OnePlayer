@@ -46,7 +46,7 @@ public class OneSingerDetailFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.one_singer_detail_fragment,container,false);
         unbinder = ButterKnife.bind(this,view);
-        initialize();
+        //initialize();
         return view;
     }
 
@@ -99,24 +99,24 @@ public class OneSingerDetailFragment extends Fragment {
 //        }
 //    }
 
-    private void initialize(){
-        oneMusicItemAdapter = new OneMusicItemAdapter(getActivity());
-        singerDetailListView.setAdapter(oneMusicItemAdapter);
-        singerDetailListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Music music = oneMusicItemAdapter.getItem(position);
-                activity.changeTemp(0);
-                activity.itemSelected(music,position);
-            }
-        });
-        Music music = activity.getDetailTarget();
-        singerNameTextView.setText(music.getDisplayName());
-        if(music.getSecondItems()!=null) {
-            songsNumberTextView.setText(music.getSecondItems().size() + "首歌曲");
-        }
-        oneMusicItemAdapter.addAll(music.getSecondItems());
-    }
+//    private void initialize(){
+//        oneMusicItemAdapter = new OneMusicItemAdapter(getActivity());
+//        singerDetailListView.setAdapter(oneMusicItemAdapter);
+//        singerDetailListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+//            @Override
+//            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+//                Music music = oneMusicItemAdapter.getItem(position);
+//                activity.changeTemp(0);
+//                activity.itemSelected(music,position);
+//            }
+//        });
+//        Music music = activity.getDetailTarget();
+//        singerNameTextView.setText(music.getDisplayName());
+//        if(music.getSecondItems()!=null) {
+//            songsNumberTextView.setText(music.getSecondItems().size() + "首歌曲");
+//        }
+//        oneMusicItemAdapter.addAll(music.getSecondItems());
+//    }
     public class OneMusicItemAdapter extends ArrayAdapter<Music> {
 //        @Override
 //        public boolean areAllItemsEnabled() {

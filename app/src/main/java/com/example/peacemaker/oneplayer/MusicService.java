@@ -24,8 +24,6 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.gms.auth.firstparty.shared.FACLConfig;
-
 import java.util.ArrayList;
 
 /**
@@ -119,6 +117,37 @@ public class MusicService extends Service{
                 public void onMusicChanged(Music music) {
 
                 }
+
+                @Override
+                public void onMusicTickling(int time) {
+
+                }
+
+                @Override
+                public void onPrepared(int dutation) {
+
+                }
+
+                @Override
+                public void onError(int what, int extra) {
+
+                }
+
+                @Override
+                public void onWaveForm(byte[] data) {
+
+                }
+
+                @Override
+                public void onPause() {
+
+                }
+
+                @Override
+                public void onContinue() {
+
+                }
+
             });
         }
     }

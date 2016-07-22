@@ -3,10 +3,9 @@
     <style name="AppTheme" parent="android:Theme.Material.Light">
     </style>
     <style name="Oneplayer" parent="Theme.AppCompat.Light.NoActionBar">
-        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
         <item name="android:statusBarColor">@android:color/transparent</item>
-        <item name="colorPrimary">#ff6464</item>
-        <item name="colorPrimaryDark">#cc5050</item>
+        <item name="colorPrimary">#fd4c5b</item>
+        <item name="colorPrimaryDark">#fd4c5b</item>
         <item name="android:listDivider">@drawable/divider_bg</item>
         <item name="drawerArrowStyle">@style/AppTheme.DrawerArrowToggle</item>
         <item name="android:windowTranslucentStatus">true</item>

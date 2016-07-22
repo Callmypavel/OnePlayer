@@ -1,6 +1,8 @@
 package com.example.peacemaker.oneplayer;
 
 import android.content.Context;
+import android.databinding.ObservableBoolean;
+import android.databinding.ObservableInt;
 import android.media.MediaPlayer;
 import android.media.audiofx.Visualizer;
 import android.os.Environment;
@@ -28,21 +30,17 @@ public class OnePlayer implements Serializable {
     public int playMode = cycle;
     private int musicNumber;
     //private MainActivity activity;
-    private String[] urls;
     private int currentPosition = 0;
     //private Context context;
-    private String path;
     private Handler handler;
     private int currentTime = 0;
+    private int duration = 0;
     private Visualizer visualizer;
     private Timer timer;
     private TimerTask timerTask;
     public MediaPlayer mediaPlayer;
     private ArrayList<Music> playList;
-    private OnOneErrorListener onOneErrorListener;
     private OnMusicListener onMusicListener;
-    private OnPrepareListener onPrepareListener;
-    private OnBuffedUpdateListener onBufferedUpdateListener;
     public OnePlayer(ArrayList<Music> playList,int currentPosition){
         setPlayList(playList,currentPosition);
     }
@@ -53,8 +51,10 @@ public class OnePlayer implements Serializable {
 
 
     public void init(Music music) {
+        Log.v("OnePlayer","init()");
         if(onMusicListener!=null){
             onMusicListener.onMusicChanged(music);
+            Log.v("OnePlayer","init()"+music.getDisplayName());
         }
         try {
             if(mediaPlayer==null){
@@ -65,10 +65,35 @@ public class OnePlayer implements Serializable {
                         initHandler();
                         initTimer();
                         mediaPlayer.start();
+
                         if (onMusicListener != null) {
-                            onMusicListener.onPrepared(mediaPlayer.getDuration());
+                            duration = mediaPlayer.getDuration();
+                            onMusicListener.onPrepared(duration);
                         }
 
+                    }
+                });
+                mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+                    @Override
+                    public void onCompletion(MediaPlayer mp) {
+                        if (onMusicListener != null) {
+                            onMusicListener.onComple();
+                        }
+                        changeMusic(true);
+                    }
+                });
+                mediaPlayer.setOnBufferingUpdateListener(new MediaPlayer.OnBufferingUpdateListener() {
+                    @Override
+                    public void onBufferingUpdate(MediaPlayer mp, int percent) {
+                    }
+                });
+                mediaPlayer.setOnErrorListener(new MediaPlayer.OnErrorListener() {
+                    @Override
+                    public boolean onError(MediaPlayer mp, int what, int extra) {
+                        if(onMusicListener!=null){
+                            onMusicListener.onError(what,extra);
+                        }
+                        return false;
                     }
                 });
                 visualizer = new Visualizer(mediaPlayer.getAudioSessionId());
@@ -87,46 +112,36 @@ public class OnePlayer implements Serializable {
                 }, Visualizer.getMaxCaptureRate()/2, false, true);
             }
             mediaPlayer.reset();
-            mediaPlayer.setDataSource(path);
+            mediaPlayer.setDataSource(music.getUrl());
+            isStarted = false;
         } catch (IOException e) {
             e.printStackTrace();
         }
-        isStarted = false;
     }
     protected void play(){
         if(isStarted){
+            Log.v("OnePlayer","已经开始");
             if(mediaPlayer.isPlaying()){
+                Log.v("OnePlayer","正在播放，暂停音乐");
                 pause();
+                visualizer.setEnabled(false);
+                if (onMusicListener != null) {
+                    onMusicListener.onPause();
+                }
             }else {
+                Log.v("OnePlayer","暂停中，开始音乐");
                 mediaPlayer.start();
+                if (onMusicListener != null) {
+                    onMusicListener.onContinue();
+                }
+                visualizer.setEnabled(true);
             }
         }else {
+            Log.v("OnePlayer","尚未开始,重设");
             currentTime = 0;
             try {
-                mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
-                    @Override
-                    public void onCompletion(MediaPlayer mp) {
-                    if (onMusicListener != null) {
-                        onMusicListener.onComple();
-                    }
-                    changeMusic(true);
-                    }
-                });
-                mediaPlayer.setOnBufferingUpdateListener(new MediaPlayer.OnBufferingUpdateListener() {
-                    @Override
-                    public void onBufferingUpdate(MediaPlayer mp, int percent) {
-                    }
-                });
-                mediaPlayer.setOnErrorListener(new MediaPlayer.OnErrorListener() {
-                    @Override
-                    public boolean onError(MediaPlayer mp, int what, int extra) {
-                        if(onMusicListener!=null){
-                            onMusicListener.onError(what,extra);
-                        }
-                        return false;
-                    }
-                });
                 mediaPlayer.prepareAsync();
+                visualizer.setEnabled(true);
             }catch (Exception e){
             }
             isStarted = true;
@@ -138,14 +153,19 @@ public class OnePlayer implements Serializable {
             public boolean handleMessage(Message msg) {
                 //处理开始走时信息
                 if (msg.what == 1) {
-                   currentTime+=1;
-
+                    if(onMusicListener!=null){
+                        onMusicListener.onMusicTickling(currentTime);
+                    }
+                    if(currentTime!=duration) {
+                        currentTime += 1;
+                    }
                 }
                 return false;
             }
         });
     }
     public void initTimer() {
+        Log.v("OnePlayer","initTimer()");
         timer = new Timer();
         timerTask = new TimerTask() {
             @Override
@@ -159,25 +179,41 @@ public class OnePlayer implements Serializable {
         };
         timer.schedule(timerTask, 0, 1000);
     }
-    public void setPlayList(ArrayList<Music> playList,int currentPosition){
+    public void stopTimer(){
+        Log.v("OnePlayer","stopTimer()");
+        if(timer!=null) {
+            timer.cancel();
+            timer.purge();
+            timer = null;
+        }
+    }
+    public void setPlayList(ArrayList<Music> playList){
         this.playList = playList;
+        if(playList!=null) {
+            musicNumber = playList.size();
+        }
+    }
+    public void setPlayList(ArrayList<Music> playList,int currentPosition){
         this.currentPosition = currentPosition;
+        this.playList = playList;
         if(playList!=null) {
             musicNumber = playList.size();
             init(playList.get(currentPosition));
         }
+
     }
+
     public void setMusicListener(OnMusicListener onMusicListener){
         this.onMusicListener = onMusicListener;
     }
     public void setPlayMode(int playMode){
-        this.playMode = playMode;
+        this.playMode=playMode;
     }
     public void changePlayMode(){
         if(playMode<3){
-            playMode+=1;
+            playMode=playMode+1;
         }else {
-            playMode = 1;
+            playMode=1;
         }
 
     }
@@ -188,17 +224,24 @@ public class OnePlayer implements Serializable {
         mediaPlayer.stop();
     }
     public void selectMusic(Music music,int position){
-        currentPosition = position;
-        init(music);
-        play();
-        if(onMusicListener!=null){
-            onMusicListener.onMusicChanged(music);
-        }
-    }
-    public void changeMusic(boolean isNext){
+        Log.v("OnePlayer","selectMusic()");
+        stopTimer();
         if (mediaPlayer.isPlaying()) {
             pause();
         }
+        currentPosition = position;
+        init(music);
+        play();
+
+    }
+    public void getNextMusic(){
+        if(playMode==looping){
+            selectMusic(playList.get(currentPosition),currentPosition);
+        }else {
+            changeMusic(true);
+        }
+    }
+    public void changeMusic(boolean isNext){
         switch (playMode) {
             case random:
                 currentPosition = getRandomPosition(musicNumber);
@@ -214,8 +257,7 @@ public class OnePlayer implements Serializable {
                 }
                 break;
         }
-        init(playList.get(currentPosition));
-        play();
+        selectMusic(playList.get(currentPosition),currentPosition);
     }
 
     protected void setLooping(){
@@ -229,43 +271,17 @@ public class OnePlayer implements Serializable {
         int position = (int) (Math.random()*musicNumber);
         return position;
     }
-    protected void setUrls(String[] urls){
-        this.urls = urls;
-    }
     protected void seekto(int msec){
         System.out.println("seek到"+msec);
         mediaPlayer.seekTo(msec);
-    }
-
-    //public void updateTime(int time){
-    //    this.time = time;
-    //}
-    public int getCurrentPosition(){
-        return mediaPlayer.getCurrentPosition();
+        currentTime = msec/1000;
+        if(onMusicListener!=null){
+            onMusicListener.onMusicTickling(currentTime);
+        }
     }
 
 
-//    public void updateMusic(){
-//        activity.updateActionbar();
-//        activity.saveLastPlayed();
-//        activity.currentMusic = activity.musicArrayList.get(activity.currentPosition).getUrl();
-//        activity.updateSeekbar();
-//    }
-    //public MainActivity getActivity(){
-    //    return (MainActivity)context;
-    //}
 
-
-    public void setOnPrepareListener(OnPrepareListener onPrepareListener){
-        this.onPrepareListener = onPrepareListener;
-
-    }
-    public void setOnBufferedUpdateListener(OnBuffedUpdateListener onBufferedUpdateListener){
-        this.onBufferedUpdateListener = onBufferedUpdateListener;
-    }
-    public void setOnOneErrorListener(OnOneErrorListener onOneErrorListener){
-        this.onOneErrorListener = onOneErrorListener;
-    }
     public void release(){
         if(mediaPlayer!=null){
             Log.v("OnePlayer","release()释放");

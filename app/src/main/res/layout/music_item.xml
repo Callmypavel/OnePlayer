@@ -1,13 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout
+    xmlns:bind="http://schemas.android.com/apk/res-auto"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
-
         <data>
-             <import type="com.example.peacemaker.oneplayer.Music" />
+            <import type="com.example.peacemaker.oneplayer.Music" />
+            <import type="android.view.View" />
                 <variable
                     name="music"
                     type="Music" />
+                <variable
+                    name="isShow"
+                    type="boolean"/>
         </data>
         <RelativeLayout
             android:tag="@{music}"
@@ -34,8 +38,8 @@
             android:layout_below="@+id/MusicName"
             android:layout_marginLeft="16dp"
             android:ellipsize="marquee"
-            android:singleLine="true"
-            android:text='@{music.getArtist()+"-"+music.ablum}'
+            android:maxLines="1"
+            android:text='@{music.artist+"-"+music.album}'
             android:textSize="14sp" />
 
         <ImageView
@@ -46,7 +50,7 @@
             android:layout_centerVertical="true"
             android:layout_marginRight="16dp"
             android:src="@drawable/sound"
-            android:visibility="gone" />
+            android:visibility="@{isShow?View.VISIBLE:View.GONE}" />
         <!--</RelativeLayout>-->
 
         <!--</android.support.v7.widget.CardView>-->

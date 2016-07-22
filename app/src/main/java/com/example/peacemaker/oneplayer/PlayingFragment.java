@@ -63,7 +63,7 @@ public class PlayingFragment extends Fragment implements Animation.AnimationList
             public void onClick(View v) {
                 //activity.basetag.setVisibility(View.VISIBLE);
                 activity.isAlbuming = false;
-                activity.queueButton.setImageResource(R.drawable.ic_album_white_48dp);
+                //activity.queueButton.setImageResource(R.drawable.ic_album_white_48dp);
                 //activity.albumcontainer.setVisibility(View.GONE);
                 activity.viewPager.setVisibility(View.VISIBLE);
             }

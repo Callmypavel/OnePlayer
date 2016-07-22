@@ -73,13 +73,13 @@ public class MusicProvider implements Parcelable{
                     ArrayList<Music> secondItems;
                     int singerIndex = getIndex(singers, music1);
                     if (singerIndex == -1) {
-                        Log.v("MusicProvider", "新增歌手" + music.getArtist() + "的" + music.getDisplayName());
+                        //Log.v("MusicProvider", "新增歌手" + music.getArtist() + "的" + music.getDisplayName());
                         secondItems = new ArrayList<>();
                         secondItems.add(music);
                         music1.setSecondItems(secondItems);
                         singers.add(music1);
                     } else {
-                        Log.v("MusicProvider", "更新歌手" + music.getArtist() + "的" + music.getDisplayName());
+                        //Log.v("MusicProvider", "更新歌手" + music.getArtist() + "的" + music.getDisplayName());
                         singers.get(singerIndex).addSecondItem(music);
                     }
                     Music music2 = new Music(music.getAlbum());

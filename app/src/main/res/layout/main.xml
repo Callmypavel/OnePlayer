@@ -1,41 +1,70 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.design.widget.CoordinatorLayout
+<layout
+    xmlns:bind="http://schemas.android.com/apk/res-auto"
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <data>
+        <import type="com.example.peacemaker.oneplayer.Music" />
+        <import type="com.example.peacemaker.oneplayer.MusicState" />
+        <import type="com.example.peacemaker.oneplayer.OneClickHandler"/>
+        <variable
+            name="music"
+            type="Music" />
+        <variable
+            name="musicState"
+            type="MusicState"/>
+        <variable
+            name="handler"
+            type="OneClickHandler"/>
+    </data>
+<android.support.design.widget.CoordinatorLayout
+    android:id="@+id/id_coordinatorlayout"
+    android:fitsSystemWindows="true"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    >
     <android.support.design.widget.AppBarLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+        android:id="@+id/id_appbarlayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
         <android.support.v7.widget.Toolbar
+            app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
+            app:theme="@style/ThemeOverlay.AppCompat.ActionBar"
             app:layout_scrollFlags="scroll|enterAlways"
-            android:popupTheme="@style/ThemeOverlay.AppCompat.Light"
-            app:theme="@style/ToolbarTheme"
-            android:title="@string/app_name"
+            app:titleTextColor="@color/WHITE"
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             android:background="?attr/colorPrimary" >
-            <!--<ImageView-->
-                <!--android:layout_marginTop="24dp"-->
-                <!--android:background="#00000000"-->
-                <!--android:scaleType="fitCenter"-->
-                <!--android:src="@drawable/ic_menu_white_48dp"-->
-                <!--android:layout_width="30dp"-->
-                <!--android:layout_height="30dp" />-->
-            <!--<TextView-->
-                <!--android:textSize="25sp"-->
-                <!--android:textColor="#ffffff"-->
-                <!--android:layout_marginTop="24dp"-->
-                <!--android:layout_width="wrap_content"-->
-                <!--android:layout_height="wrap_content" />-->
+            <!--<RelativeLayout-->
+                <!--android:layout_width="match_parent"-->
+                <!--android:layout_height="match_parent">-->
+                <!--<ImageView-->
+                    <!--android:layout_centerVertical="true"-->
+                    <!--android:id="@+id/toolbar_image"-->
+                    <!--android:background="?android:attr/selectableItemBackground"-->
+                    <!--android:scaleType="fitCenter"-->
+                    <!--android:src="@drawable/ic_menu_white_48dp"-->
+                    <!--android:layout_width="30dp"-->
+                    <!--android:layout_height="30dp" />-->
+                <!--<TextView-->
+                    <!--android:layout_centerVertical="true"-->
+                    <!--android:layout_marginLeft="5dp"-->
+                    <!--android:textColor="@color/WHITE"-->
+                    <!--android:textSize="20sp"-->
+                    <!--android:layout_toRightOf="@+id/toolbar_image"-->
+                    <!--android:text="@string/app_name"-->
+                    <!--android:layout_width="wrap_content"-->
+                    <!--android:layout_height="wrap_content" />-->
+            <!--</RelativeLayout>-->
         </android.support.v7.widget.Toolbar>
         <android.support.design.widget.TabLayout
-            app:tabIndicatorColor="#ffffff"
-            app:tabSelectedTextColor="#ffffff"
-            app:tabTextColor="#bfbfbf"
+            app:tabIndicatorColor="@color/WHITE"
+            app:tabSelectedTextColor="@color/WHITE"
+            app:tabTextColor="@color/TAB_UNSELECT"
+            app:tabGravity="fill"
             android:background="?attr/colorPrimary"
-            android:id="@+id/tab_layout"
+            android:id="@+id/id_tablayout"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"/>
     </android.support.design.widget.AppBarLayout>
@@ -43,209 +72,17 @@
         app:layout_behavior="@string/appbar_scrolling_view_behavior"
         android:id="@+id/id_viewpager"
         android:layout_width="match_parent"
-        android:layout_height="530dp" />
-
-    <!--<RelativeLayout-->
-    <!--android:id="@+id/basetag"-->
-    <!--android:background="?attr/colorPrimary"-->
-    <!--android:layout_width="match_parent"-->
-    <!--android:layout_height="50dp"-->
-    <!--&gt;-->
-    <!--<LinearLayout-->
-    <!--android:layout_alignParentBottom="true"-->
-    <!--android:layout_width="match_parent"-->
-    <!--android:layout_height="match_parent">-->
-    <!--<TextView-->
-    <!--android:layout_weight="1"-->
-    <!--android:textSize="16sp"-->
-    <!--android:gravity="center"-->
-    <!--android:id="@+id/singer_tag"-->
-    <!--android:background="?android:attr/selectableItemBackground"-->
-    <!--android:layout_height="50dp"-->
-    <!--android:textColor="#FFFFFF"-->
-    <!--android:text="@string/singer"-->
-    <!--android:layout_alignTop="@+id/internet"-->
-    <!--android:layout_width="0dp" />-->
-    <!--<TextView-->
-    <!--android:layout_weight="1"-->
-    <!--android:textSize="16sp"-->
-    <!--android:gravity="center"-->
-    <!--android:textColor="#000000"-->
-    <!--android:background="?android:attr/selectableItemBackground"-->
-    <!--android:id="@+id/album_tag"-->
-    <!--android:layout_height="50dp"-->
-    <!--android:text="@string/album"-->
-    <!--android:layout_alignParentTop="true"-->
-    <!--android:layout_toRightOf="@+id/singer_tag"-->
-    <!--android:layout_toEndOf="@+id/singer_tag"-->
-    <!--android:layout_width="0dp" />-->
-    <!--<TextView-->
-    <!--android:layout_weight="1"-->
-    <!--android:textSize="16sp"-->
-    <!--android:gravity="center"-->
-    <!--android:textColor="#000000"-->
-    <!--android:background="?android:attr/selectableItemBackground"-->
-    <!--android:id="@+id/song_tag"-->
-    <!--android:layout_height="50dp"-->
-    <!--android:text="@string/song"-->
-    <!--android:layout_alignParentTop="true"-->
-    <!--android:layout_toEndOf="@id/album_tag"-->
-    <!--android:layout_toRightOf="@id/album_tag"-->
-    <!--android:layout_width="0dp" />-->
-
-    <!--</LinearLayout>-->
-    <!--<ImageView-->
-    <!--android:id="@+id/cursor"-->
-    <!--android:layout_width="105dp"-->
-    <!--android:layout_height="3dp"-->
-    <!--android:scaleType="matrix"-->
-    <!--android:src="@drawable/cursor"-->
-    <!--android:layout_alignParentBottom="true"-->
-    <!--android:layout_alignParentStart="true"-->
-    <!--android:layout_alignParentLeft="true"/>-->
-    <!--</RelativeLayout>-->
-        <!--<ImageView-->
-            <!--android:src="@drawable/ic_menu_white_48dp"-->
-            <!--android:layout_width="30dp"-->
-            <!--android:layout_height="30dp" />-->
-        <!--<TextView-->
-            <!--android:layout_marginLeft="20dp"-->
-            <!--android:textSize="20sp"-->
-            <!--android:singleLine="true"-->
-            <!--android:ellipsize="marquee"-->
-            <!--android:id="@+id/toolbar_title"-->
-            <!--android:layout_width="wrap_content"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--android:textColor="#FFFFFF"-->
-            <!--android:text="OnePlayer" />-->
-    <!--</android.support.v7.widget.Toolbar>-->
-
-
-
-
-    <!--<RelativeLayout-->
-        <!--android:id="@+id/albumcontainer"-->
-        <!--android:visibility="gone"-->
-        <!--android:layout_width="match_parent"-->
-        <!--android:layout_below="@+id/toolbar"-->
-        <!--android:layout_above="@+id/relativeLayout"-->
-        <!--android:layout_height="match_parent" />-->
-    <!--<ImageView-->
-            <!--android:layout_width="180dp"-->
-            <!--android:layout_height="180dp"-->
-            <!--android:id="@+id/imageView"-->
-            <!--android:src="@drawable/cut"-->
-            <!--android:layout_marginTop="79dp"-->
-            <!--android:elevation="2dp"-->
-            <!--android:layout_alignParentTop="true"-->
-            <!--android:layout_centerHorizontal="true" />-->
-
-    <!--<TextView
-            android:id="@+id/textview"
-            android:text="蛤蛤"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-        android:layout_centerVertical="true"
-        android:layout_centerHorizontal="true" />-->
-    <!--<RelativeLayout-->
-        <!--android:layout_width="match_parent"-->
-        <!--android:layout_height="100dp"-->
-        <!--android:background="@android:color/holo_red_light"-->
-        <!--android:layout_alignParentBottom="true"-->
-        <!--android:layout_alignParentStart="true"-->
-        <!--android:id="@+id/relativeLayout">-->
-        <!--<ImageButton-->
-            <!--android:onClick="playMode"-->
-            <!--android:background="?android:attr/selectableItemBackground"-->
-            <!--android:scaleType="centerInside"-->
-            <!--android:layout_width="48dp"-->
-            <!--android:layout_height="48dp"-->
-            <!--android:src="@drawable/ic_repeat_white_48dp"-->
-            <!--android:id="@+id/playmode"-->
-            <!--android:layout_marginTop="44dp"-->
-            <!--android:layout_marginStart="304dp" />-->
-
-        <!--<ImageButton-->
-            <!--android:onClick="next"-->
-            <!--android:background="?android:attr/selectableItemBackground"-->
-            <!--android:scaleType="fitXY"-->
-            <!--android:layout_width="60dp"-->
-            <!--android:layout_height="60dp"-->
-            <!--android:src="@drawable/ic_skip_next_white_48dp"-->
-            <!--android:text="下一首"-->
-            <!--android:id="@+id/next"-->
-            <!--android:layout_alignParentBottom="true"-->
-            <!--android:layout_marginStart="220dp" />-->
-        <!--<ImageButton-->
-            <!--android:onClick="queue"-->
-            <!--android:background="?android:attr/selectableItemBackground"-->
-            <!--android:scaleType="centerInside"-->
-            <!--android:layout_width="48dp"-->
-            <!--android:layout_height="48dp"-->
-            <!--android:src="@drawable/ic_album_white_48dp"-->
-            <!--android:id="@+id/queue"-->
-            <!--android:layout_marginTop="44dp"-->
-            <!--android:layout_marginStart="16dp" />-->
-
-        <!--<ImageButton-->
-            <!--android:onClick="previous"-->
-            <!--android:background="?android:attr/selectableItemBackground"-->
-            <!--android:scaleType="fitXY"-->
-            <!--android:layout_width="60dp"-->
-            <!--android:layout_height="60dp"-->
-            <!--android:src="@drawable/ic_skip_previous_white_48dp"-->
-            <!--android:text="上一首"-->
-            <!--android:id="@+id/previous"-->
-            <!--android:layout_alignBottom="@+id/next"-->
-            <!--android:layout_marginStart="80dp" />-->
-
-        <!--<SeekBar-->
-            <!--android:max="1000"-->
-            <!--android:layout_width="250dp"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--android:progressTint="#FFFFFF"-->
-            <!--android:thumbTint="#FFFFFF"-->
-            <!--android:progressBackgroundTint="#000000"-->
-            <!--android:secondaryProgressTint="@color/material_blue_grey_800"-->
-            <!--android:id="@+id/seekBar"-->
-            <!--android:layout_marginTop="8dp"-->
-            <!--android:layout_centerHorizontal="true" />-->
-
-        <!--<TextView-->
-            <!--android:textColor="#FFFFFF"-->
-            <!--android:layout_width="wrap_content"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--android:text="播放时长"-->
-            <!--android:id="@+id/duration"-->
-            <!--android:layout_marginTop="14dp"-->
-            <!--android:layout_marginStart="304dp" />-->
-        <!--<TextView-->
-            <!--android:textColor="#FFFFFF"-->
-            <!--android:layout_width="wrap_content"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--android:text="现在时间"-->
-            <!--android:id="@+id/progress"-->
-            <!--android:layout_marginTop="14dp"-->
-            <!--android:layout_marginStart="16dp" />-->
-
-        <!--<ImageButton-->
-            <!--android:onClick="play"-->
-            <!--android:background="?android:attr/selectableItemBackground"-->
-            <!--android:scaleType="fitXY"-->
-            <!--android:layout_width="64dp"-->
-            <!--android:layout_height="64dp"-->
-            <!--android:src="@drawable/ic_play_circle_fill_white_48dp"-->
-            <!--android:text="播放"-->
-            <!--android:id="@+id/playandpause"-->
-            <!--android:layout_alignParentBottom="true"-->
-            <!--android:layout_centerHorizontal="true" />-->
-
-
-
-
+        android:layout_height="wrap_content" />
+    <include
+        layout="@layout/one_layout"
+        bind:musicState="@{musicState}"
+        bind:music="@{music}"
+        bind:handler="@{handler}"
+        />
 
 
 </android.support.design.widget.CoordinatorLayout>
+</layout>
 
 
 

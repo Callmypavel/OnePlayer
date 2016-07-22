@@ -5,57 +5,48 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <data>
         <import type="com.example.peacemaker.oneplayer.Music" />
-        <import type="com.example.peacemaker.oneplayer.OneHandler" />
-        <variable
-            name="playMode"
-            type="int" />
+        <import type="com.example.peacemaker.oneplayer.MusicState" />
+        <import type="com.example.peacemaker.oneplayer.OneClickHandler"/>
+        <import type="android.graphics.Bitmap"/>
         <variable
             name="music"
             type="Music" />
         <variable
-            name="isPlaying"
-            type="boolean" />
-        <variable
-            name="isWhite"
-            type="boolean"/>
-        <variable
-            name="isClickable"
-            type="boolean"/>
-        <variable
-            name="currentColor"
-            type="int"/>
-        <variable
-            name="currentTime"
-            type="int"/>
-        <variable
-            name="duration"
-            type="int"/>
+            name="musicState"
+            type="MusicState"/>
         <variable
             name="handler"
-            type="OneHandler"/>
+            type="OneClickHandler"/>
+        <variable
+            name="displayName"
+            type="String"/>
+        <variable
+            name="albumBitmap"
+            type="Bitmap"/>
+
     </data>
     <android.support.design.widget.CoordinatorLayout
+        android:id="@+id/id_coordinatorlayout"
         android:fitsSystemWindows="true"
         android:layout_width="match_parent"
-        android:layout_height="550dp">
+        android:layout_height="match_parent">
         <android.support.design.widget.AppBarLayout
-            android:id="@+id/ablum_detail_appbar"
+            android:id="@+id/id_appbarlayout"
             android:fitsSystemWindows="true"
             android:layout_width="match_parent"
             android:layout_height="300dp"
             >
             <android.support.design.widget.CollapsingToolbarLayout
-                android:id="@+id/albuim_detail_collapsing_toolbar_layout"
+                android:id="@+id/ablum_detail_collapsing_toolbar_layout"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 app:contentScrim="?attr/colorPrimary"
-                android:fitsSystemWindows="true"
-                bind:title="@{music.displayName}"
-                app:expandedTitleMarginStart="48dp"
+                bind:title="@{displayName}"
+                app:expandedTitleMarginStart="96dp"
                 app:layout_scrollFlags="scroll|exitUntilCollapsed">
                 <ImageView
-                    android:src="@{music.getMiddleAlbumArt()}"
-                    android:id="@+id/one_albumlist_album_detail_image"
+                    android:bitmapSrc="@{albumBitmap}"
+                    android:id="@+id/id_imageView"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:fitsSystemWindows="true"
@@ -64,13 +55,23 @@
                     app:layout_collapseParallaxMultiplier="0.7"  >
                 </ImageView>
                 <android.support.v7.widget.Toolbar
-                    android:navigationIcon="@drawable/ic_arrow_back_white_48dp"
                     android:theme="@style/ToolbarTheme"
                     android:id="@+id/one_album_detail_toolbar"
                     android:layout_width="match_parent"
                     android:layout_height="?attr/actionBarSize"
                     app:layout_collapseMode="pin" >
-
+                    <!--<RelativeLayout-->
+                        <!--android:layout_width="match_parent"-->
+                        <!--android:layout_height="match_parent">-->
+                        <!--<ImageView-->
+                            <!--android:layout_centerVertical="true"-->
+                            <!--android:id="@+id/toolbar_image"-->
+                            <!--android:background="?android:attr/selectableItemBackground"-->
+                            <!--android:scaleType="fitCenter"-->
+                            <!--android:src="@drawable/ic_arrow_back_white_48dp"-->
+                            <!--android:layout_width="30dp"-->
+                            <!--android:layout_height="30dp" />-->
+                    <!--</RelativeLayout>-->
                 </android.support.v7.widget.Toolbar>
             </android.support.design.widget.CollapsingToolbarLayout>
         </android.support.design.widget.AppBarLayout>
@@ -78,22 +79,17 @@
         <android.support.v7.widget.RecyclerView
             android:requiresFadingEdge="none"
             app:layout_behavior="@string/appbar_scrolling_view_behavior"
-            android:layout_below="@id/ablum_detail_appbar"
+            android:layout_below="@id/id_appbarlayout"
             android:id="@+id/one_albumlist_album_detail_recycler"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content">
         </android.support.v7.widget.RecyclerView>
         <include
             layout="@layout/one_layout"
-            bind:playMode="@{playMode}"
+            bind:musicState="@{musicState}"
             bind:music="@{music}"
-            bind:isPlaying="@{isPlaying}"
-            bind:isWhite="@{isWhite}"
-            bind:isClickable="@{isClickable}"
-            bind:currentColor="@{currentColor}"
-            bind:currentTime="@{currentTime}"
-            bind:duration="@{duration}"
-            bind:handler="@{handler}" />
+            bind:handler="@{handler}"
+             />
     </android.support.design.widget.CoordinatorLayout>
 
 

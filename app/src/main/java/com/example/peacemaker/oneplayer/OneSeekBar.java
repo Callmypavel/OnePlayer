@@ -213,11 +213,11 @@ public class OneSeekBar extends View implements View.OnClickListener{
                     float progress = degree / 360;
                     oneSeekBarListener.onSeekBarUpdated(progress);
                     //Log.v("OneSeekBar", "点击进度条的角度"+degree);
-                    //Log.v("OneSeekBar", "点击进度条的进度"+progress);
+                    Log.v("OneSeekBar", "点击进度条的进度"+progress);
                 }
             } else {
                 oneSeekBarListener.onButtonClick();
-                //Log.v("OneSeekBar", "点击按键");
+                Log.v("OneSeekBar", "点击按键");
             }
         }
         return super.onTouchEvent(event);
