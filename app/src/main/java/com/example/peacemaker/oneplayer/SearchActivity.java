@@ -34,6 +34,8 @@ public class SearchActivity extends Activity {
     public Button searchStopButton;
     @BindView(R.id.search_path_text)
     public TextView searchPathText;
+    @BindView(R.id.search_exit_button)
+    public TextView exitButton;
     private OneMusicloader oneMusicloader;
     private boolean isStopped = false;
     @Override
@@ -84,12 +86,22 @@ public class SearchActivity extends Activity {
                 }else if(text.equals("停止扫描")){
                     isStopped = true;
                     oneMusicloader.stopLoading();
-                    musicArrayList.clear();
                     searchInfoText.setText("扫描中止");
                     searchPathText.setText("");
                     searchStopButton.setText("开始扫描");
                     musicArrayList.clear();
                 }
+            }
+        });
+        exitButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                isStopped = true;
+                if(oneMusicloader!=null) {
+                    oneMusicloader.stopLoading();
+                }
+                musicArrayList.clear();
+                SearchActivity.this.finish();
             }
         });
 
@@ -103,6 +115,7 @@ public class SearchActivity extends Activity {
         }else {
             Bundle bundle = new Bundle();
             bundle.putParcelableArrayList("musicArrayList",musicArrayList);
+            bundle.putString("mode","searchCompled");
             Intent intent = new Intent();
             intent.putExtras(bundle);
             intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);

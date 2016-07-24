@@ -80,7 +80,7 @@ public class MainActivity extends OneActivity{
     public ProgressBar progressBar;
     public TextView updateText;
     private OnePlayListFragment onePlayListFragment;
-    private OneAblumListFragment oneAblumListFragment;
+    private OneAlbumListFragment oneAblumListFragment;
     private OneSingerListFragment oneSingerlistFragment;
     private ArrayList<Fragment> oneFragments;
     private FragmentStatePagerAdapter fragmentStatePagerAdapter;
@@ -105,26 +105,21 @@ public class MainActivity extends OneActivity{
             Log.v("MainActivity", "我选择One主题");
         }
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.start_activity);
-
         oneApplication = (OneApplication) getApplication();
+        if(oneApplication.musicProvider==null) {
+            setContentView(R.layout.start_activity);
+        }else {
+            oneApplication.setOneActivity(this);
+            oneApplication.initReceiver();
+            initialize();
+            return;
+        }
         handler = new Handler(new Handler.Callback() {
             @Override
             public boolean handleMessage(Message msg) {
                 if(msg.what==0x111){
-                    binding = DataBindingUtil.setContentView(MainActivity.this, R.layout.main_activity);
-                    ButterKnife.bind(MainActivity.this);
                     oneApplication.setOneActivity(musicProvider,MainActivity.this);
-                    Log.v("MainActivity","获取currentMusic"+oneApplication.currentMusic.getDisplayName());
-                    binding.setMusic(oneApplication.currentMusic);
-                    binding.setMusicState(oneApplication.musicState);
-                    binding.setHandler(new OneClickHandler());
-                    if (Build.VERSION.SDK_INT == Build.VERSION_CODES.KITKAT) {
-                        ViewGroup contentLayout = (ViewGroup)findViewById(android.R.id.content);
-                        contentLayout.getChildAt(0).setFitsSystemWindows(false);
-                        coordinatorLayout.setFitsSystemWindows(true);
-                        //KitKatTool.setKKStatusBar(MainActivity.this);
-                    }
+
                     initialize();
                     checkUpdate();
                 }
@@ -136,6 +131,7 @@ public class MainActivity extends OneActivity{
             public void run() {
                 OneMusicloader oneMusicloader = new OneMusicloader(getContentResolver());
                 ArrayList<Music> tempmusicArrayList = oneMusicloader.loadLocalMusic();
+
                 musicProvider = new MusicProvider(tempmusicArrayList);
                 Message message = new Message();
                 message.what = 0x111;
@@ -147,23 +143,35 @@ public class MainActivity extends OneActivity{
 
     }
 
+
     @Override
     protected void onRestart() {
         Log.v("MainActivity","onRestart()");
         super.onRestart();
         oneApplication.setOneActivity(this);
+        refreshPlaylist();
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        super.onDestroy();
         Log.v("摧毁", "activity");
-        oneApplication.unRegister();
+        //oneApplication.unRegister();
+    }
+    public void refreshPlaylist(){
+        if(onePlayListFragment!=null) {
+            onePlayListFragment.refresh();
+        }
     }
 
 
     protected void initialize() {
+
+        binding = DataBindingUtil.setContentView(MainActivity.this, R.layout.main_activity);
+        ButterKnife.bind(MainActivity.this);
+        binding.setMusic(oneApplication.currentMusic);
+        binding.setMusicState(oneApplication.musicState);
+        binding.setHandler(new OneClickHandler());
         TypedValue typedValue = new TypedValue();
         getTheme().resolveAttribute(R.attr.colorPrimaryDark, typedValue, true);
         int themeColor = typedValue.data;
@@ -239,7 +247,7 @@ public class MainActivity extends OneActivity{
                     menuItem.setTitle("打印日志");
                 }else if (title.equals("版本信息")){
                     menuItem.setChecked(true);
-                    final  android.support.v7.app.AlertDialog.Builder builder = new android.support.v7.app.AlertDialog.Builder(MainActivity.this);
+                    final android.support.v7.app.AlertDialog.Builder builder = new android.support.v7.app.AlertDialog.Builder(MainActivity.this);
                         builder.setCancelable(false)
                         .setTitle("版本信息")
                         .setMessage("当前版本:"+getAppVersionName(MainActivity.this))
@@ -260,7 +268,7 @@ public class MainActivity extends OneActivity{
 
         oneFragments = new ArrayList<>();
         oneSingerlistFragment = new OneSingerListFragment();
-        oneAblumListFragment = new OneAblumListFragment();
+        oneAblumListFragment = new OneAlbumListFragment();
         onePlayListFragment = new OnePlayListFragment();
         oneFragments.add(oneSingerlistFragment);
         oneFragments.add(oneAblumListFragment);
@@ -346,37 +354,49 @@ public class MainActivity extends OneActivity{
 
     public void onBackPressed() {
         Log.v("MainActivity","按下返回键");
-        super.onBackPressed();
         if(drawerLayout.isDrawerOpen(Gravity.LEFT)){
             drawerLayout.closeDrawer(Gravity.LEFT);
+            return;
         }
+        if(isPlayView){
+            quitPlayView();
+            return;
+        }
+        super.onBackPressed();
+
+
     }
 
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
-        //Toast.makeText(MainActivity.this, "扫描完毕", Toast.LENGTH_SHORT).show();
         Bundle bundle = intent.getExtras();
         if(bundle!=null){
-            final ArrayList<Music> musicArrayList = bundle.getParcelableArrayList("musicArrayList");
-            if(musicArrayList!=null){
-                if(musicArrayList.size()!=0) {
-                    if (isNull) {
-                        isNull = false;
-                        initialize();
-                    } else {
-                        Thread thread = new Thread(new Runnable() {
-                            @Override
-                            public void run() {
-                                oneApplication.setOneActivity(new MusicProvider(musicArrayList),MainActivity.this);
-                            }
-                        });
-                        thread.start();
+            if(bundle.get("mode").equals("searchCompled")){
+                Toast.makeText(MainActivity.this, "扫描完毕", Toast.LENGTH_SHORT).show();
+                if(bundle!=null){
+                    final ArrayList<Music> musicArrayList = bundle.getParcelableArrayList("musicArrayList");
+                    if(musicArrayList!=null){
+                        if(musicArrayList.size()!=0) {
+                            if (isNull) {
+                                isNull = false;
+                                initialize();
+                            } else {
+                                Thread thread = new Thread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        oneApplication.setOneActivity(new MusicProvider(musicArrayList),MainActivity.this);
+                                    }
+                                });
+                                thread.start();
 
+                            }
+                        }
                     }
                 }
             }
         }
+
 
     }
 
@@ -586,10 +606,11 @@ public class MainActivity extends OneActivity{
     }
     public void toAblumDetail(){
         Intent intent = new Intent();
-        intent.setClass(MainActivity.this,OneAblumDetailActivity.class);
+        intent.setClass(MainActivity.this,OneAlbumDetailActivity.class);
         startActivity(intent);
     }
-    public void toSecondItemActivity(){
+    public void toSecondItemActivity(Music music){
+        oneApplication.updateTargetMusic(music);
         if(currentFragmentPosition==0){
             toSingerDetail();
         }else if(currentFragmentPosition==1) {

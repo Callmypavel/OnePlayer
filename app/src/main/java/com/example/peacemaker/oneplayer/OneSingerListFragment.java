@@ -42,7 +42,6 @@ import butterknife.ButterKnife;
 public class OneSingerListFragment extends Fragment {
     @BindView(R.id.one_singer_recycler)
     public RecyclerView recyclerView;
-    private OneApplication oneApplication;
     private LinearLayoutManager linearLayoutManager;
     private OneSingerItemAdapter oneSingerItemAdapter;
 
@@ -50,13 +49,13 @@ public class OneSingerListFragment extends Fragment {
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-
-        oneApplication = (OneApplication) getActivity().getApplication();
+        OneApplication oneApplication = (OneApplication) getActivity().getApplication();
         oneSingerItemAdapter = new OneSingerItemAdapter(oneApplication.getSingerArrayList());
         oneSingerItemAdapter.setOnItemHitListener(new OnItemHitListener() {
             @Override
             public void onItemHit(int position, Music music) {
-                oneApplication.selectMusic(music,position);
+                ((MainActivity)getActivity()).toSecondItemActivity(music);
+
             }
         });
         linearLayoutManager = new LinearLayoutManager(oneApplication);
@@ -115,17 +114,24 @@ public class OneSingerListFragment extends Fragment {
 
         @Override
         public void onBindViewHolder(final OneSingerViewHolder holder, int position) {
-            Music music = musicArrayList.get(position);
-            holder.bind(music, music.getSecondItems().size());
-            holder.itemView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    int position = holder.getLayoutPosition();
-                    if(onItemHitListener!=null&&position!=-1){
-                        onItemHitListener.onItemHit(position,(Music)v.getTag());
-                    }
+            if(musicArrayList!=null) {
+                if(musicArrayList.size()!=0) {
+                    Music music = musicArrayList.get(position);
+                    holder.bind(music, music.getSecondItems().size());
+                    holder.itemView.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            int position = holder.getLayoutPosition();
+                            if (onItemHitListener != null && position != -1) {
+                                onItemHitListener.onItemHit(position, (Music) v.getTag());
+                            }
+                        }
+                    });
+                    return;
                 }
-            });
+            }
+            Music music = new Music("找不到音乐");
+            holder.nullBind(music);
 
         }
 
@@ -134,7 +140,7 @@ public class OneSingerListFragment extends Fragment {
             if(musicArrayList!=null){
                 return musicArrayList.size();
             }
-            return 0;
+            return 1;
         }
 
     }

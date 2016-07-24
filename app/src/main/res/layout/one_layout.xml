@@ -7,6 +7,7 @@
         <import type="com.example.peacemaker.oneplayer.Music" />
         <import type="com.example.peacemaker.oneplayer.MusicState" />
         <import type="com.example.peacemaker.oneplayer.OneClickHandler"/>
+        <import type="android.view.View" />
         <variable
             name="music"
             type="Music" />
@@ -18,6 +19,7 @@
             type="OneClickHandler"/>
     </data>
     <com.example.peacemaker.oneplayer.OneLayout
+        android:visibility="@{musicState.isClickable?View.VISIBLE:View.GONE}"
         android:layout_gravity="bottom"
         android:background="@{musicState.isWhite?@color/WHITE:@color/BLACK}"
         android:layout_alignParentBottom="true"
@@ -27,6 +29,7 @@
         <RelativeLayout
             android:background="@{musicState.musicColor}"
             android:onClick="@{handler.onButtonClick}"
+            android:clickable="@{musicState.isClickable}"
             android:layout_width="match_parent"
             android:layout_height="60dp"
             android:id="@+id/bottom_controll_bar"
@@ -71,6 +74,7 @@
                 android:layout_toEndOf="@+id/bottom_album_image"
                 />
             <ImageButton
+                android:clickable="@{musicState.isClickable}"
                 android:onClick="@{handler.onButtonClick}"
                 android:layout_marginRight="30dp"
                 android:layout_marginEnd="30dp"
@@ -133,6 +137,7 @@
                 android:layout_height="360dp" />
 
             <com.example.peacemaker.oneplayer.OneWaveFromView
+                android:waveformdata="@{musicState.waveformdata}"
                 android:paintColor="@{musicState.musicColor}"
                 android:id="@+id/play_view_onewaveform"
                 android:layout_width="match_parent"
@@ -150,6 +155,7 @@
             android:layout_alignParentBottom="true"
             >
             <com.example.peacemaker.oneplayer.OneSeekBar
+                android:clickable="@{musicState.isClickable}"
                 android:id="@+id/one_seekbar"
                 android:percentage="@{musicState.percentage}"
                 android:isPlaying="@{musicState.isPlaying}"

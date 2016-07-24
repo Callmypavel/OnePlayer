@@ -37,24 +37,12 @@ import java.util.LinkedList;
  */
 public class OneMusicloader {
     public ArrayList<Music> musicArrayList = new ArrayList<Music>();
-    FileSearchingListener listener;
     Handler handler;
     private static ContentResolver contentResolver;
     //Uri，指向external的database
     private Uri contentUri = Media.EXTERNAL_CONTENT_URI;
     //projection：选择的列; where：过滤条件; sortOrder：排序。
-    private String[] projection = {
-            Media._ID,
-            Media.DISPLAY_NAME,
-            Media.DATA,
-            Media.ALBUM,
-            Media.ARTIST,
-            Media.DURATION,
-            MediaStore.Audio.Media.ALBUM_ID,
-    };
-    private String where = "mime_type in ('audio/mpeg','audio/x-ms-wma') and bucket_display_name <> 'audio' and is_music > 0 ";
     private String sortOrder = Media.DATA;
-    private String artist;
     private boolean isStop = false;
 
     public OneMusicloader(ContentResolver contentResolver) {
@@ -63,9 +51,6 @@ public class OneMusicloader {
     public OneMusicloader(Handler handler){
         this.handler = handler;
 
-    }
-    public OneMusicloader(FileSearchingListener listener){
-        this.listener = listener;
     }
 
     protected ArrayList<Music> loadLocalMusic() {
@@ -120,10 +105,6 @@ public class OneMusicloader {
         beginDeepLoad(file);
         //System.out.println("扫描了"+musicArrayList.size());
         //return musicArrayList;
-    }
-    public void setFileSearchingListener(FileSearchingListener listener){
-        this.listener = listener;
-
     }
     public void stopLoading(){
         isStop = true;

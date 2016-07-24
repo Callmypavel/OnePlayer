@@ -43,6 +43,10 @@ public class OneClickHandler {
     public static void setPercentage(OneSeekBar oneSeekBar, float percentage){
         oneSeekBar.setProgress(percentage);
     }
+    @BindingAdapter("android:waveformdata")
+    public static void setWaveformdata(OneWaveFromView oneWaveFromView, byte[] data){
+        oneWaveFromView.setData(data);
+    }
     public void onButtonClick(View view){
         OneApplication oneApplication = (OneApplication)(view.getContext().getApplicationContext());
         switch (view.getId()){

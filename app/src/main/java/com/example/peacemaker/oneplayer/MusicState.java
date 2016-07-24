@@ -22,6 +22,17 @@ public class MusicState extends BaseObservable{
     private int playMode = 1;
     private Bitmap currentBitmap;
     private float percentage;
+    private byte[] waveformdata;
+
+    @Bindable
+    public byte[] getWaveformdata() {
+        return waveformdata;
+    }
+
+    public void setWaveformdata(byte[] waveformdata) {
+        this.waveformdata = waveformdata;
+        notifyPropertyChanged(BR.waveformdata);
+    }
 
     @Bindable
     public float getPercentage() {

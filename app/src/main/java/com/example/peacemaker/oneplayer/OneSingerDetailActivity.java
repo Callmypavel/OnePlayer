@@ -157,7 +157,20 @@ public class OneSingerDetailActivity extends OneActivity{
         this.finish();
     }
 
+    @Override
+    protected void onDestroy() {
+       // oneApplication.unRegister();
+        super.onDestroy();
+    }
 
+    @Override
+    public void onBackPressed() {
+        if(isPlayView){
+            quitPlayView();
+        }else {
+            quitSingerDetail();
+        }
+    }
 
     public class OneSingerDetailItemAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         private OnItemHitListener onItemHitListener;

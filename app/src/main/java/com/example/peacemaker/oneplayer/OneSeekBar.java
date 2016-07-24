@@ -12,6 +12,7 @@ import android.graphics.RectF;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.SeekBar;
@@ -22,10 +23,7 @@ import java.io.InputStream;
  * Created by ouyan on 2016/6/9.
  */
 
-public class OneSeekBar extends View implements View.OnClickListener{
-    private boolean isPlaying = false;
-//    private Bitmap play_bitmap ;
-//    private Bitmap pause_bitmap;
+public class OneSeekBar extends View implements GestureDetector.OnGestureListener{
     private Bitmap draw_bitmap;
     private Bitmap play_white_bitmap;
     private Bitmap pause_white_bitmap;
@@ -43,6 +41,7 @@ public class OneSeekBar extends View implements View.OnClickListener{
     private float degree = 0;
     private int colorInt = Color.WHITE;
     private OnOneSeekBarListener oneSeekBarListener;
+    private GestureDetector gestureDetector;
     public OneSeekBar(Context context) {
         super(context);
         initialize(context);
@@ -125,6 +124,7 @@ public class OneSeekBar extends View implements View.OnClickListener{
         defaultPaint = new Paint();
         //oval = new RectF();
         Log.v("OneSeekBar","构造函数");
+        gestureDetector = new GestureDetector(context,this);
     }
     public void setColorInt(int colorInt){
         this.colorInt = colorInt;
@@ -169,58 +169,8 @@ public class OneSeekBar extends View implements View.OnClickListener{
     }
 
     @Override
-    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-//        if(radius!=0){
-//
-//        }
-        //Log.v("OneSeekBar", "onMeasure()");
-    }
-
-    @Override
     public boolean onTouchEvent(MotionEvent event) {
-        Log.v("OneSeekBar", "onTouchEvent()检查action代码"+event.getAction());
-        if(event.getAction()==MotionEvent.ACTION_DOWN) {
-            float x = event.getX();
-            float y = event.getY();
-            float indexX = x - centreX;
-            float indexY = y - centreY;
-            float length = (float) Math.sqrt(Math.pow((indexX), 2) + Math.pow((indexY), 2));
-            Log.v("OneSeekBar", "检查" + length + "," + innerRadius);
-            if (length > innerRadius) {
-                if(indexY!=0) {
-                    degree = (float) (Math.atan((indexX) / (indexY)) / Math.PI * 180.0);
-                    if(indexX>0){
-                        if(indexY>0){
-                            degree=-degree;
-                            degree+=180;
-                            Log.v("OneSeekBar", "indexX>0,indexY>0"+degree);
-                        }else {
-                            degree=-degree;
-                            Log.v("OneSeekBar", "indexX>0,indexY<0"+degree);
-                        }
-                    }else {
-                        if(indexY>0){
-                           degree=-degree;
-                           Log.v("OneSeekBar", "indexX<0,indexY>0"+degree);
-                           degree+=180;
-                        }else {
-                            degree=-degree;
-                            Log.v("OneSeekBar", "indexX<0,indexY<0"+degree);
-                            degree+=360;
-                        }
-                    }
-                    float progress = degree / 360;
-                    oneSeekBarListener.onSeekBarUpdated(progress);
-                    //Log.v("OneSeekBar", "点击进度条的角度"+degree);
-                    Log.v("OneSeekBar", "点击进度条的进度"+progress);
-                }
-            } else {
-                oneSeekBarListener.onButtonClick();
-                Log.v("OneSeekBar", "点击按键");
-            }
-        }
-        return super.onTouchEvent(event);
+        return gestureDetector.onTouchEvent(event);
     }
 
     public void setButtonBitmap(Boolean isPlaying){
@@ -244,12 +194,7 @@ public class OneSeekBar extends View implements View.OnClickListener{
             //isPlaying = true;
         }
     }
-//    public void setBitmap(Bitmap play_bitmap, Bitmap pause_bitmap){
-//        this.play_bitmap = play_bitmap;
-//        this.pause_bitmap = pause_bitmap;
-//    }
     public void setDegree(float degree){
-        //Log.v("OneSeekBar","setDegree检查角度"+degree);
         this.degree = degree;
         invalidate();
     }
@@ -257,13 +202,82 @@ public class OneSeekBar extends View implements View.OnClickListener{
         this.oneSeekBarListener = oneSeekBarListener;
     }
     public void setProgress(float progress){
-        //Log.v("OneSeekBar","setProgress检查进度"+progress);
         setDegree(progress*360);
+    }
+    private float getProgress(MotionEvent motionEvent){
+        float x = motionEvent.getX();
+        float y = motionEvent.getY();
+        float indexX = x - centreX;
+        float indexY = y - centreY;
+        float length = (float) Math.sqrt(Math.pow((indexX), 2) + Math.pow((indexY), 2));
+        if (length > innerRadius) {
+            if(indexY!=0) {
+                degree = (float) (Math.atan((indexX) / (indexY)) / Math.PI * 180.0);
+                if(indexX>0){
+                    if(indexY>0){
+                        degree=-degree;
+                        degree+=180;
+                        Log.v("OneSeekBar", "indexX>0,indexY>0"+degree);
+                    }else {
+                        degree=-degree;
+                        Log.v("OneSeekBar", "indexX>0,indexY<0"+degree);
+                    }
+                }else {
+                    if(indexY>0){
+                        degree=-degree;
+                        Log.v("OneSeekBar", "indexX<0,indexY>0"+degree);
+                        degree+=180;
+                    }else {
+                        degree=-degree;
+                        Log.v("OneSeekBar", "indexX<0,indexY<0"+degree);
+                        degree+=360;
+                    }
+                }
+                float progress = degree / 360;
+                return progress;
+            }
+        } else {
+            return -1.f;
+        }
+        return -1.f;
     }
 
 
     @Override
-    public void onClick(View v) {
+    public boolean onDown(MotionEvent motionEvent) {
+        float progress = getProgress(motionEvent);
+        if(progress==-1.f){
+            oneSeekBarListener.onButtonClick();
+        }else {
+            oneSeekBarListener.onSeekBarUpdated(progress);
+        }
+        return false;
+    }
+
+    @Override
+    public void onShowPress(MotionEvent motionEvent) {
+    }
+
+    @Override
+    public boolean onSingleTapUp(MotionEvent motionEvent) {
+
+        return false;
+    }
+
+    @Override
+    public boolean onScroll(MotionEvent motionEvent, MotionEvent motionEvent1, float v, float v1) {
+
+        return false;
+    }
+
+    @Override
+    public void onLongPress(MotionEvent motionEvent) {
 
     }
+
+    @Override
+    public boolean onFling(MotionEvent motionEvent, MotionEvent motionEvent1, float v, float v1) {
+        return false;
+    }
+
 }

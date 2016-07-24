@@ -79,7 +79,7 @@
             android:layout_below="@id/id_appbarlayout"
             android:id="@+id/one_singerlist_singer_detail_recycler"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content">
+            android:layout_height="500dp">
         </android.support.v7.widget.RecyclerView>
 
         <include

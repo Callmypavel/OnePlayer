@@ -74,7 +74,7 @@ import butterknife.ButterKnife;
 public class OneActivity extends AppCompatActivity {
     protected OneApplication oneApplication;
     Handler handler;
-    private boolean isPlayView = false;
+    protected boolean isPlayView = false;
     @BindView(R.id.one_seekbar)
     OneSeekBar oneSeekBar;
     @BindView(R.id.main_content_bar)
@@ -108,8 +108,7 @@ public class OneActivity extends AppCompatActivity {
                 if (!oneApplication.isNew()) {
                     oneApplication.seekTo(progress);
                 } else {
-                    oneSeekBar.setProgress(0);
-                    oneApplication.musicState.setProgress("00:00");
+                   oneApplication.unSeekable();
                 }
             }
             @Override
@@ -145,15 +144,6 @@ public class OneActivity extends AppCompatActivity {
     public void setWaveData(byte[] data){
         oneWaveFromView.setData(data);
 
-    }
-
-    @Override
-    public void onBackPressed() {
-        if(isPlayView){
-         quitPlayView();
-        }else {
-            super.onBackPressed();
-        }
     }
 
     public void selectMusic(Music music,int position) {

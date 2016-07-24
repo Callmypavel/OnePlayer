@@ -31,4 +31,8 @@ public class OneSongViewHolder extends RecyclerView.ViewHolder {
         binding.setMusic(music);
         binding.executePendingBindings();
     }
+    public void nullBind(Music music){
+        binding.setMusic(music);
+        binding.executePendingBindings();
+    }
 }

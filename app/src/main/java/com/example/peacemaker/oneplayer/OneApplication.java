@@ -34,7 +34,7 @@ public class OneApplication extends Application{
     private int themeColor = Color.WHITE;
     private boolean isNull = false;
     private ArrayList<Music> songArraylist;
-    MusicProvider musicProvider;
+    public MusicProvider musicProvider;
     BroadcastReceiver playReceiver;
     BroadcastReceiver previousReceiver;
     BroadcastReceiver nextReceiver;
@@ -45,13 +45,15 @@ public class OneApplication extends Application{
     public Music currentMusic;
     private Music targetMusic;
     private int duration = 0;
+    private OneLogger oneLogger;
 
     @Override
     public void onCreate() {
         super.onCreate();
-//        OneLogger oneLogger = new OneLogger();
-//        oneLogger.getLog();
+        oneLogger = new OneLogger();
+        oneLogger.getLog();
     }
+
 
     public void setCurrentMusic(Music currentMusic){
         Log.v("OneApplication","setCurrentMusic()"+currentMusic.getDisplayName());
@@ -83,7 +85,7 @@ public class OneApplication extends Application{
         }
         return null;
     }
-    public ArrayList<Music> getAblumArrayList(){
+    public ArrayList<Music> getAlbumArrayList(){
         if(musicProvider!=null){
             return musicProvider.getAlbums();
         }
@@ -99,14 +101,14 @@ public class OneApplication extends Application{
         this.oneActivity = oneActivity;
         Log.v("OneApplication","setOneActivity()"+oneActivity);
     }
-    public void setOneActivity(MusicProvider musicProvider,final OneActivity oneActivity){
+    public void setOneActivity(final MusicProvider musicProvider, final OneActivity oneActivity){
         Log.v("OneApplication","setOneActivity()");
+        oneLogger.stopLogging();
         this.oneActivity = oneActivity;
         this.musicProvider = musicProvider;
         songArraylist = musicProvider.getSongs();
         if (musicProvider.getCount() == 0) {
             Toast.makeText(this, "抱歉，没有歌曲", Toast.LENGTH_SHORT).show();
-            isNull = true;
             musicState.setIsClickable(false);
             return;
         }
@@ -120,6 +122,9 @@ public class OneApplication extends Application{
             public void onMusicChanged(Music music) {
                 Log.v("OneApplication","onMusicChanged()"+music.getDisplayName());
                 setCurrentMusic(music);
+                if(oneActivity instanceof MainActivity){
+                    ((MainActivity)oneActivity).refreshPlaylist();
+                }
                 updateMusicInfo();
             }
 
@@ -153,7 +158,7 @@ public class OneApplication extends Application{
                 //if(getOneActivty() instanceof MainActivity){
                     //Log.v("OneApplication","onWaveForm()这是MainActivity有毒");
                 //}
-                getOneActivty().setWaveData(data);
+                musicState.setWaveformdata(data);
             }
 
             @Override
@@ -214,6 +219,10 @@ public class OneApplication extends Application{
         });
 
     }
+    public void unSeekable(){
+        musicState.setPercentage(0);
+        musicState.setProgress("00:00");
+    }
     public void seekTo(float progress){
         int second = (int)(progress*duration);
         Log.v("OneApplication","seekTo()查看秒"+second);
@@ -264,15 +273,13 @@ public class OneApplication extends Application{
                 oneActivity.toPlayView();
             }
 
-        }else {
-            Log.v("OneApplication","selectMusic()不可播放进入二级菜单"+music.getDisplayName());
-            if(targetMusic==null){
-                targetMusic = new Music();
-            }
-            targetMusic.update(music);
-            ((MainActivity)oneActivity).toSecondItemActivity();
         }
-
+    }
+    public void updateTargetMusic(Music music){
+        if(targetMusic==null){
+            targetMusic = new Music();
+        }
+        targetMusic.update(music);
     }
     private void initNotification(boolean isPlayState,Bitmap bitmap) {
         Log.v("OneApplication","initNotification()发出通知");

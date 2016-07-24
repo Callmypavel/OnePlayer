@@ -17,4 +17,5 @@
     <string name="deepload_begin">开始扫描</string>
     <string name="manager">管理员</string>
     <string name="songs_number">几首歌曲</string>
+    <string name="exit">退出</string>
 </resources>

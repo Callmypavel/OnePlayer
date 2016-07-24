@@ -50,6 +50,7 @@ public class OnePlayListFragment extends Fragment {
             @Override
             public void onItemHit(int position, Music music) {
                 oneApplication.selectMusic(music,position);
+                oneSongItemAdapter.notifyDataSetChanged();
             }
         });
         linearLayoutManager = new LinearLayoutManager(oneApplication);
@@ -84,6 +85,11 @@ public class OnePlayListFragment extends Fragment {
         initialize();
         return view;
     }
+    public void refresh(){
+        if(oneSongItemAdapter!=null) {
+            oneSongItemAdapter.notifyDataSetChanged();
+        }
+    }
 
 
     public void initialize(){
@@ -107,26 +113,40 @@ public class OnePlayListFragment extends Fragment {
 
         @Override
         public void onBindViewHolder(final OneSongViewHolder holder, int position) {
-            Music music = musicArrayList.get(position);
-            boolean isShow = music.equals(oneApplication.currentMusic);
-            holder.bind(music,isShow);
-            holder.itemView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    int position = holder.getLayoutPosition();
-                    if(onItemHitListener!=null&&position!=-1){
-                        onItemHitListener.onItemHit(position,(Music)v.getTag());
-                    }
+            if(musicArrayList!=null){
+                if(musicArrayList.size()!=0){
+                    Music music = musicArrayList.get(position);
+                    boolean isShow = music.equals(oneApplication.currentMusic);
+                    holder.bind(music,isShow);
+                    holder.itemView.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            int position = holder.getLayoutPosition();
+                            if(onItemHitListener!=null&&position!=-1){
+                                onItemHitListener.onItemHit(position,(Music)v.getTag());
+                            }
+                        }
+                    });
+                    return;
                 }
-            });
+            }
+            Music music = new Music("找不到音乐");
+            music.setArtist("请下载音乐后重启app");
+            music.setAlbum("One提示");
+            holder.nullBind(music);
+
         }
 
         @Override
         public int getItemCount() {
             if(musicArrayList!=null){
+                if(musicArrayList.size()==0){
+                    return 1;
+                }
                 return musicArrayList.size();
             }
-            return 0;
+
+            return 1;
         }
 
     }

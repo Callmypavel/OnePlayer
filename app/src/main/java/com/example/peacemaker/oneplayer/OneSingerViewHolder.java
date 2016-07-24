@@ -22,8 +22,12 @@ public class OneSingerViewHolder extends RecyclerView.ViewHolder{
         return new OneSingerViewHolder(binding);
     }
     public void bind(Music music,int musicNumber){
-        binding.setMusic(music);
         binding.setSongsnumber(musicNumber+"首歌曲");
+        binding.setMusic(music);
+        binding.executePendingBindings();
+    }
+    public void nullBind(Music music){
+        binding.setMusic(music);
         binding.executePendingBindings();
     }
 
