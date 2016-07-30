@@ -166,7 +166,6 @@ public class MainActivity extends OneActivity{
 
 
     protected void initialize() {
-
         binding = DataBindingUtil.setContentView(MainActivity.this, R.layout.main_activity);
         ButterKnife.bind(MainActivity.this);
         binding.setMusic(oneApplication.currentMusic);
@@ -354,9 +353,11 @@ public class MainActivity extends OneActivity{
 
     public void onBackPressed() {
         Log.v("MainActivity","按下返回键");
-        if(drawerLayout.isDrawerOpen(Gravity.LEFT)){
-            drawerLayout.closeDrawer(Gravity.LEFT);
-            return;
+        if(drawerLayout!=null) {
+            if (drawerLayout.isDrawerOpen(Gravity.LEFT)) {
+                drawerLayout.closeDrawer(Gravity.LEFT);
+                return;
+            }
         }
         if(isPlayView){
             quitPlayView();
@@ -370,26 +371,28 @@ public class MainActivity extends OneActivity{
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
-        Bundle bundle = intent.getExtras();
-        if(bundle!=null){
-            if(bundle.get("mode").equals("searchCompled")){
-                Toast.makeText(MainActivity.this, "扫描完毕", Toast.LENGTH_SHORT).show();
-                if(bundle!=null){
-                    final ArrayList<Music> musicArrayList = bundle.getParcelableArrayList("musicArrayList");
-                    if(musicArrayList!=null){
-                        if(musicArrayList.size()!=0) {
-                            if (isNull) {
-                                isNull = false;
-                                initialize();
-                            } else {
-                                Thread thread = new Thread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        oneApplication.setOneActivity(new MusicProvider(musicArrayList),MainActivity.this);
-                                    }
-                                });
-                                thread.start();
-
+        if(intent!=null) {
+            Bundle bundle = intent.getExtras();
+            if (bundle != null) {
+                String mode = bundle.getString("mode");
+                if(mode!=null) {
+                    if (mode.equals("searchCompled")) {
+                        Toast.makeText(MainActivity.this, "扫描完毕", Toast.LENGTH_SHORT).show();
+                        final ArrayList<Music> musicArrayList = bundle.getParcelableArrayList("musicArrayList");
+                        if (musicArrayList != null) {
+                            if (musicArrayList.size() != 0) {
+                                if (isNull) {
+                                    isNull = false;
+                                    initialize();
+                                } else {
+                                    Thread thread = new Thread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            oneApplication.setOneActivity(new MusicProvider(musicArrayList), MainActivity.this);
+                                        }
+                                    });
+                                    thread.start();
+                                }
                             }
                         }
                     }

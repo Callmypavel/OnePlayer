@@ -38,7 +38,6 @@ public class OneApplication extends Application{
     BroadcastReceiver playReceiver;
     BroadcastReceiver previousReceiver;
     BroadcastReceiver nextReceiver;
-    public OnePlayer onePlayer;
     private OneActivity oneActivity;
     private boolean isNotiClikable = true;
     public MusicState musicState = new MusicState();
@@ -46,12 +45,41 @@ public class OneApplication extends Application{
     private Music targetMusic;
     private int duration = 0;
     private OneLogger oneLogger;
+    private MusicService musicService;
+    private ServiceConnection serviceConnection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+
+            musicService = ((MusicService.MusicBinder) service).getMusicService();
+            System.out.println("接受音乐服务" + musicService);
+
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+
+        }
+    };
 
     @Override
     public void onCreate() {
         super.onCreate();
         oneLogger = new OneLogger();
         oneLogger.getLog();
+        initService();
+    }
+
+    @Override
+    public void onTerminate() {
+        super.onTerminate();
+        unbindService(serviceConnection);
+    }
+
+    public void initService() {
+        Log.v("主Activity", "初始化服务");
+        Intent i = new Intent(this, MusicService.class);
+        bindService(i, serviceConnection, Context.BIND_AUTO_CREATE);
+        Log.v("主Activity", "初始化服务完毕");
     }
 
 
@@ -113,7 +141,7 @@ public class OneApplication extends Application{
             return;
         }
         initReceiver();
-        onePlayer = new OnePlayer(songArraylist, 0, new OnMusicListener() {
+        musicService.setOnePlayer( new OnePlayer(songArraylist, 0, new OnMusicListener() {
             @Override
             public void onComple() {
             }
@@ -130,7 +158,6 @@ public class OneApplication extends Application{
 
             @Override
             public void onMusicTickling(int time) {
-                //Log.v("OneApplication","onMusicTickling()进度"+time+",总时长"+duration);
                 OneApplication.this.musicState.setProgress(ten2sixty(time));
                 musicState.setPercentage(time*1.f/duration);
 
@@ -153,11 +180,6 @@ public class OneApplication extends Application{
 
             @Override
             public void onWaveForm(byte[] data) {
-                //Log.v("OneApplication","onWaveForm()"+data);
-                //Log.v("OneApplication","onWaveForm()"+oneActivity);
-                //if(getOneActivty() instanceof MainActivity){
-                    //Log.v("OneApplication","onWaveForm()这是MainActivity有毒");
-                //}
                 musicState.setWaveformdata(data);
             }
 
@@ -175,7 +197,9 @@ public class OneApplication extends Application{
                 initNotification(false,null);
             }
 
-        });
+        })
+        );
+
 
     }
 
@@ -227,17 +251,17 @@ public class OneApplication extends Application{
         int second = (int)(progress*duration);
         Log.v("OneApplication","seekTo()查看秒"+second);
         musicState.setProgress(ten2sixty(second));
-        onePlayer.seekto(second*1000);
+        musicService.getOnePlayer().seekto(second*1000);
         //play();
     }
     public void play() {
-        onePlayer.play();
+        musicService.getOnePlayer().play();
     }
     public boolean isNew(){
-        return !onePlayer.isStarted;
+        return !musicService.getOnePlayer().isStarted;
     }
     public void changePlayMode(){
-        onePlayer.changePlayMode();
+        musicService.getOnePlayer().changePlayMode();
         int playMode = musicState.getPlayMode();
         if(playMode<3){
             playMode=playMode+1;
@@ -255,21 +279,21 @@ public class OneApplication extends Application{
 
 
     public void next() {
-        onePlayer.changeMusic(true);
+        musicService.getOnePlayer().changeMusic(true);
     }
 
     public void previous() {
-        onePlayer.changeMusic(false);
+        musicService.getOnePlayer().changeMusic(false);
     }
     public void selectMusic(Music music,int position){
         if(music.isPlayable()) {
             if(!music.equals(currentMusic)) {
                 if(oneActivity instanceof MainActivity){
-                    onePlayer.setPlayList(musicProvider.getSongs());
+                    musicService.getOnePlayer().setPlayList(musicProvider.getSongs());
                 }else {
-                    onePlayer.setPlayList(targetMusic.getSecondItems());
+                    musicService.getOnePlayer().setPlayList(targetMusic.getSecondItems());
                  }
-                onePlayer.selectMusic(music, position);
+                musicService.getOnePlayer().selectMusic(music, position);
                 oneActivity.toPlayView();
             }
 

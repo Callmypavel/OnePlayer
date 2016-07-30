@@ -18,8 +18,8 @@
             type="OneClickHandler"/>
     </data>
 <android.support.design.widget.CoordinatorLayout
-    android:id="@+id/id_coordinatorlayout"
     android:fitsSystemWindows="true"
+    android:id="@+id/id_coordinatorlayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     >
