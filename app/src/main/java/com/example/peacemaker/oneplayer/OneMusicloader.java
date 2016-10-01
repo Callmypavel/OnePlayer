@@ -1,33 +1,19 @@
 package com.example.peacemaker.oneplayer;
 
-import android.app.AlertDialog;
-import android.content.ContentProvider;
+import android.content.ContentResolver;
 import android.content.Context;
-import android.database.CharArrayBuffer;
-import android.database.ContentObserver;
 import android.database.Cursor;
-import android.database.DataSetObserver;
-import android.drm.DrmManagerClient;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.media.MediaMetadataRetriever;
-import android.media.MediaPlayer;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.provider.MediaStore;
 import android.provider.MediaStore.Audio.Media;
-import android.content.ContentResolver;
-import android.database.Cursor;
-import android.net.Uri;
-import android.util.DisplayMetrics;
 import android.util.Log;
-import android.view.View;
-import android.widget.TextView;
-import android.widget.Toast;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedList;
 
@@ -44,9 +30,11 @@ public class OneMusicloader {
     //projection：选择的列; where：过滤条件; sortOrder：排序。
     private String sortOrder = Media.DATA;
     private boolean isStop = false;
+    private Context context;
 
-    public OneMusicloader(ContentResolver contentResolver) {
+    public OneMusicloader(ContentResolver contentResolver,Context context) {
         this.contentResolver = contentResolver;
+        this.context = context;
     }
     public OneMusicloader(Handler handler){
         this.handler = handler;
@@ -55,25 +43,31 @@ public class OneMusicloader {
 
     protected ArrayList<Music> loadLocalMusic() {
         Cursor cursor;
-        ArrayList<Music> musicArrayList = new ArrayList<>();
-        if(contentResolver!=null) {
-            cursor = contentResolver.query(contentUri, null, null, null, sortOrder);
-            if(cursor!=null) {
-                while (cursor.moveToNext()) {
-                    String artist = cursor.getString(cursor.getColumnIndex(Media.ARTIST));
-                    String duration = cursor.getString(cursor.getColumnIndex(Media.DURATION));
-                    String size = cursor.getString(cursor.getColumnIndex(Media.SIZE));
-                    String id = cursor.getString(cursor.getColumnIndex(Media._ID));
-                    String album = cursor.getString(cursor.getColumnIndex(Media.ALBUM));
-                    String displayName = cursor.getString(cursor.getColumnIndex(Media.DISPLAY_NAME));
-                    String url = cursor.getString(cursor.getColumnIndex(Media.DATA));
-                    Music music = new Music(artist, duration, album, displayName, url, id, size,true);
-                    musicArrayList.add(music);
+        //DatabaseOperator databaseOperator = new DatabaseOperator(context,"one");
+        //ArrayList<Music> musicArrayList = databaseOperator.getMusics();
+        ArrayList<Music> musicArrayList;
+//        if(musicArrayList==null||musicArrayList.size()==0){
+            musicArrayList = new ArrayList<>();
+            if(contentResolver!=null) {
+                cursor = contentResolver.query(contentUri, null, null, null, sortOrder);
+                if(cursor!=null) {
+                    while (cursor.moveToNext()) {
+                        String artist = cursor.getString(cursor.getColumnIndex(Media.ARTIST));
+                        //UNK
+                        String duration = cursor.getString(cursor.getColumnIndex(Media.DURATION));
+                        String size = cursor.getString(cursor.getColumnIndex(Media.SIZE));
+                        String id = cursor.getString(cursor.getColumnIndex(Media._ID));
+                        String album = cursor.getString(cursor.getColumnIndex(Media.ALBUM));
+                        String displayName = cursor.getString(cursor.getColumnIndex(Media.DISPLAY_NAME));
+                        String url = cursor.getString(cursor.getColumnIndex(Media.DATA));
+                        Music music = new Music(artist, duration, album, displayName, url, id, size,true);
+                        musicArrayList.add(music);
+                    }
+                    cursor.close();
+                    //databaseOperator.saveMusics(musicArrayList);
                 }
-                cursor.close();
             }
-        }
-
+//        }
         System.out.println("加载了" + musicArrayList.size() + "首歌");
         return musicArrayList;
     }

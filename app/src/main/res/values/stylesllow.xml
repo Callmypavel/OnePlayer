@@ -4,9 +4,10 @@
     </style>
     <style name="One" parent="Theme.AppCompat.Light.NoActionBar">
         <item name="colorPrimary">#fd4c5b</item>
-        <item name="colorPrimaryDark">#fd4c5b</item>
+        <item name="colorPrimaryDark">#e34451</item>
         <item name="android:listDivider">@drawable/divider_bg</item>
         <item name="drawerArrowStyle">@style/AppTheme.DrawerArrowToggle</item>
+
     </style>
     <style name="AppTheme.DrawerArrowToggle" parent="Base.Widget.AppCompat.DrawerArrowToggle">
         <item name="color">@android:color/white</item>

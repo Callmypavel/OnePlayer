@@ -6,6 +6,7 @@
         <import type="com.example.peacemaker.oneplayer.Music" />
         <import type="com.example.peacemaker.oneplayer.MusicState" />
         <import type="com.example.peacemaker.oneplayer.OneClickHandler"/>
+        <import type="com.example.peacemaker.oneplayer.OneConfig"/>
         <variable
             name="music"
             type="Music" />
@@ -15,19 +16,23 @@
         <variable
             name="handler"
             type="OneClickHandler"/>
+        <variable
+            name="oneConfig"
+            type="OneConfig"/>
     </data>
 <android.support.v4.widget.DrawerLayout
-    android:fitsSystemWindows="true"
     android:id="@+id/drawer_layout"
     android:layout_gravity="start"
     android:layout_width="match_parent"
     android:layout_height="match_parent" >
-    <include layout="@layout/main"
-            bind:musicState="@{musicState}"
-            bind:music="@{music}"
-            bind:handler="@{handler}"/>
+    <include
+        layout="@layout/main"
+        bind:musicState="@{musicState}"
+        bind:music="@{music}"
+        bind:handler="@{handler}"
+        bind:oneConfig="@{oneConfig}"
+        />
     <android.support.design.widget.NavigationView
-        android:fitsSystemWindows="true"
         android:id="@+id/navigation_view"
         android:layout_width="260dp"
         android:layout_height="match_parent"
@@ -37,4 +42,4 @@
 
     <!--<include layout="@layout/music_list" />-->
 </android.support.v4.widget.DrawerLayout>
-    </layout>
+</layout>

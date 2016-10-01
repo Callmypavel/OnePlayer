@@ -1,19 +1,16 @@
 package com.example.peacemaker.oneplayer;
 
-import android.content.Context;
-import android.databinding.ObservableBoolean;
-import android.databinding.ObservableInt;
 import android.media.MediaPlayer;
+import android.media.audiofx.BassBoost;
+import android.media.audiofx.Equalizer;
+import android.media.audiofx.PresetReverb;
 import android.media.audiofx.Visualizer;
-import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
-import android.widget.Toast;
 
 import java.io.IOException;
 import java.io.Serializable;
-import java.sql.Time;
 import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -36,11 +33,15 @@ public class OnePlayer implements Serializable {
     private int currentTime = 0;
     private int duration = 0;
     private Visualizer visualizer;
+    private Equalizer equalizer;
+    private BassBoost bassBoost;
+    private PresetReverb presetReverb;
     private Timer timer;
     private TimerTask timerTask;
     public MediaPlayer mediaPlayer;
     private ArrayList<Music> playList;
     private OnMusicListener onMusicListener;
+
     public OnePlayer(ArrayList<Music> playList,int currentPosition){
         setPlayList(playList,currentPosition);
     }
@@ -110,6 +111,8 @@ public class OnePlayer implements Serializable {
                         }
                     }
                 }, Visualizer.getMaxCaptureRate()/2, false, true);
+                equalizer = new Equalizer(0,mediaPlayer.getAudioSessionId());
+
             }
             mediaPlayer.reset();
             mediaPlayer.setDataSource(music.getUrl());
@@ -201,6 +204,15 @@ public class OnePlayer implements Serializable {
             init(playList.get(currentPosition));
         }
 
+    }
+
+    public Equalizer getEqualizer() {
+        return equalizer;
+    }
+    public void setBandAndLevel(short band,short level){
+        if(equalizer!=null){
+            equalizer.setBandLevel(band,level);
+        }
     }
 
     public void setMusicListener(OnMusicListener onMusicListener){

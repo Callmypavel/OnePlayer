@@ -9,6 +9,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.util.Base64;
 import android.util.Log;
 
@@ -87,15 +88,17 @@ public class DatabaseOperator extends SQLiteOpenHelper {
             String displayName = music.getDisplayName();
             String url = music.getUrl();
             String identifier = getIdentifier(displayName,artist,duration);
+            int id = music.getId();
             ContentValues values = new ContentValues();
             values.put("artist", artist);
             values.put("duration", duration);
             //values.put("size", size);
-            //values.put("id", id);
+            values.put("id", id);
             values.put("album", album);
             values.put("displayName", displayName);
             values.put("url", url);
             values.put("identifier",identifier);
+            Log.v("DatabaseOperator","本地储存音乐"+url);
             insert(values, "Music");
         }
     }
@@ -109,7 +112,9 @@ public class DatabaseOperator extends SQLiteOpenHelper {
             String album = cursor.getString(cursor.getColumnIndex("album"));
             String displayName = cursor.getString(cursor.getColumnIndex("displayName"));
             String url = cursor.getString(cursor.getColumnIndex("url"));
-            Musics.add(new Music(artist,duration,album,displayName,url,true));
+            String id = cursor.getInt(cursor.getColumnIndex("url"))+"";
+            Log.v("DatabaseOperator","本地读取音乐"+url);
+            Musics.add(new Music(artist,duration,album,displayName,url,id,true));
         }
         return Musics;
     }
@@ -147,6 +152,18 @@ public class DatabaseOperator extends SQLiteOpenHelper {
             db.insert(tableName,"ab",values);
         }
         db.close();
+    }
+    public static OneConfig loadConfig(Context context){
+        SharedPreferences sharedPreferences = context.getSharedPreferences("Config",0);
+        int themeColor = sharedPreferences.getInt("ThemeColor",Color.parseColor("#fd4c5b"));
+        OneConfig oneConfig = new OneConfig(themeColor);
+        return oneConfig;
+    }
+    public static void saveConfig(OneConfig oneConfig,Context context){
+        SharedPreferences sharedPreferences = context.getSharedPreferences("Config",0);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putInt("ThemeColor", oneConfig.getThemeColor());
+        editor.apply();
     }
 //    public void saveOrderMode(int OrderMode,String tableName,SharedPreferences sharedPreferences){
 //        SharedPreferences.Editor editor = sharedPreferences.edit();

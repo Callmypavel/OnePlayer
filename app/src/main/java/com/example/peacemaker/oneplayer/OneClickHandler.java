@@ -3,9 +3,12 @@ package com.example.peacemaker.oneplayer;
 import android.databinding.BindingAdapter;
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
+
+import java.util.ArrayList;
 
 /**
  * Created by ouyan on 2016/7/7.
@@ -47,6 +50,28 @@ public class OneClickHandler {
     public static void setWaveformdata(OneWaveFromView oneWaveFromView, byte[] data){
         oneWaveFromView.setData(data);
     }
+    @BindingAdapter("android:waveformdata")
+    public static void setWaveformdata(OneGameView oneGameView, byte[] data){
+        oneGameView.setData(data);
+    }
+    @BindingAdapter("android:bitmapImage")
+    public static void setImageResource(ImageView imageView,Bitmap bitmap){
+        imageView.setImageBitmap(bitmap);
+    }
+    @BindingAdapter("android:index")
+    public static void setIndex(IndexView indexView, ArrayList<IndexedMusic> indexedMusics){
+        indexView.setIndexedMusics(indexedMusics);
+    }
+    @BindingAdapter("android:highlightColor")
+    public static void setHighlightColor(IndexView indexView, int highlightColor){
+        indexView.setHighlightColor(highlightColor);
+    }
+    @BindingAdapter("backgroundColor")
+    public static void setBackgroundColor(View view, int color){
+        view.setBackgroundColor(color);
+        view.invalidate();
+    }
+
     public void onButtonClick(View view){
         OneApplication oneApplication = (OneApplication)(view.getContext().getApplicationContext());
         switch (view.getId()){

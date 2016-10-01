@@ -68,6 +68,7 @@ public class OneSingerDetailActivity extends OneActivity{
         ButterKnife.bind(this);
         binding.setMusicState(oneApplication.musicState);
         binding.setMusic(oneApplication.currentMusic);
+        binding.setOneConfig(oneApplication.getOneConfig());
         binding.setHandler(new OneClickHandler());
         binding.setDisplayName(music.getDisplayName());
         //KitKatTool.setCollapsingToolbar(this,coordinatorLayout,appBarLayout,imageView,toolbar);

@@ -1,33 +1,30 @@
 package com.example.peacemaker.oneplayer;
 
-import android.app.Activity;
 import android.app.AlertDialog;
-import android.databinding.DataBindingUtil;
-import android.graphics.Bitmap;
-import android.graphics.Canvas;
-import android.graphics.ColorFilter;
-import android.graphics.Paint;
-import android.graphics.drawable.Drawable;
-import android.support.design.widget.CoordinatorLayout;
-import android.support.design.widget.NavigationView;
-import android.support.design.widget.TabLayout;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.databinding.DataBindingUtil;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.ColorFilter;
+import android.graphics.Paint;
+import android.graphics.PixelFormat;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
+import android.support.design.widget.NavigationView;
+import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentStatePagerAdapter;
-import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.util.Log;
@@ -43,7 +40,6 @@ import android.widget.Toast;
 
 import com.example.peacemaker.oneplayer.databinding.MainActivityBinding;
 import com.google.android.gms.appindexing.Action;
-import com.google.android.gms.appindexing.AppIndex;
 import com.google.android.gms.appindexing.Thing;
 import com.google.android.gms.common.api.GoogleApiClient;
 
@@ -77,10 +73,12 @@ public class MainActivity extends OneActivity{
     public ViewPager viewPager;
     @BindView(R.id.toolbar)
     public Toolbar toolbar;
+    @BindView(R.id.one_index_view)
+    public IndexView indexView;
     public ProgressBar progressBar;
     public TextView updateText;
     private OnePlayListFragment onePlayListFragment;
-    private OneAlbumListFragment oneAblumListFragment;
+    private OneAlbumListFragment oneAlbumListFragment;
     private OneSingerListFragment oneSingerlistFragment;
     private ArrayList<Fragment> oneFragments;
     private FragmentStatePagerAdapter fragmentStatePagerAdapter;
@@ -95,8 +93,11 @@ public class MainActivity extends OneActivity{
      */
     private GoogleApiClient client;
 
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         if (Build.VERSION.SDK_INT > 19) {
             setTheme(R.style.Oneplayer);
             Log.v("MainActivity", "我选择OnePlayer主题");
@@ -129,9 +130,8 @@ public class MainActivity extends OneActivity{
         Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
-                OneMusicloader oneMusicloader = new OneMusicloader(getContentResolver());
+                OneMusicloader oneMusicloader = new OneMusicloader(getContentResolver(),MainActivity.this);
                 ArrayList<Music> tempmusicArrayList = oneMusicloader.loadLocalMusic();
-
                 musicProvider = new MusicProvider(tempmusicArrayList);
                 Message message = new Message();
                 message.what = 0x111;
@@ -140,7 +140,6 @@ public class MainActivity extends OneActivity{
             }
         });
         thread.start();
-
     }
 
 
@@ -150,12 +149,13 @@ public class MainActivity extends OneActivity{
         super.onRestart();
         oneApplication.setOneActivity(this);
         refreshPlaylist();
+        navigationView.getHeaderView(0).setBackgroundColor(oneApplication.getThemeColor());
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        Log.v("摧毁", "activity");
+        Log.v("MainActivity", "activity");
         //oneApplication.unRegister();
     }
     public void refreshPlaylist(){
@@ -171,6 +171,7 @@ public class MainActivity extends OneActivity{
         binding.setMusic(oneApplication.currentMusic);
         binding.setMusicState(oneApplication.musicState);
         binding.setHandler(new OneClickHandler());
+        binding.setOneConfig(oneApplication.getOneConfig());
         TypedValue typedValue = new TypedValue();
         getTheme().resolveAttribute(R.attr.colorPrimaryDark, typedValue, true);
         int themeColor = typedValue.data;
@@ -195,17 +196,24 @@ public class MainActivity extends OneActivity{
 
             @Override
             public int getOpacity() {
-                return 0;
+                return PixelFormat.OPAQUE;
             }
         };
         toolbar.setNavigationIcon(drawable);
         setSupportActionBar(toolbar);
+//        ((ViewGroup)toolbar.getChildAt(0)).getChildAt(0).setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                drawerLayout.openDrawer(Gravity.LEFT);
+//            }
+//        });
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v) {
+            public void onClick(View view) {
                 drawerLayout.openDrawer(Gravity.LEFT);
             }
         });
+        //toolbar.setPadding(0,OneStatusUtil.getStatusBarHeight(this),0,0);
 //        ((ViewGroup)toolbar.getChildAt(0)).getChildAt(0).setOnClickListener(new View.OnClickListener() {
 //            @Override
 //            public void onClick(View view) {
@@ -216,6 +224,7 @@ public class MainActivity extends OneActivity{
 //        actionBarDrawerToggle.setHomeAsUpIndicator(R.drawable.ic_menu_black_48dp);
 //        getSupportActionBar().setDisplayShowHomeEnabled(true);
 //        getSupportActionBar().setIcon(R.drawable.ic_menu_white_48dp);
+
         navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(final MenuItem menuItem) {
@@ -227,7 +236,7 @@ public class MainActivity extends OneActivity{
                 }else if (title.equals("检查更新")){
                     checkUpdate();
                 }else if (title.equals("打印日志")){
-                    menuItem.setChecked(true);
+                    //menuItem.setChecked(true);
                     if(oneLogger==null) {
                         oneLogger = new OneLogger();
                     }
@@ -239,13 +248,13 @@ public class MainActivity extends OneActivity{
                     oneApplication.closeNotification();
                     finish();
                 }else if (title.equals("正在打印")){
-                    menuItem.setChecked(false);
+                    //menuItem.setChecked(false);
                     if(oneLogger!=null){
                         oneLogger.stopLogging();
                     }
                     menuItem.setTitle("打印日志");
                 }else if (title.equals("版本信息")){
-                    menuItem.setChecked(true);
+                    //menuItem.setChecked(true);
                     final android.support.v7.app.AlertDialog.Builder builder = new android.support.v7.app.AlertDialog.Builder(MainActivity.this);
                         builder.setCancelable(false)
                         .setTitle("版本信息")
@@ -259,18 +268,28 @@ public class MainActivity extends OneActivity{
                             }
                         })
                         .create().show();
+                }else if(title.equals("主题换肤")){
+                    //menuItem.setChecked(true);
+                    Intent intent = new Intent();
+                    intent.setClass(MainActivity.this,OneColorSelectActivity.class);
+                    startActivity(intent);
+                }else if(title.equals("测试功能")){
+                    Intent intent = new Intent();
+                    intent.setClass(MainActivity.this,TestActivity.class);
+                    startActivity(intent);
                 }
                 return false;
             }
         });
-        drawerLayout.setStatusBarBackgroundColor(themeColor);
+
+        //drawerLayout.setStatusBarBackgroundColor(themeColor);
 
         oneFragments = new ArrayList<>();
         oneSingerlistFragment = new OneSingerListFragment();
-        oneAblumListFragment = new OneAlbumListFragment();
+        oneAlbumListFragment = new OneAlbumListFragment();
         onePlayListFragment = new OnePlayListFragment();
         oneFragments.add(oneSingerlistFragment);
-        oneFragments.add(oneAblumListFragment);
+        oneFragments.add(oneAlbumListFragment);
         oneFragments.add(onePlayListFragment);
         fragmentStatePagerAdapter = new FragmentStatePagerAdapter(getSupportFragmentManager()) {
             @Override
@@ -314,29 +333,48 @@ public class MainActivity extends OneActivity{
         viewPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+
             }
 
             @Override
             public void onPageSelected(int position) {
-                if (position == 0) {
-                    currentFragmentPosition = 0;
-                } else if(position==1){
-                    currentFragmentPosition = 1;
-                } else if(position==2){
-                    currentFragmentPosition = 2;
-                }
-                viewPager.setCurrentItem(position);
+                Log.v("MainActivity","onPageSelected"+position);
+                updateIndexView(position);
+                //viewPager.setCurrentItem(position);
             }
 
             @Override
             public void onPageScrollStateChanged(int state) {
+
             }
 
         });
         tabLayout.setTabMode(TabLayout.MODE_FIXED);
         tabLayout.setupWithViewPager(viewPager);
+
+        navigationView.getHeaderView(0).setBackgroundColor(oneApplication.getThemeColor());
+//        indexView.setRecyclerView(oneSingerlistFragment.getRecyclerView());
+//        indexView.setIndexedMusics(oneApplication.getIndexedSongArrayList());
         super.initialize();
 
+    }
+    private void updateIndexView(int position){
+        Log.v("MainActivity","isScrollBy更新位置"+position);
+        if (position == 0) {
+            currentFragmentPosition = 0;
+            indexView.setIndexedMusics(oneApplication.getIndexedSingerArrayList());
+            indexView.setRecyclerView(oneSingerlistFragment.getRecyclerView(),true);
+        } else if(position==1){
+            currentFragmentPosition = 1;
+            indexView.setIndexedMusics(oneApplication.getIndexedAlbumArrayList());
+            indexView.setRecyclerView(oneAlbumListFragment.getRecyclerView(),false);
+
+        } else if(position==2){
+            currentFragmentPosition = 2;
+            indexView.setIndexedMusics(oneApplication.getIndexedSongArrayList());
+            indexView.setRecyclerView(onePlayListFragment.getRecyclerView(),true);
+
+        }
     }
     protected void disableListview(){
         tabLayout.setVisibility(View.GONE);
@@ -638,6 +676,8 @@ public class MainActivity extends OneActivity{
                 .setActionStatus(Action.STATUS_TYPE_COMPLETED)
                 .build();
     }
+
+
 
 //    @Override
 //    public void onStart() {

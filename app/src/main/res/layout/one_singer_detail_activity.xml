@@ -7,6 +7,7 @@
         <import type="com.example.peacemaker.oneplayer.Music" />
         <import type="com.example.peacemaker.oneplayer.MusicState" />
         <import type="com.example.peacemaker.oneplayer.OneClickHandler"/>
+        <import type="com.example.peacemaker.oneplayer.OneConfig"/>
         <variable
             name="music"
             type="Music" />
@@ -19,6 +20,9 @@
         <variable
             name="displayName"
             type="String"/>
+        <variable
+            name="oneConfig"
+            type="OneConfig"/>
     </data>
     <android.support.design.widget.CoordinatorLayout
         android:id="@+id/id_coordinatorlayout"
@@ -35,11 +39,12 @@
                 android:id="@+id/singer_detail_collapsing_toolbar_layout"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                app:contentScrim="?attr/colorPrimary"
+                app:contentScrim="@{oneConfig.themeColor}"
                 bind:title="@{displayName}"
                 app:expandedTitleMarginStart="96dp"
                 app:layout_scrollFlags="scroll|exitUntilCollapsed">
                 <ImageView
+                    android:background="@{oneConfig.themeColor}"
                     android:id="@+id/id_imageView"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"

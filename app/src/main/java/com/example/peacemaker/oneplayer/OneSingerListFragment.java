@@ -42,14 +42,17 @@ import butterknife.ButterKnife;
 public class OneSingerListFragment extends Fragment {
     @BindView(R.id.one_singer_recycler)
     public RecyclerView recyclerView;
+    private MainActivity mainActivity;
+    private OneApplication oneApplication;
     private LinearLayoutManager linearLayoutManager;
     private OneSingerItemAdapter oneSingerItemAdapter;
-
+    private boolean isNeedInit = true;
 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        OneApplication oneApplication = (OneApplication) getActivity().getApplication();
+        oneApplication = (OneApplication) getActivity().getApplication();
+        mainActivity = (MainActivity) getActivity();
         oneSingerItemAdapter = new OneSingerItemAdapter(oneApplication.getSingerArrayList());
         oneSingerItemAdapter.setOnItemHitListener(new OnItemHitListener() {
             @Override
@@ -66,7 +69,6 @@ public class OneSingerListFragment extends Fragment {
         recyclerView.addItemDecoration(new RecyclerView.ItemDecoration() {
             @Override
             public void onDraw(Canvas c, RecyclerView parent, RecyclerView.State state) {
-
                 final int left = parent.getPaddingLeft()+20;
                 final int right = parent.getMeasuredWidth() - parent.getPaddingRight()-20;
                 final int childSize = parent.getChildCount() ;
@@ -80,7 +82,18 @@ public class OneSingerListFragment extends Fragment {
             }
         });
         recyclerView.setHasFixedSize(true);
+        if(isNeedInit) {
+            updateIndexView();
+            isNeedInit = false;
+        }
         //linearLayoutManager.scrollToPositionWithOffset(activity.singerSelectedPosition, activity.singerSelectedOffset);
+    }
+    public void updateIndexView(){
+        mainActivity.indexView.setIndexedMusics(oneApplication.getIndexedSingerArrayList());
+        mainActivity.indexView.setRecyclerView(recyclerView,true);
+    }
+    public RecyclerView getRecyclerView(){
+        return this.recyclerView;
     }
 
     @Override
@@ -117,6 +130,7 @@ public class OneSingerListFragment extends Fragment {
             if(musicArrayList!=null) {
                 if(musicArrayList.size()!=0) {
                     Music music = musicArrayList.get(position);
+                    //music.setDisplayName(music.getDisplayName()+"(第"+position+"个)");
                     holder.bind(music, music.getSecondItems().size());
                     holder.itemView.setOnClickListener(new View.OnClickListener() {
                         @Override

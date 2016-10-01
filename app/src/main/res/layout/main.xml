@@ -7,6 +7,7 @@
         <import type="com.example.peacemaker.oneplayer.Music" />
         <import type="com.example.peacemaker.oneplayer.MusicState" />
         <import type="com.example.peacemaker.oneplayer.OneClickHandler"/>
+        <import type="com.example.peacemaker.oneplayer.OneConfig"/>
         <variable
             name="music"
             type="Music" />
@@ -16,6 +17,9 @@
         <variable
             name="handler"
             type="OneClickHandler"/>
+        <variable
+            name="oneConfig"
+            type="OneConfig"/>
     </data>
 <android.support.design.widget.CoordinatorLayout
     android:fitsSystemWindows="true"
@@ -24,6 +28,7 @@
     android:layout_height="match_parent"
     >
     <android.support.design.widget.AppBarLayout
+        android:background="@{oneConfig.themeColor}"
         android:id="@+id/id_appbarlayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
@@ -35,7 +40,7 @@
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            android:background="?attr/colorPrimary" >
+             >
             <!--<RelativeLayout-->
                 <!--android:layout_width="match_parent"-->
                 <!--android:layout_height="match_parent">-->
@@ -48,11 +53,11 @@
                     <!--android:layout_width="30dp"-->
                     <!--android:layout_height="30dp" />-->
                 <!--<TextView-->
+                    <!--android:layout_toRightOf="@id/toolbar_image"-->
                     <!--android:layout_centerVertical="true"-->
                     <!--android:layout_marginLeft="5dp"-->
                     <!--android:textColor="@color/WHITE"-->
                     <!--android:textSize="20sp"-->
-                    <!--android:layout_toRightOf="@+id/toolbar_image"-->
                     <!--android:text="@string/app_name"-->
                     <!--android:layout_width="wrap_content"-->
                     <!--android:layout_height="wrap_content" />-->
@@ -63,16 +68,23 @@
             app:tabSelectedTextColor="@color/WHITE"
             app:tabTextColor="@color/TAB_UNSELECT"
             app:tabGravity="fill"
-            android:background="?attr/colorPrimary"
             android:id="@+id/id_tablayout"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"/>
     </android.support.design.widget.AppBarLayout>
+
     <android.support.v4.view.ViewPager
         app:layout_behavior="@string/appbar_scrolling_view_behavior"
         android:id="@+id/id_viewpager"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
+
+    <com.example.peacemaker.oneplayer.IndexView
+        android:highlightColor="@{oneConfig.themeColor}"
+        android:id="@+id/one_index_view"
+        android:layout_gravity="end"
+        android:layout_width="wrap_content"
+        android:layout_height="500dp" />
     <include
         layout="@layout/one_layout"
         bind:musicState="@{musicState}"

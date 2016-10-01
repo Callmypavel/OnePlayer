@@ -5,7 +5,14 @@
             android:id="@+id/deepload_item"
             android:icon="@drawable/ic_youtube_searched_for_black_48dp"
             android:title="@string/deep_load"/>
-
+        <item
+            android:id="@+id/colorselect_item"
+            android:title="@string/color_select"
+            />
+        <item
+            android:id="@+id/test_item"
+            android:title="@string/test"
+            />
         <item
             android:id="@+id/checkupdate_item"
             android:icon="@drawable/ic_update_black_48dp"
@@ -22,6 +29,7 @@
             android:id="@+id/exit_item"
             android:icon="@drawable/ic_exit_to_app_black_48dp"
             android:title="@string/exit_app"/>
+
 
     </group>
 

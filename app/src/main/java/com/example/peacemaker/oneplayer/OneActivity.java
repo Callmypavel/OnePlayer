@@ -91,7 +91,7 @@ public class OneActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         oneApplication = (OneApplication) getApplication();
-
+        OneStatusUtil.setStatusColor(this,oneApplication.getThemeColor());
     }
 //    public void pause(){
 //        oneSeekBar.setButtonBitmap(false);
@@ -123,9 +123,20 @@ public class OneActivity extends AppCompatActivity {
             public void onReachMax() {
                 disableListview();
                 isPlayView = true;
+                OneStatusUtil.setStatusColor(OneActivity.this,oneApplication.musicState.getMusicColor());
             }
         });
 
+    }
+
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+        if(isPlayView) {
+            OneStatusUtil.setStatusColor(OneActivity.this, oneApplication.musicState.getMusicColor());
+        }else {
+            OneStatusUtil.setStatusColor(OneActivity.this, oneApplication.getThemeColor());
+        }
     }
 
     protected void disableListview(){
@@ -194,6 +205,7 @@ public class OneActivity extends AppCompatActivity {
         mainContentBar.toMinHeight();
         isPlayView = false;
         enableListview();
+        OneStatusUtil.setStatusColor(this,oneApplication.getThemeColor());
     }
 
 

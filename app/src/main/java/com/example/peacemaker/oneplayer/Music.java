@@ -8,12 +8,8 @@ import android.graphics.BitmapFactory;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.DisplayMetrics;
-import android.util.Log;
 
-import java.io.Serializable;
 import java.util.ArrayList;
-
-import butterknife.BindView;
 
 /**
  * Created by ouyan_000 on 2015/8/18.
@@ -159,7 +155,7 @@ public class Music extends BaseObservable implements Parcelable {
         setSecondItems(music.getSecondItems());
     }
     public Bitmap getAlbumBitmap(Context context){
-        Log.v("Music","getAlbumBitmap()拿url"+url);
+        //Log.v("Music","getAlbumBitmap()拿url"+url);
         Bitmap bitmap = OneMusicloader.getAlbumArt(url);
         if(bitmap==null){
             //Log.v("Music","娶不到专辑图");

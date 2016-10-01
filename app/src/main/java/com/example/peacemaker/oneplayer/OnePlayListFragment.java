@@ -39,12 +39,13 @@ public class OnePlayListFragment extends Fragment {
     private OneApplication oneApplication;
     private LinearLayoutManager linearLayoutManager;
     private OneSongItemAdapter oneSongItemAdapter;
-
+    private MainActivity mainActivity;
 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         oneApplication = (OneApplication) getActivity().getApplication();
+        mainActivity = (MainActivity) getActivity();
         oneSongItemAdapter = new OneSongItemAdapter(oneApplication.getSongArrayList());
         oneSongItemAdapter.setOnItemHitListener(new OnItemHitListener() {
             @Override
@@ -76,6 +77,13 @@ public class OnePlayListFragment extends Fragment {
         });
         recyclerView.setHasFixedSize(true);
 
+    }
+//    public void updateIndexView(){
+//        mainActivity.indexView.setIndexedMusics(oneApplication.getIndexedSongArrayList());
+//        mainActivity.indexView.setRecyclerView(recyclerView);
+//    }
+    public RecyclerView getRecyclerView(){
+        return this.recyclerView;
     }
 
     @Override

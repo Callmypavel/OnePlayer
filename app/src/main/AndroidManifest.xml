@@ -19,8 +19,14 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".TestActivity">
+
+        </activity>
         <activity android:name=".SearchActivity"
             android:theme="@style/Theme.CustomDialog">
+        </activity>
+        <activity android:name=".OneColorSelectActivity">
+
         </activity>
         <activity android:name=".OneAlbumDetailActivity">
         </activity>

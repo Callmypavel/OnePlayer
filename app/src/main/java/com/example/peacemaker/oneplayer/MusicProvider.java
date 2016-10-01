@@ -1,22 +1,19 @@
 package com.example.peacemaker.oneplayer;
 
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.media.MediaMetadataRetriever;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.Log;
-
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 
 import net.sourceforge.pinyin4j.PinyinHelper;
 import net.sourceforge.pinyin4j.format.HanyuPinyinCaseType;
 import net.sourceforge.pinyin4j.format.HanyuPinyinOutputFormat;
 import net.sourceforge.pinyin4j.format.HanyuPinyinToneType;
 import net.sourceforge.pinyin4j.format.HanyuPinyinVCharType;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+
 
 /**
  * Created by ouyan on 2016/6/8.
@@ -39,6 +36,9 @@ public class MusicProvider implements Parcelable{
     private ArrayList<Music> musicSource;
     private ArrayList<Music> singers ;
     private ArrayList<Music> albums ;
+    private ArrayList<IndexedMusic> indexedSingers;
+    private ArrayList<IndexedMusic> indexedAlbums;
+    private ArrayList<IndexedMusic> indexedSongs;
     private MusicProvider(Parcel in)
     {
         musicSource = in.readArrayList(getClass().getClassLoader());
@@ -53,6 +53,26 @@ public class MusicProvider implements Parcelable{
     }
     public MusicProvider(ArrayList<Music> musicSource) {
         this.musicSource = musicSource;
+        sortMusics();
+        indexedSingers = IndexMusicTool.getIndexedMusics(singers, IndexMusicTool.IndexType.Singer);
+        indexedAlbums = IndexMusicTool.getIndexedMusics(albums, IndexMusicTool.IndexType.Album);
+        indexedSongs = IndexMusicTool.getIndexedMusics(musicSource, IndexMusicTool.IndexType.Song);
+
+    }
+
+    public ArrayList<IndexedMusic> getIndexedSongs() {
+        return indexedSongs;
+    }
+
+    public ArrayList<IndexedMusic> getIndexedSingers() {
+        return indexedSingers;
+    }
+
+    public ArrayList<IndexedMusic> getIndexedAlbums() {
+        return indexedAlbums;
+    }
+
+    private void sortMusics(){
         if(musicSource!=null) {
             if(musicSource.size()!=0) {
                 singers = new ArrayList<>();
@@ -85,11 +105,13 @@ public class MusicProvider implements Parcelable{
                     Music music2 = new Music(music.getAlbum());
                     int albumIndex = getIndex(albums, music2);
                     if (albumIndex == -1) {
+                        Log.v("MusicProvider", "新增专辑" + music.getArtist() + "的" + music.getAlbum());
                         secondItems = new ArrayList<>();
                         secondItems.add(music);
                         music2.setSecondItems(secondItems);
                         albums.add(music2);
                     } else {
+                        Log.v("MusicProvider", "更新专辑" + music.getArtist() + "的" + music.getAlbum());
                         albums.get(albumIndex).addSecondItem(music);
                     }
                 }
@@ -105,7 +127,6 @@ public class MusicProvider implements Parcelable{
                 }
             }
         }
-
     }
 
     public ArrayList<Music> getSingers(){

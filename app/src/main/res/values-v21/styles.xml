@@ -3,12 +3,16 @@
     <style name="AppTheme" parent="android:Theme.Material.Light">
     </style>
     <style name="Oneplayer" parent="Theme.AppCompat.Light.NoActionBar">
-        <item name="android:statusBarColor">@android:color/transparent</item>
-        <item name="colorPrimary">#fd4c5b</item>
-        <item name="colorPrimaryDark">#fd4c5b</item>
-        <item name="android:listDivider">@drawable/divider_bg</item>
-        <item name="drawerArrowStyle">@style/AppTheme.DrawerArrowToggle</item>
-        <item name="android:windowTranslucentStatus">true</item>
+        <!--<item name="colorPrimary">#ffffff00</item>-->
+        <!--<item name="colorPrimaryDark">#00000055</item>-->
+        <!--<item name="android:listDivider">@drawable/divider_bg</item>-->
+        <!--<item name="drawerArrowStyle">@style/AppTheme.DrawerArrowToggle</item>-->
+        <!--<item name="android:statusBarColor">@android:color/transparent</item>-->
+        <!--<item name="android:windowTranslucentStatus">true</item>-->
+        <!--<item name="android:statusBarColor">#e34451</item>-->
+        <!--<item name="android:windowDrawsSystemBarBackgrounds">true</item>-->
+        <!--<item name="windowActionBar">false</item>-->
+        <!--<item name="windowNoTitle">true</item>-->
     </style>
     <style name="Oneplayer_Green" parent="Theme.AppCompat.Light.NoActionBar">
         <item name="android:windowDrawsSystemBarBackgrounds">true</item>

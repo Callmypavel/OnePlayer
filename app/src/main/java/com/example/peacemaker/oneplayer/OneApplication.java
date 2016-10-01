@@ -1,5 +1,6 @@
 package com.example.peacemaker.oneplayer;
 
+import android.app.Activity;
 import android.app.Application;
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -10,17 +11,12 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
-import android.databinding.DataBindingUtil;
-import android.databinding.ObservableBoolean;
-import android.databinding.ObservableField;
-import android.databinding.ObservableInt;
 import android.graphics.Bitmap;
 import android.graphics.Color;
-import android.media.audiofx.Visualizer;
+import android.os.Build;
 import android.os.IBinder;
 import android.support.v7.graphics.Palette;
 import android.util.Log;
-import android.view.View;
 import android.widget.RemoteViews;
 import android.widget.Toast;
 
@@ -31,7 +27,7 @@ import java.util.ArrayList;
  */
 
 public class OneApplication extends Application{
-    private int themeColor = Color.WHITE;
+    private OneConfig oneConfig ;
     private boolean isNull = false;
     private ArrayList<Music> songArraylist;
     public MusicProvider musicProvider;
@@ -45,7 +41,9 @@ public class OneApplication extends Application{
     private Music targetMusic;
     private int duration = 0;
     private OneLogger oneLogger;
+    private Activity currentActivity;
     private MusicService musicService;
+    private int statusColor;
     private ServiceConnection serviceConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
@@ -61,12 +59,14 @@ public class OneApplication extends Application{
         }
     };
 
+
     @Override
     public void onCreate() {
         super.onCreate();
         oneLogger = new OneLogger();
         oneLogger.getLog();
         initService();
+        oneConfig = DatabaseOperator.loadConfig(this);
     }
 
     @Override
@@ -81,6 +81,27 @@ public class OneApplication extends Application{
         bindService(i, serviceConnection, Context.BIND_AUTO_CREATE);
         Log.v("主Activity", "初始化服务完毕");
     }
+
+    public OneConfig getOneConfig() {
+        return oneConfig;
+    }
+
+    public void setOneConfig(OneConfig oneConfig) {
+        this.oneConfig = oneConfig;
+    }
+    public void setThemeColor(int color){
+        if(oneConfig!=null){
+            oneConfig.setThemeColor(color);
+        }
+    }
+    public int getThemeColor(){
+        return oneConfig.getThemeColor();
+    }
+    public OnePlayer getOnePlayer(){
+        return musicService.getOnePlayer();
+    }
+
+
 
 
     public void setCurrentMusic(Music currentMusic){
@@ -116,6 +137,24 @@ public class OneApplication extends Application{
     public ArrayList<Music> getAlbumArrayList(){
         if(musicProvider!=null){
             return musicProvider.getAlbums();
+        }
+        return null;
+    }
+    public ArrayList<IndexedMusic> getIndexedSingerArrayList(){
+        if(musicProvider!=null){
+            return musicProvider.getIndexedSingers();
+        }
+        return null;
+    }
+    public ArrayList<IndexedMusic> getIndexedAlbumArrayList(){
+        if(musicProvider!=null){
+            return musicProvider.getIndexedAlbums();
+        }
+        return null;
+    }
+    public ArrayList<IndexedMusic> getIndexedSongArrayList(){
+        if(musicProvider!=null){
+            return musicProvider.getIndexedSongs();
         }
         return null;
     }
@@ -217,14 +256,21 @@ public class OneApplication extends Application{
         sixty = minute + ":" + second;
         return sixty;
     }
+
     public void updateMusicInfo(){
         Log.v("OneApplication","updateMusicInfo()");
         musicState.setCurrentBitmap(currentMusic.getMiddleAlbumArt(this));
         Log.v("OneApplication","updateMusicInfo()检查bitmap"+musicState.getCurrentBitmap());
-        Palette.generateAsync(musicState.getCurrentBitmap(), new Palette.PaletteAsyncListener() {
+        Palette.Builder builder = Palette.from(musicState.getCurrentBitmap());
+        builder.generate(new Palette.PaletteAsyncListener() {
             @Override
             public void onGenerated(Palette palette) {
-                musicState.setMusicColor(palette.getDarkVibrantColor(Color.WHITE));
+                int color = palette.getDarkVibrantColor(Color.WHITE);
+                musicState.setMusicColor(color);
+                if(oneActivity.isPlayView) {
+                    LogTool.log("OneApplication","设置状态栏颜色为"+color);
+                    OneStatusUtil.setStatusColor(oneActivity, color);
+                }
                 int currentColor;
                 if(musicState.getIsWhite()){
                     currentColor = Color.WHITE;
@@ -241,6 +287,7 @@ public class OneApplication extends Application{
                 }
             }
         });
+
 
     }
     public void unSeekable(){
@@ -288,13 +335,14 @@ public class OneApplication extends Application{
     public void selectMusic(Music music,int position){
         if(music.isPlayable()) {
             if(!music.equals(currentMusic)) {
+                oneActivity.toPlayView();
                 if(oneActivity instanceof MainActivity){
                     musicService.getOnePlayer().setPlayList(musicProvider.getSongs());
                 }else {
                     musicService.getOnePlayer().setPlayList(targetMusic.getSecondItems());
                  }
                 musicService.getOnePlayer().selectMusic(music, position);
-                oneActivity.toPlayView();
+
             }
 
         }
@@ -307,7 +355,6 @@ public class OneApplication extends Application{
     }
     private void initNotification(boolean isPlayState,Bitmap bitmap) {
         Log.v("OneApplication","initNotification()发出通知");
-        int currentColor = musicState.getIsWhite()?Color.WHITE:Color.BLACK;
         if (isNull) {
             return;
         }
@@ -315,7 +362,50 @@ public class OneApplication extends Application{
         Intent intent = new Intent(OneApplication.this, MainActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);//
         PendingIntent pendingIntent = PendingIntent.getActivity(oneActivity, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-        RemoteViews remoteViews = new RemoteViews(getPackageName(), R.layout.notification);
+        RemoteViews remoteViews = buildRemoteViews(isPlayState,bitmap,false);
+        RemoteViews bigRemoteViews = buildRemoteViews(isPlayState,bitmap,true);
+        //remoteViews.setProgressBar(R.id.noti_seekBar, Integer.parseInt(musicArrayList.get(currentPosition).getDuration()) / 1000, 0, false);
+        Notification.Builder builder;
+        Notification notification = null;
+        if (Build.VERSION.SDK_INT >= 24) {
+            builder = new Notification.Builder(this)
+                    .setAutoCancel(true)
+                    .setContentTitle("title")
+                    .setContentText("describe")
+                    .setCustomContentView(remoteViews)
+                    .setCustomBigContentView(bigRemoteViews)
+                    .setContentIntent(pendingIntent)
+                    .setWhen(System.currentTimeMillis())
+                    .setSmallIcon(R.drawable.start_small)
+                    .setOngoing(true);
+            notification = builder.build();
+        }else {
+            builder = new Notification.Builder(this)
+                    .setAutoCancel(true)
+                    .setContentTitle("title")
+                    .setContentText("describe")
+                    .setContentIntent(pendingIntent)
+                    .setWhen(System.currentTimeMillis())
+                    .setSmallIcon(R.drawable.start_small)
+                    .setOngoing(true);
+            notification = builder.build();
+            notification.contentView = remoteViews;
+            notification.bigContentView = bigRemoteViews;
+        }
+        notification.priority = Notification.PRIORITY_HIGH;
+        notification.flags = Notification.FLAG_NO_CLEAR;
+        notificationManager.notify(0, notification);
+
+
+    }
+    private RemoteViews buildRemoteViews(boolean isPlayState,Bitmap bitmap,boolean isBig){
+        RemoteViews remoteViews;
+        if(isBig){
+            remoteViews = new RemoteViews(getPackageName(), R.layout.notification_expand);
+        }else {
+            remoteViews = new RemoteViews(getPackageName(), R.layout.notification);
+        }
+        int currentColor = musicState.getIsWhite()?Color.WHITE:Color.BLACK;
         remoteViews.setTextViewText(R.id.noti_singer,currentMusic.getArtist());
         remoteViews.setTextViewText(R.id.noti_name, currentMusic.getDisplayName());
         remoteViews.setInt(R.id.noti_singer,"setTextColor",currentColor);
@@ -353,23 +443,7 @@ public class OneApplication extends Application{
         Intent intent3 = new Intent("previousButton");
         PendingIntent pendingIntent3 = PendingIntent.getBroadcast(this, 0, intent3, 0);
         remoteViews.setOnClickPendingIntent(R.id.noti_previous, pendingIntent3);
-
-        //remoteViews.setProgressBar(R.id.noti_seekBar, Integer.parseInt(musicArrayList.get(currentPosition).getDuration()) / 1000, 0, false);
-        Notification notification = new Notification.Builder(this)
-                .setAutoCancel(true)
-                .setContentTitle("title")
-                .setContentText("describe")
-                .setContent(remoteViews)
-                .setContentIntent(pendingIntent)
-                .setWhen(System.currentTimeMillis())
-                .setSmallIcon(R.drawable.start_small)
-                .setOngoing(true)
-                .build();
-        notification.priority = Notification.PRIORITY_HIGH;
-        notification.flags = Notification.FLAG_NO_CLEAR;
-        notificationManager.notify(0, notification);
-
-
+        return remoteViews;
     }
 
 
