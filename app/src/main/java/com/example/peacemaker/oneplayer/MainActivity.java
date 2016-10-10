@@ -651,6 +651,7 @@ public class MainActivity extends OneActivity{
         startActivity(intent);
     }
     public void toSecondItemActivity(Music music){
+        LogTool.log("MainActivity","更新目标音乐"+music.getUrl());
         oneApplication.updateTargetMusic(music);
         if(currentFragmentPosition==0){
             toSingerDetail();

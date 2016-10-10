@@ -18,9 +18,9 @@
     <string name="manager">管理员</string>
     <string name="songs_number">几首歌曲</string>
     <string name="color_select">主题换肤</string>
-    <string name="color_red">红</string>
-    <string name="color_green">绿</string>
-    <string name="color_blue">蓝</string>
+    <string name="color_red">红%1$d</string>
+    <string name="color_green">绿%1$d</string>
+    <string name="color_blue">蓝%1$d</string>
     <string name="apply_theme">应用并保存当前主题色</string>
     <string name="preview">效果预览</string>
     <string name="exit">退出</string>
@@ -31,4 +31,17 @@
     <string name="StopEcho">Stop</string>
     <string name="GetParam">Get Param</string>
     <string name="NeedRecordAudioPermission">"This sample needs RECORD_AUDIO permission"</string>
+<<<<<<< HEAD
+    <string name="equalizer">均衡器</string>
+    <string name="frequency">%1$dhz</string>
+    <string name="decibel">%1$ddb</string>
+    <string name="bass">重低音</string>
+    <string name="bassvalue">%1$d</string>
+    <string name="preset">音场</string>
+
+
+
+
+=======
+>>>>>>> parent of 530f60b... 增加测试功能均衡器
 </resources>

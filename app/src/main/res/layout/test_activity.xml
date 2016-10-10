@@ -28,6 +28,48 @@
                 android:background="@{oneConfig.themeColor}" >
             </android.support.v7.widget.Toolbar>
         </android.support.design.widget.AppBarLayout>
+<<<<<<< HEAD
+        <!--<RelativeLayout-->
+            <!--android:layout_centerHorizontal="true"-->
+            <!--android:background="@{oneConfig.themeColor}"-->
+            <!--android:layout_marginTop="50dp"-->
+            <!--android:layout_below="@id/id_appbarlayout"-->
+            <!--android:id="@+id/preview_layout"-->
+            <!--android:layout_width="200dp"-->
+            <!--android:layout_height="200dp">-->
+
+        <!--</RelativeLayout>-->
+
+        <TextView
+            android:padding="10dp"
+            android:id="@+id/equalizer_field_tint"
+            android:layout_below="@id/id_appbarlayout"
+            android:text="@string/equalizer"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+        <LinearLayout
+            android:layout_below="@+id/equalizer_field_tint"
+            android:orientation="vertical"
+            android:layout_centerHorizontal="true"
+            android:id="@+id/equailizer_field"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+        </LinearLayout>
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_below="@id/equailizer_field"
+            android:id="@+id/bassboost_field"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+        </LinearLayout>
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_below="@id/bassboost_field"
+            android:id="@+id/presetreverb_field"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+        </LinearLayout>
+=======
         <RelativeLayout
             android:layout_centerHorizontal="true"
             android:background="@{oneConfig.themeColor}"
@@ -52,6 +94,7 @@
             android:id="@+id/one_first_seekbar"
             android:layout_width="300dp"
             android:layout_height="50dp" />
+>>>>>>> parent of 530f60b... 增加测试功能均衡器
 
         <TextView
             android:textSize="20sp"

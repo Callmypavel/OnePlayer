@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="50dp">
+    <TextView
+        android:layout_centerVertical="true"
+        android:paddingStart="10dp"
+        android:id="@+id/frequency_text"
+        android:text="@string/frequency"
+        android:layout_width="80dp"
+        android:layout_height="wrap_content" />
+    <SeekBar
+
+        android:layout_centerVertical="true"
+        android:id="@+id/decibel_seekbar"
+        android:layout_toEndOf="@+id/frequency_text"
+        android:layout_width="200dp"
+        android:layout_height="50dp" />
+    <TextView
+        android:layout_centerVertical="true"
+        android:layout_toEndOf="@id/decibel_seekbar"
+        android:id="@+id/decibel_text"
+        android:text="@string/decibel"
+        android:layout_width="80dp"
+        android:layout_height="wrap_content" />
+
+</RelativeLayout>

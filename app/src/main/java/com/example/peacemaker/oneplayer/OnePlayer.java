@@ -51,6 +51,14 @@ public class OnePlayer implements Serializable {
     }
 
 
+    public BassBoost getBassBoost() {
+        return bassBoost;
+    }
+
+    public PresetReverb getPresetReverb() {
+        return presetReverb;
+    }
+
     public void init(Music music) {
         Log.v("OnePlayer","init()");
         if(onMusicListener!=null){
@@ -59,6 +67,10 @@ public class OnePlayer implements Serializable {
         }
         try {
             if(mediaPlayer==null){
+<<<<<<< HEAD
+                initMediaPlayer();
+                initSoundEffects();
+=======
                 mediaPlayer = new MediaPlayer();
                 mediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
                     @Override
@@ -113,21 +125,91 @@ public class OnePlayer implements Serializable {
                 }, Visualizer.getMaxCaptureRate()/2, false, true);
                 equalizer = new Equalizer(0,mediaPlayer.getAudioSessionId());
 
+>>>>>>> parent of 530f60b... 增加测试功能均衡器
             }
             mediaPlayer.reset();
             mediaPlayer.setDataSource(music.getUrl());
             isStarted = false;
+
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
+
+    private void initSoundEffects() {
+        visualizer = new Visualizer(mediaPlayer.getAudioSessionId());
+        visualizer.setCaptureSize(64);
+        visualizer.setDataCaptureListener(new Visualizer.OnDataCaptureListener() {
+            @Override
+            public void onWaveFormDataCapture(Visualizer visualizer, byte[] waveform, int samplingRate) {
+            }
+
+            @Override
+            public void onFftDataCapture(Visualizer visualizer, byte[] fft, int samplingRate) {
+                if (onMusicListener != null) {
+                    onMusicListener.onWaveForm(fft);
+                }
+            }
+        }, Visualizer.getMaxCaptureRate()/2, false, true);
+        LogTool.log("OnePlayer","visualizer已被唤醒，魔王再临");
+        equalizer = new Equalizer(0,mediaPlayer.getAudioSessionId());
+        bassBoost = new BassBoost(0,mediaPlayer.getAudioSessionId());
+        presetReverb = new PresetReverb(0,mediaPlayer.getAudioSessionId());
+        activateSoundEffects(true);
+    }
+
+    private void initMediaPlayer() {
+        mediaPlayer = new MediaPlayer();
+        mediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+            @Override
+            public void onPrepared(MediaPlayer mp) {
+                initHandler();
+                initTimer();
+                mediaPlayer.start();
+
+                if (onMusicListener != null) {
+                    duration = mediaPlayer.getDuration();
+                    onMusicListener.onPrepared(duration);
+                }
+
+            }
+        });
+        mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+            @Override
+            public void onCompletion(MediaPlayer mp) {
+                if (onMusicListener != null) {
+                    onMusicListener.onComple();
+                }
+                changeMusic(true);
+            }
+        });
+        mediaPlayer.setOnBufferingUpdateListener(new MediaPlayer.OnBufferingUpdateListener() {
+            @Override
+            public void onBufferingUpdate(MediaPlayer mp, int percent) {
+            }
+        });
+        mediaPlayer.setOnErrorListener(new MediaPlayer.OnErrorListener() {
+            @Override
+            public boolean onError(MediaPlayer mp, int what, int extra) {
+                if(onMusicListener!=null){
+                    onMusicListener.onError(what,extra);
+                }
+                return false;
+            }
+        });
+    }
+
     protected void play(){
         if(isStarted){
             Log.v("OnePlayer","已经开始");
             if(mediaPlayer.isPlaying()){
                 Log.v("OnePlayer","正在播放，暂停音乐");
                 pause();
+<<<<<<< HEAD
+                activateSoundEffects(false);
+=======
                 visualizer.setEnabled(false);
+>>>>>>> parent of 530f60b... 增加测试功能均衡器
                 if (onMusicListener != null) {
                     onMusicListener.onPause();
                 }
@@ -137,19 +219,35 @@ public class OnePlayer implements Serializable {
                 if (onMusicListener != null) {
                     onMusicListener.onContinue();
                 }
+<<<<<<< HEAD
+                activateSoundEffects(true);
+=======
                 visualizer.setEnabled(true);
+>>>>>>> parent of 530f60b... 增加测试功能均衡器
             }
         }else {
             Log.v("OnePlayer","尚未开始,重设");
             currentTime = 0;
             try {
                 mediaPlayer.prepareAsync();
+<<<<<<< HEAD
+                activateSoundEffects(true);
+=======
                 visualizer.setEnabled(true);
+>>>>>>> parent of 530f60b... 增加测试功能均衡器
             }catch (Exception e){
             }
             isStarted = true;
         }
     }
+
+    private void activateSoundEffects(boolean enabled) {
+        visualizer.setEnabled(enabled);
+        equalizer.setEnabled(enabled);
+        bassBoost.setEnabled(enabled);
+        presetReverb.setEnabled(enabled);
+    }
+
     protected void initHandler() {
         handler = new Handler(new Handler.Callback() {
             @Override

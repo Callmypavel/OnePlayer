@@ -155,10 +155,10 @@ public class Music extends BaseObservable implements Parcelable {
         setSecondItems(music.getSecondItems());
     }
     public Bitmap getAlbumBitmap(Context context){
-        //Log.v("Music","getAlbumBitmap()拿url"+url);
+        LogTool.log("Music","getAlbumBitmap()拿url"+url);
         Bitmap bitmap = OneMusicloader.getAlbumArt(url);
         if(bitmap==null){
-            //Log.v("Music","娶不到专辑图");
+            LogTool.log("Music","娶不到专辑图");
             return BitmapFactory.decodeResource(context.getResources(),R.drawable.music);
         }
         return bitmap;
