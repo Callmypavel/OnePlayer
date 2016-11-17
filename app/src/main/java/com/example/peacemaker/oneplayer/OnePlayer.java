@@ -1,16 +1,31 @@
 package com.example.peacemaker.oneplayer;
 
+import android.media.AudioFormat;
+import android.media.AudioManager;
+import android.media.AudioTrack;
+import android.media.MediaCodec;
+import android.media.MediaExtractor;
+import android.media.MediaFormat;
 import android.media.MediaPlayer;
 import android.media.audiofx.BassBoost;
+import android.media.audiofx.EnvironmentalReverb;
 import android.media.audiofx.Equalizer;
 import android.media.audiofx.PresetReverb;
+import android.media.audiofx.Virtualizer;
 import android.media.audiofx.Visualizer;
+import android.os.Build;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.widget.SeekBar;
+import android.widget.TextView;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.net.URI;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -20,15 +35,13 @@ import java.util.TimerTask;
  */
 public class OnePlayer implements Serializable {
     private static final long serialVersionUID = 1L;
-    final static int cycle = 1;
-    final static int looping = 2;
-    final static int random = 3;
-    public Boolean isStarted = false;
+    private final static int cycle = 1;
+    private final static int looping = 2;
+    private final static int random = 3;
+    public boolean isStarted = false;
     public int playMode = cycle;
     private int musicNumber;
-    //private MainActivity activity;
     private int currentPosition = 0;
-    //private Context context;
     private Handler handler;
     private int currentTime = 0;
     private int duration = 0;
@@ -36,18 +49,26 @@ public class OnePlayer implements Serializable {
     private Equalizer equalizer;
     private BassBoost bassBoost;
     private PresetReverb presetReverb;
+    private Virtualizer virtualizer;
+    private EnvironmentalReverb environmentalReverb;
     private Timer timer;
     private TimerTask timerTask;
-    public MediaPlayer mediaPlayer;
+    private MediaPlayer mediaPlayer;
     private ArrayList<Music> playList;
     private OnMusicListener onMusicListener;
+    private OneConfig oneConfig;
+    private boolean isUsingAudioTrack;
+    private AudioTrack audioTrack;
+    private MusicDecoder musicDecoder;
 
     public OnePlayer(ArrayList<Music> playList,int currentPosition){
         setPlayList(playList,currentPosition);
     }
-    public OnePlayer(ArrayList<Music> playList,int currentPosition,OnMusicListener onMusicListener){
+    public OnePlayer(OneConfig oneConfig,ArrayList<Music> playList,int currentPosition,OnMusicListener onMusicListener,boolean isUsingAudioTrack){
+        this.oneConfig = oneConfig;
         this.onMusicListener = onMusicListener;
         setPlayList(playList,currentPosition);
+        this.isUsingAudioTrack = isUsingAudioTrack;
     }
 
 
@@ -58,7 +79,12 @@ public class OnePlayer implements Serializable {
     public PresetReverb getPresetReverb() {
         return presetReverb;
     }
-
+    public Virtualizer getVirtualizer() {
+        return virtualizer;
+    }
+    public EnvironmentalReverb getEnvironmentalReverb() {
+        return environmentalReverb;
+    }
     public void init(Music music) {
         Log.v("OnePlayer","init()");
         if(onMusicListener!=null){
@@ -66,96 +92,144 @@ public class OnePlayer implements Serializable {
             Log.v("OnePlayer","init()"+music.getDisplayName());
         }
         try {
-            if(mediaPlayer==null){
-<<<<<<< HEAD
-                initMediaPlayer();
-                initSoundEffects();
-=======
-                mediaPlayer = new MediaPlayer();
-                mediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
-                    @Override
-                    public void onPrepared(MediaPlayer mp) {
-                        initHandler();
-                        initTimer();
-                        mediaPlayer.start();
-
-                        if (onMusicListener != null) {
-                            duration = mediaPlayer.getDuration();
-                            onMusicListener.onPrepared(duration);
-                        }
-
-                    }
-                });
-                mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
-                    @Override
-                    public void onCompletion(MediaPlayer mp) {
-                        if (onMusicListener != null) {
-                            onMusicListener.onComple();
-                        }
-                        changeMusic(true);
-                    }
-                });
-                mediaPlayer.setOnBufferingUpdateListener(new MediaPlayer.OnBufferingUpdateListener() {
-                    @Override
-                    public void onBufferingUpdate(MediaPlayer mp, int percent) {
-                    }
-                });
-                mediaPlayer.setOnErrorListener(new MediaPlayer.OnErrorListener() {
-                    @Override
-                    public boolean onError(MediaPlayer mp, int what, int extra) {
-                        if(onMusicListener!=null){
-                            onMusicListener.onError(what,extra);
-                        }
-                        return false;
-                    }
-                });
-                visualizer = new Visualizer(mediaPlayer.getAudioSessionId());
-                visualizer.setCaptureSize(64);
-                visualizer.setDataCaptureListener(new Visualizer.OnDataCaptureListener() {
-                    @Override
-                    public void onWaveFormDataCapture(Visualizer visualizer, byte[] waveform, int samplingRate) {
-                    }
-
-                    @Override
-                    public void onFftDataCapture(Visualizer visualizer, byte[] fft, int samplingRate) {
-                        if (onMusicListener != null) {
-                            onMusicListener.onWaveForm(fft);
-                        }
-                    }
-                }, Visualizer.getMaxCaptureRate()/2, false, true);
-                equalizer = new Equalizer(0,mediaPlayer.getAudioSessionId());
-
->>>>>>> parent of 530f60b... 增加测试功能均衡器
+            if(!isUsingAudioTrack){
+                if(mediaPlayer==null){
+                    initMediaPlayer();
+                    initSoundEffects();
+                }
+                mediaPlayer.reset();
+                mediaPlayer.setDataSource(music.getUrl());
+            }else {
+                if(audioTrack==null){
+                    initAudioTrack(music.getUrl());
+                    initSoundEffects();
+                }
             }
-            mediaPlayer.reset();
-            mediaPlayer.setDataSource(music.getUrl());
             isStarted = false;
 
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
+    private void initAudioTrack(String url){
+        if(Build.VERSION.SDK_INT>=21){
+            try {
+                MusicDecoder.asynchronousDecode(new MediaCodec.Callback() {
+                    @Override
+                    public void onInputBufferAvailable(MediaCodec codec, int index) {
+
+                    }
+
+                    @Override
+                    public void onOutputBufferAvailable(MediaCodec codec, int index, MediaCodec.BufferInfo info) {
+
+                    }
+
+                    @Override
+                    public void onError(MediaCodec codec, MediaCodec.CodecException e) {
+
+                    }
+
+                    @Override
+                    public void onOutputFormatChanged(MediaCodec codec, MediaFormat format) {
+
+                    }
+                },url);
+            }catch (IOException e) {
+
+            }
+        }
+        audioTrack = new AudioTrack(
+                AudioManager.STREAM_MUSIC,
+                MusicDecoder.getSampleRate(),
+                AudioFormat.CHANNEL_OUT_STEREO,
+                MusicDecoder.getFormat(),
+                AudioTrack.getMinBufferSize(MusicDecoder.getSampleRate(), AudioFormat.CHANNEL_OUT_STEREO, MusicDecoder.getFormat()),
+                AudioTrack.MODE_STREAM
+        );
+    }
+
 
     private void initSoundEffects() {
-        visualizer = new Visualizer(mediaPlayer.getAudioSessionId());
+        int sessionId;
+        if(!isUsingAudioTrack){
+            sessionId = mediaPlayer.getAudioSessionId();
+        }else {
+            sessionId = audioTrack.getAudioSessionId();
+        }
+        visualizer = new Visualizer(sessionId);
+        equalizer = new Equalizer(0,sessionId);
+        bassBoost = new BassBoost(0,sessionId);
+        presetReverb = new PresetReverb(0,sessionId);
+        virtualizer = new Virtualizer(0,sessionId);
+        environmentalReverb = new EnvironmentalReverb(0,0);
+        //mediaPlayer.attachAuxEffect(environmentalReverb.getId());
         visualizer.setCaptureSize(64);
         visualizer.setDataCaptureListener(new Visualizer.OnDataCaptureListener() {
             @Override
             public void onWaveFormDataCapture(Visualizer visualizer, byte[] waveform, int samplingRate) {
+
             }
 
             @Override
             public void onFftDataCapture(Visualizer visualizer, byte[] fft, int samplingRate) {
+                LogTool.log("OnePlayer","fft");
                 if (onMusicListener != null) {
                     onMusicListener.onWaveForm(fft);
                 }
             }
         }, Visualizer.getMaxCaptureRate()/2, false, true);
         LogTool.log("OnePlayer","visualizer已被唤醒，魔王再临");
-        equalizer = new Equalizer(0,mediaPlayer.getAudioSessionId());
-        bassBoost = new BassBoost(0,mediaPlayer.getAudioSessionId());
-        presetReverb = new PresetReverb(0,mediaPlayer.getAudioSessionId());
-        activateSoundEffects(true);
+        if(oneConfig.getBassBoostStrenth()==-1){
+            oneConfig.setBassBoostStrenth(bassBoost.getRoundedStrength());
+        }
+        if(oneConfig.getPresetReverb()==-1){
+            oneConfig.setPresetReverb(presetReverb.getPreset());
+        }
+        if(oneConfig.getVirtualizerStrenth()==-1){
+            oneConfig.setVirtualizerStrenth(virtualizer.getRoundedStrength());
+        }
+        if(oneConfig.getBandLevels().size()==0){
+            short bandNumber = equalizer.getNumberOfBands();
+            ArrayList<Integer> temp = new ArrayList<>();
+            for (short i = 0; i < bandNumber; i++) {
+                temp.add((int)equalizer.getBandLevel(i));
+            }
+            oneConfig.setBandLevels(temp);
+        }
+        EnvironmentReverbConfig config = oneConfig.getEnvironmentReverbConfig();
+        if(config.getDecayTime()==-1){
+            config.setDecayTime(environmentalReverb.getDecayTime());
+        }
+        if(config.getDecayHFTime()==-1){
+            config.setDecayHFTime(environmentalReverb.getDecayHFRatio());
+        }
+        if(config.getDensity()==-1){
+            config.setDensity(environmentalReverb.getDensity());
+        }
+        if(config.getDiffusion()==-1){
+            config.setDiffusion(environmentalReverb.getDiffusion());
+        }
+        if(config.getReflectionsDelay()==-1){
+            config.setReflectionsDelay(environmentalReverb.getReflectionsDelay());
+        }
+        if(config.getReflectionsLevel()==-1){
+            config.setReflectionsLevel(environmentalReverb.getReflectionsLevel());
+        }
+        if(config.getReverbDelay()==-1){
+            config.setReverbDelay(environmentalReverb.getReverbDelay());
+        }
+        if(config.getReverbLevel()==-1){
+            config.setReverbLevel(environmentalReverb.getReverbLevel());
+        }
+        if(config.getRoomLevel()==-1){
+            config.setRoomLevel(environmentalReverb.getRoomLevel());
+        }
+        if(config.getRoomHFLevel()==-1){
+            config.setRoomHFLevel(environmentalReverb.getRoomHFLevel());
+        }
+        oneConfig.setEnvironmentReverbConfig(config);
+        onMusicListener.onSoundEffectLoaded(oneConfig);
     }
 
     private void initMediaPlayer() {
@@ -200,45 +274,68 @@ public class OnePlayer implements Serializable {
     }
 
     protected void play(){
-        if(isStarted){
-            Log.v("OnePlayer","已经开始");
-            if(mediaPlayer.isPlaying()){
-                Log.v("OnePlayer","正在播放，暂停音乐");
-                pause();
-<<<<<<< HEAD
-                activateSoundEffects(false);
-=======
-                visualizer.setEnabled(false);
->>>>>>> parent of 530f60b... 增加测试功能均衡器
-                if (onMusicListener != null) {
-                    onMusicListener.onPause();
+        if(!isUsingAudioTrack){
+            if(isStarted){
+                Log.v("OnePlayer","已经开始");
+                if(mediaPlayer.isPlaying()){
+                    Log.v("OnePlayer","正在播放，暂停音乐");
+                    pause();
+                    activateSoundEffects(false);
+                    if (onMusicListener != null) {
+                        onMusicListener.onPause();
+                    }
+                }else {
+                    Log.v("OnePlayer","暂停中，开始音乐");
+                    mediaPlayer.start();
+                    if (onMusicListener != null) {
+                        onMusicListener.onContinue();
+                    }
+                    activateSoundEffects(true);
                 }
             }else {
-                Log.v("OnePlayer","暂停中，开始音乐");
-                mediaPlayer.start();
-                if (onMusicListener != null) {
-                    onMusicListener.onContinue();
+                Log.v("OnePlayer","尚未开始,重设");
+                currentTime = 0;
+                try {
+                    mediaPlayer.prepareAsync();
+                    activateSoundEffects(true);
+                }catch (Exception e){
                 }
-<<<<<<< HEAD
-                activateSoundEffects(true);
-=======
-                visualizer.setEnabled(true);
->>>>>>> parent of 530f60b... 增加测试功能均衡器
+                isStarted = true;
             }
         }else {
-            Log.v("OnePlayer","尚未开始,重设");
-            currentTime = 0;
-            try {
-                mediaPlayer.prepareAsync();
-<<<<<<< HEAD
-                activateSoundEffects(true);
-=======
-                visualizer.setEnabled(true);
->>>>>>> parent of 530f60b... 增加测试功能均衡器
-            }catch (Exception e){
+            if(isStarted){
+                Log.v("OnePlayer","已经开始(AudioTrack模式)");
+                if(audioTrack.getPlayState()==AudioTrack.PLAYSTATE_PLAYING){
+                    Log.v("OnePlayer","正在播放，暂停音乐(AudioTrack模式)");
+                    audioTrack.pause();
+                    activateSoundEffects(false);
+                    if (onMusicListener != null) {
+                        onMusicListener.onPause();
+                    }
+                }else if(audioTrack.getPlayState()==AudioTrack.PLAYSTATE_PAUSED){
+                    Log.v("OnePlayer","暂停中，开始音乐(AudioTrack模式)");
+                    audioTrack.play();
+                    byte[] chunk = musicDecoder.getChunk();
+                    audioTrack.write(chunk,0,chunk.length);
+                    if (onMusicListener != null) {
+                        onMusicListener.onContinue();
+                    }
+                    activateSoundEffects(true);
+                }
+            }else {
+                Log.v("OnePlayer","尚未开始,重设(AudioTrack模式)");
+                currentTime = 0;
+                try {
+                    byte[] chunk = musicDecoder.getChunk();
+                    LogTool.log("OnePlayer","play()检查Chunk"+chunk);
+                    audioTrack.write(chunk,0,chunk.length);
+                    activateSoundEffects(true);
+                }catch (Exception e){
+                }
+                isStarted = true;
             }
-            isStarted = true;
         }
+
     }
 
     private void activateSoundEffects(boolean enabled) {
@@ -246,6 +343,8 @@ public class OnePlayer implements Serializable {
         equalizer.setEnabled(enabled);
         bassBoost.setEnabled(enabled);
         presetReverb.setEnabled(enabled);
+        virtualizer.setEnabled(enabled);
+        environmentalReverb.setEnabled(enabled);
     }
 
     protected void initHandler() {

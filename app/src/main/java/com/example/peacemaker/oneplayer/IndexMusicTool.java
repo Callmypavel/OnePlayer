@@ -35,12 +35,12 @@ public class IndexMusicTool {
                 String initial = MandarinTool.getInitial(music.getDisplayName());
                 IndexedMusic indexedMusic = getByInitial(initial, indexedMusics);
                 if (indexedMusic == null) {
-                    Log.v("IndexMusicTool", "新增" + initial + "字头" + music.getDisplayName());
+                    //Log.v("IndexMusicTool", "新增" + initial + "字头" + music.getDisplayName());
                     ArrayList<Music> musics = new ArrayList<>();
                     musics.add(music);
                     indexedMusics.add(new IndexedMusic(initial, musics));
                 } else {
-                    Log.v("IndexMusicTool", "更新" + initial + "字头" + music.getDisplayName());
+                   // Log.v("IndexMusicTool", "更新" + initial + "字头" + music.getDisplayName());
                     indexedMusic.addMusic(music);
                 }
             }

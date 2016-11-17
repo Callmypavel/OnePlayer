@@ -155,14 +155,45 @@ public class DatabaseOperator extends SQLiteOpenHelper {
     }
     public static OneConfig loadConfig(Context context){
         SharedPreferences sharedPreferences = context.getSharedPreferences("Config",0);
-        int themeColor = sharedPreferences.getInt("ThemeColor",Color.parseColor("#fd4c5b"));
-        OneConfig oneConfig = new OneConfig(themeColor);
+        String bandLevelsString = sharedPreferences.getString("BandLevels","");
+        LogTool.log("JsonUtil", "loadConfig()读出来的"+bandLevelsString);
+        ArrayList<Integer> bandLevels = JsonUtil.getBandLevels(bandLevelsString);
+        OneConfig oneConfig = new OneConfig();
+        oneConfig.setThemeColor(sharedPreferences.getInt("ThemeColor",Color.parseColor("#fd4c5b")));
+        oneConfig.setBassBoostStrenth(sharedPreferences.getInt("BassBoost",-1));
+        oneConfig.setPresetReverb(sharedPreferences.getInt("PersetReverb",-1));
+        oneConfig.setVirtualizerStrenth(sharedPreferences.getInt("Virtualizer",-1));
+        oneConfig.setBandLevels(bandLevels);
+        EnvironmentReverbConfig config = new EnvironmentReverbConfig();
+        config.setDecayTime(sharedPreferences.getInt("DecayTime",0));
+        config.setDecayHFTime(sharedPreferences.getInt("DecayHFTime",0));
+        config.setDiffusion((short)sharedPreferences.getInt("Diffusion",0));
+        config.setReflectionsDelay(sharedPreferences.getInt("ReflectionsDelay",0));
+        config.setReflectionsLevel((short)sharedPreferences.getInt("ReflectionsLevel",0));
+        config.setReverbLevel((short)sharedPreferences.getInt("ReverbLevel",0));
+        config.setRoomHFLevel((short)sharedPreferences.getInt("RoomHFLevel",0));
+        config.setRoomLevel((short)sharedPreferences.getInt("RoomLevel",0));
+        LogTool.log("DatabaseOperator","loadConfig()"+sharedPreferences.getInt("RoomLevel",0));
+        oneConfig.setEnvironmentReverbConfig(config);
         return oneConfig;
     }
     public static void saveConfig(OneConfig oneConfig,Context context){
         SharedPreferences sharedPreferences = context.getSharedPreferences("Config",0);
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putInt("ThemeColor", oneConfig.getThemeColor());
+        editor.putInt("BassBoost",oneConfig.getBassBoostStrenth());
+        editor.putInt("PersetReverb",oneConfig.getPresetReverb());
+        editor.putInt("Virtualizer",oneConfig.getVirtualizerStrenth());
+        editor.putString("BandLevels",JsonUtil.getBandLevelsString(oneConfig.getBandLevels()));
+        editor.putInt("DecayTime",oneConfig.getEnvironmentReverbConfig().getDecayTime());
+        editor.putInt("DecayHFTime",oneConfig.getEnvironmentReverbConfig().getDecayHFTime());
+        editor.putInt("Diffusion",oneConfig.getEnvironmentReverbConfig().getDiffusion());
+        editor.putInt("ReflectionsDelay",oneConfig.getEnvironmentReverbConfig().getReflectionsDelay());
+        editor.putInt("ReflectionsLevel",oneConfig.getEnvironmentReverbConfig().getReflectionsLevel());
+        editor.putInt("ReverbLevel",oneConfig.getEnvironmentReverbConfig().getReverbLevel());
+        editor.putInt("RoomHFLevel",oneConfig.getEnvironmentReverbConfig().getRoomHFLevel());
+        editor.putInt("RoomLevel",oneConfig.getEnvironmentReverbConfig().getRoomLevel());
+        LogTool.log("DatabaseOperator","saveConfig()"+oneConfig.getEnvironmentReverbConfig().getRoomLevel());
         editor.apply();
     }
 //    public void saveOrderMode(int OrderMode,String tableName,SharedPreferences sharedPreferences){

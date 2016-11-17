@@ -70,12 +70,9 @@ public class OneColorSelectActivity extends AppCompatActivity {
         blue = Color.blue(initColor);
         OneStatusUtil.setStatusColor(this,initColor);
         binding.setOneConfig(oneApplication.getOneConfig());
-        redSeekBar.setProgress(red);
-        greenSeekBar.setProgress(green);
-        blueSeekBar.setProgress(blue);
-        redText.setText(StringUtil.getString(OneColorSelectActivity.this,R.string.color_red,red));
-        greenText.setText(StringUtil.getString(OneColorSelectActivity.this,R.string.color_green,green));
-        blueText.setText(StringUtil.getString(OneColorSelectActivity.this,R.string.color_blue,blue));
+//        redText.setText(StringUtil.getString(OneColorSelectActivity.this,R.string.color_red,red));
+//        greenText.setText(StringUtil.getString(OneColorSelectActivity.this,R.string.color_green,green));
+//        blueText.setText(StringUtil.getString(OneColorSelectActivity.this,R.string.color_blue,blue));
         redSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
@@ -137,7 +134,10 @@ public class OneColorSelectActivity extends AppCompatActivity {
 
             }
         });
-        //bandSeekBar.setProgress(oneApplication.getOnePlayer().getEqualizer());
+        redSeekBar.setProgress(red);
+        greenSeekBar.setProgress(green);
+        blueSeekBar.setProgress(blue);
+
 
 
         applyThemeButton.setOnClickListener(new View.OnClickListener() {
@@ -179,5 +179,11 @@ public class OneColorSelectActivity extends AppCompatActivity {
                 OneColorSelectActivity.this.finish();
             }
         });
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+
     }
 }

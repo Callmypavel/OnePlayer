@@ -105,14 +105,14 @@ public class IndexView extends View implements View.OnTouchListener,GestureDetec
         }
         nextReference = 1;
         previousReference = 0;
-        Log.v("IndexView","初始化下个参考点"+nextReference);
+        //Log.v("IndexView","初始化下个参考点"+nextReference);
         invalidate();
     }
 
     public void setRecyclerView(RecyclerView recyclerView, final boolean isScrollBy) {
         this.recyclerView = recyclerView;
         this.isScrollBy = isScrollBy;
-        Log.v("IndexView","把isScrollBy设为"+isScrollBy+this.isScrollBy);
+        //Log.v("IndexView","把isScrollBy设为"+isScrollBy+this.isScrollBy);
         recyclerView.setOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
@@ -124,14 +124,14 @@ public class IndexView extends View implements View.OnTouchListener,GestureDetec
                 super.onScrolled(recyclerView, dx, dy);
                 if(!isAutoScolling){
                 int position = ((LinearLayoutManager)recyclerView.getLayoutManager()).findLastVisibleItemPosition();
-                Log.v("IndexView","最后可见位置"+position);
+                //Log.v("IndexView","最后可见位置"+position);
                 if(position>=positionIndex[nextReference]){
                     indexY+=1;
                     if(indexY>max){
                         indexY = max;
                     }
-                    Log.v("IndexView","更新下个indexY"+indexY);
-                    Log.v("IndexView","更新下个参考点"+nextReference);
+                    //Log.v("IndexView","更新下个indexY"+indexY);
+                    //Log.v("IndexView","更新下个参考点"+nextReference);
                 }else if(position<positionIndex[previousReference]){
                     indexY-=1;
                     if(indexY<0){
@@ -157,8 +157,8 @@ public class IndexView extends View implements View.OnTouchListener,GestureDetec
                 }
                 //findIndex(position);
 
-                    Log.v("IndexView","滚动距离"+distance);
-                    Log.v("IndexView","indexY"+indexY);
+                   // Log.v("IndexView","滚动距离"+distance);
+                   // Log.v("IndexView","indexY"+indexY);
                     autoScoll();
                 }
                 invalidate();
@@ -178,14 +178,14 @@ public class IndexView extends View implements View.OnTouchListener,GestureDetec
         }else {
             insert = -Arrays.binarySearch(positionIndex,position)-3;
         }
-        Log.v("IndexView","二分搜索结果:"+insert);
+        //Log.v("IndexView","二分搜索结果:"+insert);
         if(insert>=0) {
             indexY = insert;
         }else if(insert<0) {
             indexY = -insert;
             indexY-=2;
         }
-        Log.v("IndexView","插入点position:"+position+",index"+insert+",indexY"+indexY);
+        //Log.v("IndexView","插入点position:"+position+",index"+insert+",indexY"+indexY);
         //updateMiddle(max/2,position);
     }
     private void autoScoll(){
@@ -216,11 +216,11 @@ public class IndexView extends View implements View.OnTouchListener,GestureDetec
     public boolean onTouch(View view, MotionEvent motionEvent) {
         if(!isNull) {
             float y = motionEvent.getY();
-            Log.v("IndexView", "index:y" + y);
-            Log.v("IndexView", "index:offsetY" + offsetY);
-            Log.v("IndexView", "index:unitHeight" + unitHeight);
+            //Log.v("IndexView", "index:y" + y);
+            //Log.v("IndexView", "index:offsetY" + offsetY);
+            //Log.v("IndexView", "index:unitHeight" + unitHeight);
             indexY = (int) ((y - offsetY) / unitHeight);
-            Log.v("IndexView", "index:" + indexY);
+            //Log.v("IndexView", "index:" + indexY);
             if (!isAutoScolling) {
                 autoScoll();
             }
@@ -235,8 +235,8 @@ public class IndexView extends View implements View.OnTouchListener,GestureDetec
                     indexY = 0;
                 }
                 int index = positionIndex[indexY];
-                LogTool.log("IndexView", "寻找的最终Index" + index);
-                LogTool.log("IndexView", "寻找的最终Index索引" + indexY);
+                //LogTool.log("IndexView", "寻找的最终Index" + index);
+                //LogTool.log("IndexView", "寻找的最终Index索引" + indexY);
                 moveToPosition(index);
 //            int firstVisiblePosition = linearLayoutManager.findFirstCompletelyVisibleItemPosition();
 //            int top = linearLayoutManager.getPaddingTop();
@@ -272,15 +272,15 @@ public class IndexView extends View implements View.OnTouchListener,GestureDetec
         recyclerView.scrollBy(0,top);
         int first = linearLayoutManager.findFirstCompletelyVisibleItemPosition();
         int last = linearLayoutManager.findLastVisibleItemPosition();
-        Log.v("IndexView","第一位置"+first+"末尾位置"+last+"顶部距离"+top);
-        Log.v("IndexView","isScrollBy"+isScrollBy);
+        //Log.v("IndexView","第一位置"+first+"末尾位置"+last+"顶部距离"+top);
+        //Log.v("IndexView","isScrollBy"+isScrollBy);
         if(isScrollBy){
             isAutoScolling = true;
             recyclerView.scrollBy(0,(index-first)*childHeight);
             isAutoScolling = false;
         }else {
             isAutoScolling = true;
-            Log.v("IndexView","滚去位置"+index);
+            //Log.v("IndexView","滚去位置"+index);
             recyclerView.scrollToPosition(index);
             isAutoScolling = false;
         }
@@ -356,7 +356,7 @@ public class IndexView extends View implements View.OnTouchListener,GestureDetec
         for(int i=0;i<indexedMusics.size();i++){
             IndexedMusic indexedMusic = indexedMusics.get(i);
             if(i==indexY){
-                Log.v("IndexView","drawText()选中"+i+","+indexedMusic.getIndexName()+"为天选");
+                //Log.v("IndexView","drawText()选中"+i+","+indexedMusic.getIndexName()+"为天选");
                 canvas.drawText(indexedMusic.getIndexName(),unitWidth*0.5f,unitHeight*(i+0.5f)+offsetY,highlightPaint);
             }else {
                 canvas.drawText(indexedMusic.getIndexName(),unitWidth*0.5f,unitHeight*(i+0.5f)+offsetY,paint);

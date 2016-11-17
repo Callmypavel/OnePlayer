@@ -22,6 +22,7 @@
     <string name="color_green">绿%1$d</string>
     <string name="color_blue">蓝%1$d</string>
     <string name="apply_theme">应用并保存当前主题色</string>
+    <string name="save_sound_effects">保存音效配置</string>
     <string name="preview">效果预览</string>
     <string name="exit">退出</string>
     <string name="test">测试功能</string>
@@ -31,17 +32,27 @@
     <string name="StopEcho">Stop</string>
     <string name="GetParam">Get Param</string>
     <string name="NeedRecordAudioPermission">"This sample needs RECORD_AUDIO permission"</string>
-<<<<<<< HEAD
     <string name="equalizer">均衡器</string>
     <string name="frequency">%1$dhz</string>
     <string name="decibel">%1$ddb</string>
     <string name="bass">重低音</string>
-    <string name="bassvalue">%1$d</string>
+    <string name="value">%1$d</string>
     <string name="preset">音场</string>
+    <string name="virtualizer">虚拟</string>
+    <string name="decay">衰减时间</string>
+    <string name="decayHF">高频衰减时间</string>
+    <string name="timeMeasurement">%1$dms</string>
+    <string name="density">模态密度</string>
+    <string name="diffusion">扩散系数</string>
+    <string name="reflectionsDelay">反射延迟</string>
+    <string name="reflectionLevel">反射等级</string>
+    <string name="reverbDelay">混响延迟</string>
+    <string name="reverbLevel">混响等级</string>
+    <string name="roomHFLevel">高频房间等级</string>
+    <string name="roomLevel">房间等级</string>
+    <string name="send">发送</string>
+    <string name="send_content">待发送内容</string>
+    <string name="send_url">发送地址</string>
 
 
-
-
-=======
->>>>>>> parent of 530f60b... 增加测试功能均衡器
 </resources>

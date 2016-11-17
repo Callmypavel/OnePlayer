@@ -7,6 +7,9 @@ import android.graphics.drawable.ColorDrawable;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.SeekBar;
+import android.widget.Spinner;
+import android.widget.SpinnerAdapter;
 
 import java.util.ArrayList;
 
@@ -71,6 +74,11 @@ public class OneClickHandler {
         view.setBackgroundColor(color);
         view.invalidate();
     }
+//    @BindingAdapter("android:progress")
+//    public static void setProgress(SeekBar seekBar, int progress){
+//        seekBar.setProgress(progress);
+//    }
+
 
     public void onButtonClick(View view){
         OneApplication oneApplication = (OneApplication)(view.getContext().getApplicationContext());

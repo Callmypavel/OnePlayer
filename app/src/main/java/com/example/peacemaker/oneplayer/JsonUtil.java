@@ -1,11 +1,13 @@
 package com.example.peacemaker.oneplayer;
 
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.CompressFormat;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.support.design.widget.Snackbar;
 import android.util.Base64;
 import android.util.Log;
 import android.webkit.URLUtil;
@@ -25,6 +27,7 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.HttpContext;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -61,6 +64,56 @@ public class JsonUtil {
 	}
 	public JsonUtil() {
 	}
+	public static String getBandLevelsString(ArrayList<Integer> bandLevels){
+		JSONObject jsonObject = new JSONObject();
+		JSONArray jsonArray = new JSONArray();
+		try {
+			for (int i = 0; i < bandLevels.size(); i++) {
+				jsonArray.put(i, bandLevels.get(i));
+			}
+			jsonObject.put("bandLevels",jsonArray);
+		} catch (Exception e) {
+			LogTool.log("JsonUtil", "json数组错误");
+		}
+		LogTool.log("JsonUtil", "getBandLevelsString()读到的，准备存入"+jsonObject.toString());
+		return jsonObject.toString();
+	}
+	public static ArrayList<Integer> getBandLevels(String jsonString){
+		ArrayList<Integer> bandLevels = new ArrayList<>();
+		JSONObject jsonObject;
+		JSONArray jsonArray;
+		try {
+			jsonObject = new JSONObject(jsonString);
+			jsonArray = jsonObject.getJSONArray("bandLevels");
+			bandLevels = new ArrayList<>();
+			for (int i = 0; i < jsonArray.length(); i++) {
+				bandLevels.add(jsonArray.getInt(i));
+			}
+
+		}catch (Exception e){
+			LogTool.log("JsonUtil","非法json字符串");
+		}
+		return bandLevels;
+
+	}
+	public static void sendContent(String string, String url, Context context) throws IOException{
+		URL url1 = new URL(url);
+		HttpURLConnection httpURLConnection = (HttpURLConnection)url1.openConnection();
+		httpURLConnection.setRequestMethod("POST");
+		httpURLConnection.setDoOutput(true);
+		httpURLConnection.setDoInput(true);
+		httpURLConnection.connect();
+		OutputStream outputStream = httpURLConnection.getOutputStream();
+		outputStream.write(string.getBytes());
+		BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(httpURLConnection.getInputStream()));
+		StringBuilder stringBuilder = new StringBuilder();
+		for (String s = bufferedReader.readLine(); s != null; s = bufferedReader
+				.readLine()) {
+			stringBuilder.append(s);
+		}
+		Toast.makeText(context,"状态码"+httpURLConnection.getResponseCode()+" "+stringBuilder.toString(),Toast.LENGTH_SHORT).show();
+	}
+
 
 	void sendJson(final JSONObject jsonObjectin, final String url) {
 		Log.v("JsonUrl","检查url"+url);
@@ -107,7 +160,6 @@ public class JsonUtil {
 			stringBuilder = new StringBuilder();
 			for (String s = bufferedReader.readLine(); s != null; s = bufferedReader
 					.readLine()) {
-
 				stringBuilder.append(s);
 			}
 			Log.v("状态码", httpURLConnection.getResponseCode() + "");

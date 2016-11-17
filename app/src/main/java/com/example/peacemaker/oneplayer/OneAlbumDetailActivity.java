@@ -66,12 +66,12 @@ public class OneAlbumDetailActivity extends OneActivity {
 //        Log.v("OneSingerDetailActivity","initialize()检查目标音乐"+music.getMiddleAlbumArt(this));
         binding = DataBindingUtil.setContentView(this, R.layout.one_album_detail_activity);
         ButterKnife.bind(this);
-        binding.setOneConfig(oneApplication.getOneConfig());
         binding.setMusicState(oneApplication.musicState);
         binding.setMusic(oneApplication.currentMusic);
         binding.setAlbumBitmap(music.getSecondItems().get(0).getMiddleAlbumArt(this));
         binding.setHandler(new OneClickHandler());
         binding.setDisplayName(music.getDisplayName());
+        binding.setOneConfig(oneApplication.getOneConfig());
         //KitKatTool.setCollapsingToolbar(this,coordinatorLayout,appBarLayout,imageView,toolbar);
         collapsingToolbarLayout.setCollapsedTitleTextColor(Color.WHITE);
         collapsingToolbarLayout.setExpandedTitleColor(Color.WHITE);

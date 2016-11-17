@@ -247,6 +247,7 @@ public class MainActivity extends OneActivity{
                 }else if (title.equals("退出应用")){
                     oneApplication.closeNotification();
                     finish();
+                    oneApplication.destroy();
                 }else if (title.equals("正在打印")){
                     //menuItem.setChecked(false);
                     if(oneLogger!=null){
@@ -645,7 +646,7 @@ public class MainActivity extends OneActivity{
         intent.setClass(MainActivity.this,OneSingerDetailActivity.class);
         startActivity(intent);
     }
-    public void toAblumDetail(){
+    public void toAlbumDetail(){
         Intent intent = new Intent();
         intent.setClass(MainActivity.this,OneAlbumDetailActivity.class);
         startActivity(intent);
@@ -656,7 +657,7 @@ public class MainActivity extends OneActivity{
         if(currentFragmentPosition==0){
             toSingerDetail();
         }else if(currentFragmentPosition==1) {
-            toAblumDetail();
+            toAlbumDetail();
         }
     }
 

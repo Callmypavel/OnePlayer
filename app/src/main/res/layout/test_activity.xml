@@ -28,7 +28,6 @@
                 android:background="@{oneConfig.themeColor}" >
             </android.support.v7.widget.Toolbar>
         </android.support.design.widget.AppBarLayout>
-<<<<<<< HEAD
         <!--<RelativeLayout-->
             <!--android:layout_centerHorizontal="true"-->
             <!--android:background="@{oneConfig.themeColor}"-->
@@ -39,84 +38,90 @@
             <!--android:layout_height="200dp">-->
 
         <!--</RelativeLayout>-->
-
-        <TextView
-            android:padding="10dp"
-            android:id="@+id/equalizer_field_tint"
+        <ScrollView
             android:layout_below="@id/id_appbarlayout"
-            android:text="@string/equalizer"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
-        <LinearLayout
-            android:layout_below="@+id/equalizer_field_tint"
-            android:orientation="vertical"
-            android:layout_centerHorizontal="true"
-            android:id="@+id/equailizer_field"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content">
-        </LinearLayout>
-        <LinearLayout
-            android:orientation="vertical"
-            android:layout_below="@id/equailizer_field"
-            android:id="@+id/bassboost_field"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content">
-        </LinearLayout>
-        <LinearLayout
-            android:orientation="vertical"
-            android:layout_below="@id/bassboost_field"
-            android:id="@+id/presetreverb_field"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content">
-        </LinearLayout>
-=======
-        <RelativeLayout
-            android:layout_centerHorizontal="true"
-            android:background="@{oneConfig.themeColor}"
-            android:layout_marginTop="50dp"
-            android:layout_below="@id/id_appbarlayout"
-            android:id="@+id/preview_layout"
-            android:layout_width="200dp"
-            android:layout_height="200dp">
-            <TextView
-                android:textColor="@color/WHITE"
-                android:layout_centerHorizontal="true"
-                android:layout_centerVertical="true"
-                android:text="@string/preview"
+            <RelativeLayout
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
+                android:layout_height="wrap_content">
+                <EditText
+                    android:hint="@string/send_content"
+                    android:id="@+id/content_edit_text"
+                    android:layout_width="150dp"
+                    android:layout_height="wrap_content" />
+                <EditText
+                    android:hint="@string/send_url"
+                    android:layout_toEndOf="@+id/content_edit_text"
+                    android:id="@+id/address_edit_text"
+                    android:layout_width="150dp"
+                    android:layout_height="wrap_content" />
+                <Button
+                    android:onClick="sendUrl"
+                    android:text="@string/send"
+                    android:layout_toEndOf="@+id/address_edit_text"
+                    android:id="@+id/send_button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+                <TextView
+                    android:layout_below="@+id/send_button"
+                    android:padding="10dp"
+                    android:id="@+id/equalizer_field_tint"
+                    android:text="@string/equalizer"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+                <LinearLayout
+                    android:layout_below="@+id/equalizer_field_tint"
+                    android:orientation="vertical"
+                    android:layout_centerHorizontal="true"
+                    android:id="@+id/equailizer_field"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content">
+                </LinearLayout>
+                <LinearLayout
+                    android:orientation="vertical"
+                    android:layout_below="@id/equailizer_field"
+                    android:id="@+id/bassboost_field"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content">
+                </LinearLayout>
+                <LinearLayout
+                    android:orientation="vertical"
+                    android:layout_below="@id/bassboost_field"
+                    android:id="@+id/presetreverb_field"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content">
+                </LinearLayout>
+                <LinearLayout
+                    android:orientation="vertical"
+                    android:layout_below="@id/presetreverb_field"
+                    android:id="@+id/virtualizer_field"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content">
+                </LinearLayout>
+                <LinearLayout
+                    android:orientation="vertical"
+                    android:layout_below="@id/virtualizer_field"
+                    android:id="@+id/environmental_reverb_field"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content">
+                </LinearLayout>
+                <Button
+                    android:background="@color/WHITE"
+                    android:layout_below="@id/environmental_reverb_field"
+                    android:onClick="saveEffect"
+                    android:id="@+id/save_sound_effects_button"
+                    android:text="@string/save_sound_effects"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+            </RelativeLayout>
 
-        </RelativeLayout>
+        </ScrollView>
 
-        <SeekBar
-            android:max="100"
-            android:layout_below="@id/preview_layout"
-            android:id="@+id/one_first_seekbar"
-            android:layout_width="300dp"
-            android:layout_height="50dp" />
->>>>>>> parent of 530f60b... 增加测试功能均衡器
 
-        <TextView
-            android:textSize="20sp"
-            android:text="band"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignTop="@id/one_first_seekbar"
-            android:layout_toRightOf="@+id/one_first_seekbar"
-            android:layout_toEndOf="@+id/one_first_seekbar"
-            />
 
-        <Button
-            android:layout_marginRight="20dp"
-            android:padding="20dp"
-            android:id="@+id/apply_button"
-            android:textColor="@{oneConfig.themeColor}"
-            android:background="#ffffff"
-            android:layout_alignParentEnd="true"
-            android:layout_alignParentRight="true"
-            android:layout_below="@id/one_first_seekbar"
-            android:text="保存band和LEVEL"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
+
+
+
     </RelativeLayout>
 </layout>

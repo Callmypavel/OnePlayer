@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:bind="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    >
+    <data>
+        <import type="android.graphics.Bitmap"/>
+        <import type="com.example.peacemaker.oneplayer.Music" />
+        <variable
+            name="music"
+            type="Music" />
+        <variable
+            name="songsnumber"
+            type="String"/>
+        <variable
+            name="image"
+            type="Bitmap"/>
+    </data>
+    <RelativeLayout
+        android:tag="@{music}"
+        android:orientation="vertical" android:layout_width="180dp"
+        android:layout_height="260dp">
+        <android.support.v7.widget.CardView
+            android:layout_margin="5dp"
+            android:layout_centerHorizontal="true"
+            android:layout_centerVertical="true"
+            android:layout_width="wrap_content"
+            android:layout_height="255dp">
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+                <ImageView
+                    android:layout_alignParentTop="true"
+                    android:scaleType="fitCenter"
+                    android:id="@+id/one_albumlist_album_image"
+                    android:layout_width="170dp"
+                    android:layout_height="170dp" />
+                <TextView
+                    android:paddingTop="8dp"
+                    android:paddingLeft="16dp"
+                    android:ellipsize="end"
+                    android:maxLines="1"
+                    android:layout_below="@id/one_albumlist_album_image"
+                    android:id="@+id/one_albumlist_album_name"
+                    android:text="@{music.displayName}"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+                <TextView
+                    android:paddingLeft="16dp"
+                    android:ellipsize="end"
+                    android:maxLines="1"
+                    android:layout_below="@+id/one_albumlist_album_name"
+                    android:id="@+id/one_albumlist_singer_name"
+                    android:text="@{music.secondItems.get(0).artist}"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+                <TextView
+                    android:paddingLeft="16dp"
+                    android:ellipsize="end"
+                    android:maxLines="1"
+                    android:layout_below="@+id/one_albumlist_singer_name"
+                    android:id="@+id/one_albumlist_song_number"
+                    android:text="@{songsnumber}"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+            </RelativeLayout>
+        </android.support.v7.widget.CardView>
+
+
+    </RelativeLayout>
+</layout>

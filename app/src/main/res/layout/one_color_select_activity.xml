@@ -99,7 +99,7 @@
             android:padding="20dp"
             android:id="@+id/apply_button"
             android:textColor="@{oneConfig.themeColor}"
-            android:background="#ffffff"
+            android:background="@color/WHITE"
             android:layout_alignParentEnd="true"
             android:layout_alignParentRight="true"
             android:layout_below="@id/one_blue_color_seekbar"

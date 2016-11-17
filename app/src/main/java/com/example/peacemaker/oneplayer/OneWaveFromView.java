@@ -102,6 +102,7 @@ public class OneWaveFromView extends View {
         //Log.v("OneWaveFromView","setData1()"+this.data);
         if(data!=null){
             for(int i=1;i<32;i++){
+                //int value = data[i];
                 int value = (int)Math.hypot(data[2*i],data[2*i+1]);
                 int y = (int)(offsetY-block_height-3*value);
                 //Log.v("OneWaveFormView", "setData()检查Y" +y);

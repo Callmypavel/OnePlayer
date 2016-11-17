@@ -42,22 +42,23 @@ public class OneApplication extends Application{
     private int duration = 0;
     private OneLogger oneLogger;
     private Activity currentActivity;
-    private MusicService musicService;
+    private OnePlayer onePlayer;
+    //private MusicService musicService;
     private int statusColor;
-    private ServiceConnection serviceConnection = new ServiceConnection() {
-        @Override
-        public void onServiceConnected(ComponentName name, IBinder service) {
-
-            musicService = ((MusicService.MusicBinder) service).getMusicService();
-            System.out.println("接受音乐服务" + musicService);
-
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName name) {
-
-        }
-    };
+//    private ServiceConnection serviceConnection = new ServiceConnection() {
+//        @Override
+//        public void onServiceConnected(ComponentName name, IBinder service) {
+//
+//            musicService = ((MusicService.MusicBinder) service).getMusicService();
+//            System.out.println("接受音乐服务" + musicService);
+//
+//        }
+//
+//        @Override
+//        public void onServiceDisconnected(ComponentName name) {
+//
+//        }
+//    };
 
 
     @Override
@@ -65,28 +66,31 @@ public class OneApplication extends Application{
         super.onCreate();
         oneLogger = new OneLogger();
         oneLogger.getLog();
-        initService();
+        //initService();
         oneConfig = DatabaseOperator.loadConfig(this);
+        LogTool.log("OneApplcation","onCreate()刚加载的配置"+oneConfig.getBandLevels().size());
     }
 
-    @Override
-    public void onTerminate() {
-        super.onTerminate();
-        unbindService(serviceConnection);
-    }
-
-    public void initService() {
-        Log.v("主Activity", "初始化服务");
-        Intent i = new Intent(this, MusicService.class);
-        bindService(i, serviceConnection, Context.BIND_AUTO_CREATE);
-        Log.v("主Activity", "初始化服务完毕");
-    }
+//    @Override
+//    public void onTerminate() {
+//        super.onTerminate();
+//        unbindService(serviceConnection);
+//    }
+//
+//    public void initService() {
+//        Log.v("主Activity", "初始化服务");
+//        Intent i = new Intent(this, MusicService.class);
+//        bindService(i, serviceConnection, Context.BIND_AUTO_CREATE);
+//        Log.v("主Activity", "初始化服务完毕");
+//    }
 
     public OneConfig getOneConfig() {
+        LogTool.log("OneApplication","getOneConfig()获取配置"+oneConfig.toString());
         return oneConfig;
     }
 
     public void setOneConfig(OneConfig oneConfig) {
+        LogTool.log("OneApplication","setOneConfig()设置配置"+oneConfig.toString());
         this.oneConfig = oneConfig;
     }
     public void setThemeColor(int color){
@@ -98,11 +102,13 @@ public class OneApplication extends Application{
         return oneConfig.getThemeColor();
     }
     public OnePlayer getOnePlayer(){
-        return musicService.getOnePlayer();
+        return onePlayer;
     }
 
 
-
+    public void saveOneConfig(Context context){
+        DatabaseOperator.saveConfig(oneConfig,context);
+    }
 
     public void setCurrentMusic(Music currentMusic){
         Log.v("OneApplication","setCurrentMusic()"+currentMusic.getDisplayName());
@@ -180,7 +186,7 @@ public class OneApplication extends Application{
             return;
         }
         initReceiver();
-        musicService.setOnePlayer( new OnePlayer(songArraylist, 0, new OnMusicListener() {
+        onePlayer = new OnePlayer(oneConfig,songArraylist, 0, new OnMusicListener() {
             @Override
             public void onComple() {
             }
@@ -236,8 +242,15 @@ public class OneApplication extends Application{
                 initNotification(false,null);
             }
 
-        })
-        );
+            @Override
+            public void onSoundEffectLoaded(OneConfig oneConfig){
+                setOneConfig(oneConfig);
+
+            }
+
+        },false)
+        ;
+        LogTool.log("OneApplication","onSoundEffectLoaded()"+getOnePlayer().getEnvironmentalReverb().toString());
 
 
     }
@@ -298,17 +311,17 @@ public class OneApplication extends Application{
         int second = (int)(progress*duration);
         Log.v("OneApplication","seekTo()查看秒"+second);
         musicState.setProgress(ten2sixty(second));
-        musicService.getOnePlayer().seekto(second*1000);
+        onePlayer.seekto(second*1000);
         //play();
     }
     public void play() {
-        musicService.getOnePlayer().play();
+        onePlayer.play();
     }
     public boolean isNew(){
-        return !musicService.getOnePlayer().isStarted;
+        return !onePlayer.isStarted;
     }
     public void changePlayMode(){
-        musicService.getOnePlayer().changePlayMode();
+        onePlayer.changePlayMode();
         int playMode = musicState.getPlayMode();
         if(playMode<3){
             playMode=playMode+1;
@@ -320,28 +333,28 @@ public class OneApplication extends Application{
     public void queue(){
         oneActivity.quitPlayView();
     }
-    public void toPlayView(){
-        oneActivity.toPlayView();
-    }
+//    public void toPlayView(){
+//        oneActivity.toPlayView();
+//    }
 
 
     public void next() {
-        musicService.getOnePlayer().changeMusic(true);
+        onePlayer.changeMusic(true);
     }
 
     public void previous() {
-        musicService.getOnePlayer().changeMusic(false);
+        onePlayer.changeMusic(false);
     }
     public void selectMusic(Music music,int position){
         if(music.isPlayable()) {
             if(!music.equals(currentMusic)) {
                 oneActivity.toPlayView();
                 if(oneActivity instanceof MainActivity){
-                    musicService.getOnePlayer().setPlayList(musicProvider.getSongs());
+                    onePlayer.setPlayList(musicProvider.getSongs());
                 }else {
-                    musicService.getOnePlayer().setPlayList(targetMusic.getSecondItems());
+                    onePlayer.setPlayList(targetMusic.getSecondItems());
                  }
-                musicService.getOnePlayer().selectMusic(music, position);
+                onePlayer.selectMusic(music, position);
 
             }
 
@@ -490,5 +503,10 @@ public class OneApplication extends Application{
         System.out.println("调用关闭通知");
         NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         notificationManager.cancel(0);
+    }
+    public void destroy(){
+        //musicService.onDestroy();
+        onePlayer.release();
+        System.exit(0);
     }
 }

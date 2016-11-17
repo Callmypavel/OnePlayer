@@ -93,25 +93,25 @@ public class MusicProvider implements Parcelable{
                     ArrayList<Music> secondItems;
                     int singerIndex = getIndex(singers, music1);
                     if (singerIndex == -1) {
-                        Log.v("MusicProvider", "新增歌手" + music.getArtist() + "的" + music.getDisplayName());
+                       // Log.v("MusicProvider", "新增歌手" + music.getArtist() + "的" + music.getDisplayName());
                         secondItems = new ArrayList<>();
                         secondItems.add(music);
                         music1.setSecondItems(secondItems);
                         singers.add(music1);
                     } else {
-                        Log.v("MusicProvider", "更新歌手" + music.getArtist() + "的" + music.getDisplayName());
+                       // Log.v("MusicProvider", "更新歌手" + music.getArtist() + "的" + music.getDisplayName());
                         singers.get(singerIndex).addSecondItem(music);
                     }
                     Music music2 = new Music(music.getAlbum());
                     int albumIndex = getIndex(albums, music2);
                     if (albumIndex == -1) {
-                        Log.v("MusicProvider", "新增专辑" + music.getArtist() + "的" + music.getAlbum());
+                        //Log.v("MusicProvider", "新增专辑" + music.getArtist() + "的" + music.getAlbum());
                         secondItems = new ArrayList<>();
                         secondItems.add(music);
                         music2.setSecondItems(secondItems);
                         albums.add(music2);
                     } else {
-                        Log.v("MusicProvider", "更新专辑" + music.getArtist() + "的" + music.getAlbum());
+                        //Log.v("MusicProvider", "更新专辑" + music.getArtist() + "的" + music.getAlbum());
                         albums.get(albumIndex).addSecondItem(music);
                     }
                 }
