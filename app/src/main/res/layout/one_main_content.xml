@@ -102,7 +102,7 @@
                 android:background="@android:color/holo_red_light"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
-                <com.example.peacemaker.oneplayer.OneSeekBar
+                <com.example.peacemaker.oneplayer.view.OneSeekBar
                     android:id="@+id/one_seekbar"
                     android:onClick="play"
                     android:layout_width="wrap_content"

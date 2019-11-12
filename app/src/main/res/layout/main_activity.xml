@@ -1,12 +1,12 @@
-<layout
-    xmlns:bind="http://schemas.android.com/apk/res-auto"
+<layout xmlns:bind="http://schemas.android.com/apk/res-auto"
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
     <data>
-        <import type="com.example.peacemaker.oneplayer.Music" />
-        <import type="com.example.peacemaker.oneplayer.MusicState" />
-        <import type="com.example.peacemaker.oneplayer.OneClickHandler"/>
-        <import type="com.example.peacemaker.oneplayer.OneConfig"/>
+        <import type="peacemaker.oneplayer.entity.Music" />
+        <import type="peacemaker.oneplayer.entity.MusicState" />
+        <import type="peacemaker.oneplayer.OneClickHandler"/>
+        <import type="peacemaker.oneplayer.entity.OneConfig"/>
         <variable
             name="music"
             type="Music" />
@@ -25,13 +25,72 @@
     android:layout_gravity="start"
     android:layout_width="match_parent"
     android:layout_height="match_parent" >
-    <include
-        layout="@layout/main"
-        bind:musicState="@{musicState}"
-        bind:music="@{music}"
-        bind:handler="@{handler}"
-        bind:oneConfig="@{oneConfig}"
-        />
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <android.support.design.widget.CoordinatorLayout
+            android:fitsSystemWindows="true"
+            android:id="@+id/id_coordinatorlayout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            >
+            <android.support.design.widget.AppBarLayout
+                android:background="@{oneConfig.themeColor}"
+                android:id="@+id/id_appbarlayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+                <android.support.v7.widget.Toolbar
+                    app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
+                    app:theme="@style/ThemeOverlay.AppCompat.ActionBar"
+                    app:layout_scrollFlags="scroll"
+                    app:titleTextColor="@color/WHITE"
+                    android:id="@+id/toolbar"
+                    android:layout_width="match_parent"
+                    android:layout_height="40dp"
+                    >
+                </android.support.v7.widget.Toolbar>
+                <android.support.design.widget.TabLayout
+                    app:tabIndicatorColor="@color/colorPrimary"
+                    app:tabSelectedTextColor="@color/WHITE"
+                    app:tabTextColor="@color/TAB_UNSELECT"
+                    app:tabGravity="fill"
+                    android:id="@+id/id_tablayout"
+                    android:layout_width="match_parent"
+                    android:layout_height="35dp"/>
+            </android.support.design.widget.AppBarLayout>
+            <android.support.v4.view.ViewPager
+                app:layout_behavior="@string/appbar_scrolling_view_behavior"
+                android:id="@+id/id_viewpager"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+            <include
+                android:id="@+id/one_layout"
+                layout="@layout/one_layout"
+                bind:oneConfig="@{oneConfig}"
+                bind:musicState="@{musicState}"
+                bind:music="@{music}"
+                bind:handler="@{handler}"
+                />
+
+
+
+        <!--<peacemaker.oneplayer.view.IndexView-->
+            <!--android:layout_gravity="end"-->
+            <!--android:id="@+id/one_index_view"-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="match_parent" />-->
+        </android.support.design.widget.CoordinatorLayout>
+
+
+    </LinearLayout>
+    <!--<include-->
+        <!--layout="@layout/main"-->
+        <!--bind:musicState="@{musicState}"-->
+        <!--bind:music="@{music}"-->
+        <!--bind:handler="@{handler}"-->
+        <!--bind:oneConfig="@{oneConfig}"-->
+        <!--/>-->
     <android.support.design.widget.NavigationView
         android:id="@+id/navigation_view"
         android:layout_width="260dp"
