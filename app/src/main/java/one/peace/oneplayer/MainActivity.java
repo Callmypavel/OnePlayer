@@ -1,4 +1,4 @@
-package peace.one.OnePlayer;
+package peace.one.oneplayer;
 
 import android.os.Bundle;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
