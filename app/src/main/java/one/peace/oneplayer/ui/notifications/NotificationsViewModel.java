@@ -1,4 +1,4 @@
-package peace.one.OnePlayer.ui.notifications;
+package one.peace.oneplayer.ui.notifications;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;

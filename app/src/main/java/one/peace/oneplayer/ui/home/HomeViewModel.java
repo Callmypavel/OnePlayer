@@ -1,4 +1,4 @@
-package peace.one.OnePlayer.ui.home;
+package one.peace.oneplayer.ui.home;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;

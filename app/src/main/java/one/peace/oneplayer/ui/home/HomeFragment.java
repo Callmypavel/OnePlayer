@@ -1,5 +1,4 @@
-package peace.one.OnePlayer.ui.home;
-
+package one.peace.oneplayer.ui.home;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -10,7 +9,7 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
-import peace.one.OnePlayer.R;
+import one.peace.oneplayer.R;
 
 public class HomeFragment extends Fragment {
 

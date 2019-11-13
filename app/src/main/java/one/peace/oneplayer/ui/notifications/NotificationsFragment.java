@@ -1,4 +1,4 @@
-package peace.one.OnePlayer.ui.notifications;
+package one.peace.oneplayer.ui.notifications;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -10,7 +10,7 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
-import peace.one.OnePlayer.R;
+import one.peace.oneplayer.R;
 
 public class NotificationsFragment extends Fragment {
 
