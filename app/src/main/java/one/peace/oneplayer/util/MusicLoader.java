@@ -24,6 +24,8 @@ public abstract class MusicLoader {
     public final int LOAD_PROGRESS = 3;
     public final int LOAD_FINISHED = 4;
     private LoadMusicListener mLoadMusicListener;
+    private Handler handler;
+
     interface LoadMusicListener{
         void loadPass(String fileName);
         void loadFound(MusicInfo musicInfo);
@@ -53,28 +55,30 @@ public abstract class MusicLoader {
 
     public void startLoading(){
         //默认情况下获取当前线程的Looper
-        Handler handler = new Handler(new Handler.Callback() {
-            @Override
-            public boolean handleMessage(Message msg) {
-                if(mLoadMusicListener != null) {
-                    switch (msg.what) {
-                        case LOAD_PASS:
-                            mLoadMusicListener.loadPass(msg.getData().getString("fileName"));
-                            break;
-                        case LOAD_FOUND:
-                            mLoadMusicListener.loadFound(msg.getData().getParcelable("musicInfo"));
-                            break;
-                        case LOAD_PROGRESS:
-                            mLoadMusicListener.loadProgressChanged(msg.getData().getInt("progress"));
-                            break;
-                        case LOAD_FINISHED:
-                            mLoadMusicListener.loadFinished();
-                            break;
+        if(handler == null) {
+            handler = new Handler(new Handler.Callback() {
+                @Override
+                public boolean handleMessage(Message msg) {
+                    if (mLoadMusicListener != null) {
+                        switch (msg.what) {
+                            case LOAD_PASS:
+                                mLoadMusicListener.loadPass(msg.getData().getString("fileName"));
+                                break;
+                            case LOAD_FOUND:
+                                mLoadMusicListener.loadFound((MusicInfo) msg.getData().getParcelable("musicInfo"));
+                                break;
+                            case LOAD_PROGRESS:
+                                mLoadMusicListener.loadProgressChanged(msg.getData().getInt("progress"));
+                                break;
+                            case LOAD_FINISHED:
+                                mLoadMusicListener.loadFinished();
+                                break;
+                        }
                     }
+                    return false;
                 }
-                return false;
-            }
-        });
+            });
+        }
         mOneTimeWorkRequest = new OneTimeWorkRequest.Builder(LoadMusicWorker.class).build();
         WorkManager.getInstance().enqueue(mOneTimeWorkRequest);
     }
