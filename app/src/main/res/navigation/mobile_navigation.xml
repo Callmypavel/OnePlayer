@@ -4,22 +4,27 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/mobile_navigation"
     app:startDestination="@+id/navigation_home">
+    <fragment
+        android:id="@+id/navigation_music"
+        android:name="one.peace.oneplayer.ui.music.MusicFragment"
+        android:label="@string/title_music"
+        tools:layout="@layout/fragment_music" />
 
     <fragment
         android:id="@+id/navigation_home"
-        android:name="peace.one.OnePlayer.ui.home.HomeFragment"
+        android:name="one.peace.oneplayer.ui.home.HomeFragment"
         android:label="@string/title_home"
         tools:layout="@layout/fragment_home" />
 
     <fragment
         android:id="@+id/navigation_dashboard"
-        android:name="peace.one.OnePlayer.ui.dashboard.DashboardFragment"
+        android:name="one.peace.oneplayer.ui.dashboard.DashboardFragment"
         android:label="@string/title_dashboard"
         tools:layout="@layout/fragment_dashboard" />
 
     <fragment
         android:id="@+id/navigation_notifications"
-        android:name="peace.one.OnePlayer.ui.notifications.NotificationsFragment"
+        android:name="one.peace.oneplayer.ui.notifications.NotificationsFragment"
         android:label="@string/title_notifications"
         tools:layout="@layout/fragment_notifications" />
 </navigation>
