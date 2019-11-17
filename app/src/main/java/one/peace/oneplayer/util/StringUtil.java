@@ -2,6 +2,10 @@ package one.peace.oneplayer.util;
 
 import android.content.Context;
 
+import com.github.promeg.pinyinhelper.Pinyin;
+
+import java.util.Comparator;
+
 import androidx.annotation.NonNull;
 
 /**
@@ -9,6 +13,8 @@ import androidx.annotation.NonNull;
  */
 
 public class StringUtil {
+    private static Comparator<String> mMandarinComparator;
+    private static String TAG = "StringUtil";
     public static String getString(Context context,int resId){
         return context.getResources().getString(resId);
     }
@@ -17,11 +23,14 @@ public class StringUtil {
         return String.format(data,args);
     }
     public static boolean isEndWith(String[] strings,@NonNull String target){
+        LogTool.log(TAG, "我看看待查" + target);
         for (String string : strings) {
-            if (string.endsWith(target)){
+            if (target.endsWith(string)) {
+                LogTool.log(TAG, "好起来了");
                 return true;
             }
         }
+        LogTool.log(TAG, "坏起来了");
         return false;
     }
     public static String upperFirstCharacter(String text){
@@ -32,33 +41,25 @@ public class StringUtil {
         return firstCharacterString.toUpperCase()+text.substring(1);
     }
 
-    public static String mandarin2Pinyin(String src){
-        char[] t1 ;
-        t1=src.toCharArray();
-        String[] t2;
-        HanyuPinyinOutputFormat outputFormat = new HanyuPinyinOutputFormat();
-        outputFormat.setCaseType(HanyuPinyinCaseType.LOWERCASE);
-        outputFormat.setToneType(HanyuPinyinToneType.WITHOUT_TONE);
-        outputFormat.setVCharType(HanyuPinyinVCharType.WITH_V);
-        String t4="";
-        int t0=t1.length;
-        try {
-            for (int i=0;i<t0;i++)
-            {
-                //判断是否为汉字字符
-                if(Character.toString(t1[i]).matches("[\\u4E00-\\u9FA5]+"))
-                {
-                    t2 = PinyinHelper.toHanyuPinyinStringArray(t1[i], outputFormat);
-                    t4+=t2[0];
+    public static Comparator<String> getMandarinComparator() {
+        if (mMandarinComparator == null) {
+            mMandarinComparator = new Comparator<String>() {
+                @Override
+                public int compare(String lhs, String rhs) {
+                    if (lhs != null && rhs != null) {
+                        return StringUtil.mandarin2Pinyin(lhs).toLowerCase()
+                                .compareTo(StringUtil.mandarin2Pinyin(rhs).toLowerCase());
+                    } else {
+                        return 0;
+                    }
                 }
-                else
-                    t4+= Character.toString(t1[i]);
-            }
-            return t4;
-        } catch (Exception e) {
-            e.printStackTrace();
+            };
         }
-        return t4;
+        return mMandarinComparator;
+    }
+
+    public static String mandarin2Pinyin(String src){
+        return Pinyin.toPinyin(src, "");
     }
     public static String mandarin2Pinyin(Object object){
         if (object instanceof String){
@@ -66,4 +67,5 @@ public class StringUtil {
         }
         return "";
     }
+
 }

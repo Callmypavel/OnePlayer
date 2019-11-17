@@ -1,15 +1,22 @@
 package one.peace.oneplayer.util;
 
+import android.content.Context;
 import android.media.MediaMetadataRetriever;
 
 import java.io.File;
 import java.util.LinkedList;
 
+import androidx.annotation.NonNull;
+import androidx.work.WorkerParameters;
 import one.peace.oneplayer.music.entity.MusicInfo;
 
 public class LocalMusicLoader extends MusicLoader {
     private String[] supportedMusicFormats = new String[]{".mp3",".ogg",".flac"};
     private String rootDirectory = "/mnt/sdcard";//扫描开始的根目录
+
+    public LocalMusicLoader(@NonNull Context context, @NonNull WorkerParameters workerParams) {
+        super(context, workerParams);
+    }
 
     @Override
     protected void loadMusic() {

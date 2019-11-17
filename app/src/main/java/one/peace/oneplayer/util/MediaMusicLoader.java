@@ -8,6 +8,8 @@ import android.provider.MediaStore;
 
 import java.util.ArrayList;
 
+import androidx.annotation.NonNull;
+import androidx.work.WorkerParameters;
 import one.peace.oneplayer.music.entity.MusicInfo;
 
 public class MediaMusicLoader extends MusicLoader {
@@ -19,9 +21,12 @@ public class MediaMusicLoader extends MusicLoader {
     private String[] projection;
     private String selection;
     private String[] selectionArgs;
-    public MediaMusicLoader(Context context){
+
+    public MediaMusicLoader(@NonNull Context context, @NonNull WorkerParameters workerParams) {
+        super(context, workerParams);
         mContext = context;
     }
+
     @Override
     protected void loadMusic() {
         if(contentResolver == null){

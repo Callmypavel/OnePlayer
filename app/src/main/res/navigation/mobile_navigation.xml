@@ -6,9 +6,9 @@
     app:startDestination="@+id/navigation_home">
     <fragment
         android:id="@+id/navigation_music"
-        android:name="one.peace.oneplayer.ui.music.MusicFragment"
+        android:name="one.peace.oneplayer.ui.music.LocalMusicFragment"
         android:label="@string/title_music"
-        tools:layout="@layout/fragment_music" />
+        tools:layout="@layout/fragment_multiple_page" />
 
     <fragment
         android:id="@+id/navigation_home"
