@@ -20,8 +20,7 @@ import one.peace.oneplayer.util.LogTool;
 
 public class UniversalAdapter<T> extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
-    protected View.OnClickListener onClickListener;
-    protected View.OnLongClickListener onLongClickListener;
+    protected OnItemClickListener mOnItemClickListener;
     protected ObservableArrayList<T> dataSource;
     protected OnBindHandler onBindHandler;
     private int layoutId;
@@ -30,12 +29,12 @@ public class UniversalAdapter<T> extends RecyclerView.Adapter<RecyclerView.ViewH
         void onBinded(T data);
     }
 
-    public void setOnClickListener(View.OnClickListener onClickListener) {
-        this.onClickListener = onClickListener;
+    public void setOnItemClickListener(OnItemClickListener onItemClickListener) {
+        mOnItemClickListener = onItemClickListener;
     }
 
-    public void setOnLongClickListener(View.OnLongClickListener onLongClickListener) {
-        this.onLongClickListener = onLongClickListener;
+    public interface OnItemClickListener{
+        void onItemClick(View view,Object data,int position);
     }
 
     public void setOnBindHandler(OnBindHandler onBindHandler) {
@@ -103,10 +102,17 @@ public class UniversalAdapter<T> extends RecyclerView.Adapter<RecyclerView.ViewH
     }
 
     @Override
-    public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, final int position) {
         BaseViewHolder baseViewHolder = (BaseViewHolder) holder;
         baseViewHolder.binding.setVariable(BR.item, dataSource.get(position));
-        baseViewHolder.binding.setVariable(BR.onClickListener, onClickListener);
+        baseViewHolder.binding.setVariable(BR.onClickListener, new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (mOnItemClickListener!=null){
+                    mOnItemClickListener.onItemClick(v,v.getTag(),position);
+                }
+            }
+        });
         baseViewHolder.binding.executePendingBindings();
         if (onBindHandler != null) {
             onBindHandler.onBinded(dataSource.get(position));

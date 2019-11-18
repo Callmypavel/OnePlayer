@@ -1,24 +1,22 @@
 package one.peace.oneplayer.ui.base;
 
-
-import android.graphics.Bitmap;
-
-import java.util.List;
+import android.app.Activity;
+import android.view.View;
 
 import androidx.databinding.ObservableArrayList;
 import androidx.databinding.ViewDataBinding;
-import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import one.peace.oneplayer.R;
-import one.peace.oneplayer.util.LogTool;
 
-public abstract class BaseListFragment<E, VM extends BaseListFragment.BaseListViewModel> extends BaseFragment<VM> implements UniversalAdapter.OnItemClickListener {
+/**
+ * Created by pavel on 2019/11/18.
+ */
+public abstract class BaseListActivity<E, VM extends BaseListActivity.BaseListViewModel> extends BaseActivity<VM> implements UniversalAdapter.OnItemClickListener {
     protected RecyclerView recyclerView;
     protected UniversalAdapter universalAdapter;
-
     public static class BaseListViewModel<E> extends ViewModel {
         public BaseListViewModel() {
 
@@ -32,7 +30,6 @@ public abstract class BaseListFragment<E, VM extends BaseListFragment.BaseListVi
 
         public void setDatas(ObservableArrayList<E> datas) {
             mDatas.setValue(datas);
-            //LogTool.logCrime(this,"捕捉"+datas.size());
         }
     }
 
@@ -46,17 +43,16 @@ public abstract class BaseListFragment<E, VM extends BaseListFragment.BaseListVi
         universalAdapter = adapter;
         adapter.setOnItemClickListener(this);
         recyclerView.setAdapter(adapter);
-        LogTool.log(this,"月读！"+viewModel.getDatas());
     }
 
     @Override
     protected Class getViewModelClass() {
-        return BaseListFragment.BaseListViewModel.class;
+        return BaseListActivity.BaseListViewModel.class;
     }
 
     protected abstract int getItemLayoutId();
     protected RecyclerView.LayoutManager generateLayoutManager() {
-        return new LinearLayoutManager(getContext());
+        return new LinearLayoutManager(this);
     }
 
     public UniversalAdapter getUniversalAdapter() {

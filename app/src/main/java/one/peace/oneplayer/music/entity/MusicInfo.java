@@ -40,20 +40,36 @@ public class MusicInfo extends BaseObservable implements Parcelable {
     public MusicInfo(){
 
     }
-    private MusicInfo(Parcel in)
-    {
+    private MusicInfo(Parcel in) {
         artist = in.readString();
         duration = in.readString();
+        size = in.readString();
+        id = in.readString();
         album = in.readString();
         displayName = in.readString();
         url = in.readString();
         isPlayable = in.readByte() != 0;
         isPlaying = in.readByte() != 0;
-        id = in.readString();
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(artist);
+        dest.writeString(duration);
+        dest.writeString(size);
+        dest.writeString(id);
+        dest.writeString(album);
+        dest.writeString(displayName);
+        dest.writeString(url);
+        dest.writeByte((byte)(isPlayable ? 1 : 0));
+        dest.writeByte((byte)(isPlaying ? 1 : 0));
     }
 
 
-
+    @Override
+    public int describeContents() {
+        return 0;
+    }
 
     @Override
     public String toString() {
@@ -213,20 +229,5 @@ public class MusicInfo extends BaseObservable implements Parcelable {
         return name;
     }
 
-    @Override
-    public int describeContents() {
-        return 0;
-    }
 
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(artist);
-        dest.writeString(duration);
-        dest.writeString(album);
-        dest.writeString(displayName);
-        dest.writeString(url);
-        dest.writeByte((byte)(isPlayable ?1:0));
-        dest.writeByte((byte) (isPlaying ? 1 : 0));
-        dest.writeString(id);
-    }
 }

@@ -16,20 +16,20 @@ import androidx.core.content.ContextCompat;
  */
 
 public class PermissionUtil {
-    public static boolean requestAllPermission(Context context) {
+    public static int REQUEST_PERMISSION_CODE = 1;
+    public static void requestAllPermission(Activity activity) {
         try {
-            PackageInfo packageInfo = context.getPackageManager().getPackageInfo(context.getPackageName(), PackageManager.GET_PERMISSIONS);
+            PackageInfo packageInfo = activity.getPackageManager().getPackageInfo(activity.getPackageName(), PackageManager.GET_PERMISSIONS);
             String[] requestedPermissions = packageInfo.requestedPermissions;
             for (String requestedPermission : requestedPermissions) {
-                if (ContextCompat.checkSelfPermission(context, requestedPermission) != PackageManager.PERMISSION_GRANTED) {
-                    return false;
+                if (ContextCompat.checkSelfPermission(activity, requestedPermission) != PackageManager.PERMISSION_GRANTED) {
+                    activity.requestPermissions(new String[]{requestedPermission},REQUEST_PERMISSION_CODE);
                 }
             }
-            return true;
         } catch (PackageManager.NameNotFoundException e) {
             e.printStackTrace();
         }
-        return false;
+
     }
 
 }

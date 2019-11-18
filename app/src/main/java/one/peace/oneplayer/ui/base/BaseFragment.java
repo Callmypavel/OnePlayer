@@ -16,7 +16,7 @@ import androidx.lifecycle.ViewModelProviders;
 /**
  * Created by pavel on 2019/11/14.
  */
-public abstract class BaseFragment<T extends ViewModel> extends Fragment implements View.OnClickListener {
+public abstract class BaseFragment<T extends ViewModel> extends Fragment{
     protected ViewDataBinding mViewDataBinding;
     protected T mViewModel;
 

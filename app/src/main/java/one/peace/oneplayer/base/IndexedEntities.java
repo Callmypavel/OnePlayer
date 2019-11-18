@@ -17,13 +17,12 @@ public class IndexedEntities<E> {
 
     public interface IndexInfoChangedListener {
         void indexInfoUpdated(Object indexValue, Object entity, int position, int newSize);
-
         void indexInfoAdded(Object indexValue, Object entity, int position);
     }
 
     class IndexedEntity {
         public Object key;
-        public ArrayList<Integer> valueIndices;
+        public ArrayList<E> values;
     }
 
     public IndexedEntities(Class clazz, String attributeName, ArrayList<E> entities, IndexInfoChangedListener indexInfoChangedListener) {
@@ -75,8 +74,8 @@ public class IndexedEntities<E> {
             //害没有这个索引下的条目
             indexedEntity = new IndexedEntity();
             indexedEntity.key = valueToIndex;
-            indexedEntity.valueIndices = new ArrayList<>();
-            indexedEntity.valueIndices.add(index);
+            indexedEntity.values = new ArrayList<>();
+            indexedEntity.values.add(newEntity);
             int position = getPositionToInsert(valueToIndex);
             indices.add(position, indexedEntity);
             if (indexInfoChangedListener != null) {
@@ -85,9 +84,9 @@ public class IndexedEntities<E> {
         } else {
             //已有索引
             indexedEntity = indices.get(index);
-            indexedEntity.valueIndices.add(index);
+            indexedEntity.values.add(newEntity);
             if (indexInfoChangedListener != null) {
-                indexInfoChangedListener.indexInfoUpdated(valueToIndex, newEntity, index, indexedEntity.valueIndices.size());
+                indexInfoChangedListener.indexInfoUpdated(valueToIndex, newEntity, index, indexedEntity.values.size());
             }
         }
     }
@@ -105,22 +104,6 @@ public class IndexedEntities<E> {
         for (IndexedEntity indexedEntity : indices) {
             result.add(indexedEntity.key.toString());
         }
-        return result;
-    }
-
-    public List<E> getValuesByIndexName(String indexName) {
-        if (dataSource == null) {
-            return null;
-        }
-        List<E> result = new ArrayList<>();
-        ArrayList<Integer> arrayList = indices.get(getIndex(indexName)).valueIndices;
-        if (arrayList != null) {
-            for (Integer index : arrayList) {
-                result.add(dataSource.get(index));
-            }
-        }
-        Collections.sort(result, comparator);
-
         return result;
     }
 

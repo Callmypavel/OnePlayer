@@ -77,7 +77,7 @@ public class LogTool {
   */
     public static String toString(Object obj) {
         if (obj == null) {
-            return "";
+            return "你方为空";
         }
         Class clazz = obj.getClass();
         Field[] fields = clazz.getDeclaredFields();// 根据Class对象获得属性 私有的也可以获得

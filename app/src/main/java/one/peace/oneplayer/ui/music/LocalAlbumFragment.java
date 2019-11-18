@@ -10,14 +10,17 @@ import androidx.databinding.ObservableArrayList;
 import androidx.databinding.ViewDataBinding;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import one.peace.oneplayer.MainActivity;
 import one.peace.oneplayer.R;
 import one.peace.oneplayer.base.IndexedEntities;
 import one.peace.oneplayer.music.entity.AlbumInfo;
 import one.peace.oneplayer.music.entity.MusicInfo;
+import one.peace.oneplayer.ui.base.BaseActivity;
 import one.peace.oneplayer.ui.base.BaseListFragment;
 
 import one.peace.oneplayer.ui.base.UniversalAdapter;
 import one.peace.oneplayer.util.ExecutorServiceUtil;
+import one.peace.oneplayer.util.LogTool;
 import one.peace.oneplayer.util.MusicLoader;
 import one.peace.oneplayer.util.OneBitmapUtil;
 
@@ -40,6 +43,7 @@ public class LocalAlbumFragment extends BaseListFragment<AlbumInfo, BaseListFrag
                 public void indexInfoUpdated(Object indexValue, Object entity, int position, int newSize) {
                     AlbumInfo albumInfo = (AlbumInfo) viewModel.getDatas().get(position);
                     albumInfo.setSongsNumber(newSize);
+                    albumInfo.getMusicInfos().add((MusicInfo)entity);
                 }
 
                 @Override
@@ -49,6 +53,9 @@ public class LocalAlbumFragment extends BaseListFragment<AlbumInfo, BaseListFrag
                     albumInfo.setSongsNumber(1);
                     albumInfo.setSingerName(musicInfo.getArtist());
                     albumInfo.setAlbumBitmapUrl(musicInfo.getUrl());
+                    ObservableArrayList<MusicInfo> musicInfos = new ObservableArrayList<>();
+                    musicInfos.add(musicInfo);
+                    albumInfo.setMusicInfos(musicInfos);
                     viewModel.getDatas().add(position, albumInfo);
                     if (albumInfos == null) {
                         albumInfos = new ObservableArrayList<>();
@@ -68,6 +75,7 @@ public class LocalAlbumFragment extends BaseListFragment<AlbumInfo, BaseListFrag
                     });
                 }
             });
+            musicDataSource = null;
         } else {
             viewModel.getDatas().addAll(albumInfos);
         }
@@ -84,6 +92,13 @@ public class LocalAlbumFragment extends BaseListFragment<AlbumInfo, BaseListFrag
     protected RecyclerView.LayoutManager generateLayoutManager() {
         getRecyclerView().addItemDecoration(new SpacesItemDecoration(16));
         return new GridLayoutManager(getContext(), 2);
+    }
+
+    @Override
+    public void onItemClick(View view, Object data, int position) {
+        AlbumInfo albumInfo = (AlbumInfo)data;
+        BaseActivity activity = (BaseActivity) getActivity();
+        activity.jumpToActivity(AlbumDetailActivity.class,"albumInfo",albumInfo);
     }
 
     class SpacesItemDecoration extends RecyclerView.ItemDecoration {
@@ -103,10 +118,6 @@ public class LocalAlbumFragment extends BaseListFragment<AlbumInfo, BaseListFrag
         }
     }
 
-    @Override
-    public void onClick(View v) {
-
-    }
 
     @Override
     public void loadPass(String fileName) {
@@ -117,11 +128,14 @@ public class LocalAlbumFragment extends BaseListFragment<AlbumInfo, BaseListFrag
     public void loadFound(MusicInfo musicInfo) {
         if (indexedEntities == null) {
             musicDataSource.add(musicInfo);
+            LogTool.log(this,"受死吧"+musicInfo.getDisplayName());
         } else {
             if (indexedEntities.getIndexInfoChangedListener() != null) {
                 indexedEntities.addNew(musicInfo);
+                LogTool.log(this,"后启示录"+musicInfo.getDisplayName());
             } else {
                 musicDataSource.add(musicInfo);
+                LogTool.log(this,"受死吧"+musicInfo.getDisplayName());
             }
         }
 

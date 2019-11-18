@@ -8,6 +8,6 @@ public class OneApplication extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
-        PermissionUtil.requestAllPermission(this);
+
     }
 }
