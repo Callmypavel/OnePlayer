@@ -2,6 +2,37 @@
 <resources>
     <color name="BLACK">#000000</color>
     <color name="WHITE">#ffffff</color>
-    <color name="TAB_UNSELECT">#ffd8dc</color>
+    <color name="TRANSPARENT">#40000000</color>
+    <color name="TOTAL_TRANSPARENT">#00000000</color>
+    <color name="TAB_UNSELECT">#96ffffff</color>
     <color name="colorPrimary">#fd4c5b</color>
+    <color name="colorPrimaryDark">#fc5e53</color>
+    <color name="colorAccent">#fc5e53</color>
+    <color name="colorLabel">#3ca6ff</color>
+
+    <color name="colorPrimaryTransparent">#4dfc5e53</color>
+    <color name="colorTitle">#222c38</color>
+    <color name="colorNum">#5a626d</color>
+    <color name="colorContent">#969fa9</color>
+    <color name="colorBlack">#000000</color>
+
+    <color name="colorTransparent">#00000000</color>
+    <color name="colorHalfTransparent">#40ffffff</color>
+    <color name="colorControllBarTransparent">#20ffffff</color>
+    <color name="colorBarBg">#fbfbfd</color>
+    <color name="colorContentBg">#f4f5f9</color>
+    <color name="colorShootButton">#f3f5f7</color>
+    <color name="colorWhite">#ffffff</color>
+    <color name="colorDivider">#8a8a8a</color>
+    <color name="colorProgressbarBg">#eeeeee</color>
+    <color name="colorSubDivider">#80e5e5e5</color>
+    <color name="colorGreyBacground">#f6f7fa</color>
+    <color name="colorStroke">#dcdcdc</color>
+    <color name="colorText">#fafafc</color>
+    <color name="colorTipoffBackground">#b5b5b5</color>
+    <color name="colorDividation">#f8f8f8</color>
+    <color name="colorButtonPressed">#e4e6e9</color>
+    <color name="colorPressed">#f6f6f6</color>
+
+    <color name="colorImageBorder">#e0e0e0</color>
 </resources>

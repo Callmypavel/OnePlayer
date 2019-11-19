@@ -1,45 +1,63 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.peacemaker.oneplayer">
+    package="peacemaker.oneplayer">
     <uses-permission android:name="android.permission.WAKE_LOCK"/>
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
     <uses-permission android:name="android.permission.RECORD_AUDIO"/>
     <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS"/>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+
+
+    <meta-data android:name="com.baidu.speech.APP_ID"
+        android:value="11223015" />
+    <meta-data
+        android:name="com.baidu.speech.API_KEY"
+        android:value="6g2M5oQoklafB4g3OZf3q7aU" />
+    <meta-data
+        android:name="com.baidu.speech.SECRET_KEY"
+        android:value="81aa964003298348b574043b751426ad" />
     <application
-        android:name=".OneApplication"
+        android:name=".activity.OneApplication"
         android:allowBackup="true" android:label="@string/app_name"
         android:icon="@mipmap/ic_launcher"
         android:theme="@style/Theme.AppCompat.Light.NoActionBar">
         <activity
-            android:name=".MainActivity"
-            android:launchMode="singleTop"
-            >
+            android:name=".activity.MainActivity"
+            android:launchMode="singleTask">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".TestActivity">
+        <activity android:name=".activity.TestActivity"
+            android:launchMode="singleTask" >
 
         </activity>
-        <activity android:name=".SearchActivity"
+        <activity android:name=".activity.SearchActivity"
             android:theme="@style/Theme.CustomDialog">
         </activity>
-        <activity android:name=".OneColorSelectActivity">
+        <activity android:name=".activity.SoundEffectActivity">
+        </activity>
+        <activity android:name=".activity.OneColorSelectActivity">
 
         </activity>
-        <activity android:name=".OneAlbumDetailActivity">
+        <activity android:name=".activity.OneAlbumDetailActivity"
+            android:launchMode="singleTask">
         </activity>
-        <activity android:name=".OneSingerDetailActivity">
+        <activity android:name=".activity.OneSingerDetailActivity"
+            android:launchMode="singleTask">
         </activity>
+        <activity android:name=".activity.OneLocalMusicActivity" />
         <!--<service android:name=".MusicService"-->
             <!--android:enabled="true"/>-->
         <!-- ATTENTION: This was auto-generated to add Google Play services to your project for
      App Indexing.  See https://g.co/AppIndexing/AndroidStudio for more information. -->
-        <meta-data
-            android:name="com.google.android.gms.version"
-            android:value="@integer/google_play_services_version" />
+
+        <service android:name="com.baidu.speech.VoiceRecognitionService" android:exported="false" />
+
+
     </application>
 
 

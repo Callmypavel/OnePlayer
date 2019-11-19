@@ -1,69 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
-
-    <data>
-        <import type="com.example.peacemaker.oneplayer.Music" />
-        <variable
-            name="music"
-            type="Music" />
-    </data>
     <RelativeLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
         android:id="@+id/noti_background"
-        android:background="#ffffff"
         android:layout_width="match_parent" android:layout_height="match_parent">
 
-        <ImageButton
-            android:background="#00000000"
-            android:scaleType="fitXY"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:src="@drawable/next"
-            android:text="下一首"
-            android:id="@+id/noti_next"
-            android:layout_alignTop="@+id/noti_playandpause"
-            android:layout_alignParentEnd="true" />
-
-        <ImageButton
-            android:background="#00000000"
-            android:scaleType="fitCenter"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:src="@drawable/ic_play_circle_outline_black_48dp"
-            android:text="播放"
-            android:id="@+id/noti_playandpause"
-            android:layout_alignTop="@+id/noti_previous"
-            android:layout_toStartOf="@+id/noti_next" />
-
-        <ImageButton
-            android:background="#00000000"
-            android:scaleType="fitXY"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:src="@drawable/previous"
-            android:text="上一首"
-            android:id="@+id/noti_previous"
-            android:layout_alignBottom="@+id/noti_album_image"
-            android:layout_toStartOf="@+id/noti_playandpause" />
-
         <TextView
-            android:maxLines="1"
-            android:maxEms="7"
+            android:singleLine="true"
+            android:maxEms="15"
             android:ellipsize="marquee"
             android:textSize="16sp"
-            android:textColor="@color/background_floating_material_dark"
+            android:textColor="@color/BLACK"
             android:id="@+id/noti_name"
             android:text="@string/song_name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="8dp"
-            android:layout_alignParentTop="true"
+            android:layout_marginTop="10dp"
             android:layout_alignStart="@+id/noti_singer" />
 
         <TextView
             android:layout_toEndOf="@+id/noti_album_image"
-            android:maxLines="1"
-            android:maxEms="7"
+            android:singleLine="true"
+            android:maxEms="15"
             android:ellipsize="marquee"
             android:textSize="14sp"
             android:textColor="@color/BLACK"
@@ -71,7 +28,7 @@
             android:text="@string/singer_name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="8dp"
+            android:layout_marginStart="8dp"
             android:layout_below="@+id/noti_name"
             android:layout_marginTop="13dp" />
 
@@ -83,6 +40,49 @@
             android:id="@+id/noti_album_image"
             android:layout_alignParentTop="true"
             android:layout_alignParentStart="true" />
+    <ImageButton
+        android:background="?android:attr/selectableItemBackground"
+        android:scaleType="fitXY"
+        android:layout_width="35dp"
+        android:layout_height="35dp"
+        android:src="@drawable/close_black"
+        android:id="@+id/noti_close"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true" />
+    <LinearLayout
+        android:layout_alignParentEnd="true"
+        android:layout_below="@id/noti_singer"
+
+        android:id="@+id/noti_buttons"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+        <ImageButton
+            android:background="?android:attr/selectableItemBackground"
+            android:scaleType="fitXY"
+            android:layout_width="45dp"
+            android:layout_height="45dp"
+            android:src="@drawable/previous"
+            android:id="@+id/noti_previous"
+             />
+
+        <ImageButton
+            android:background="?android:attr/selectableItemBackground"
+            android:scaleType="fitCenter"
+            android:layout_width="45dp"
+            android:layout_height="45dp"
+            android:src="@drawable/ic_play_circle_outline_black_48dp"
+            android:id="@+id/noti_playandpause"
+             />
+
+        <ImageButton
+            android:background="?android:attr/selectableItemBackground"
+            android:scaleType="fitXY"
+            android:layout_width="45dp"
+            android:layout_height="45dp"
+            android:src="@drawable/next"
+            android:id="@+id/noti_next"
+             />
+    </LinearLayout>
+
 
     </RelativeLayout>
-</layout>

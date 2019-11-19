@@ -4,10 +4,10 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <data>
-        <import type="com.example.peacemaker.oneplayer.Music" />
-        <import type="com.example.peacemaker.oneplayer.MusicState" />
-        <import type="com.example.peacemaker.oneplayer.OneClickHandler"/>
-        <import type="com.example.peacemaker.oneplayer.OneConfig"/>
+        <import type="peacemaker.oneplayer.entity.Music" />
+        <import type="peacemaker.oneplayer.entity.MusicState" />
+        <import type="peacemaker.oneplayer.OneClickHandler"/>
+        <import type="peacemaker.oneplayer.entity.OneConfig"/>
         <import type="android.graphics.Bitmap"/>
         <variable
             name="music"
@@ -19,11 +19,8 @@
             name="handler"
             type="OneClickHandler"/>
         <variable
-            name="displayName"
-            type="String"/>
-        <variable
-            name="albumBitmap"
-            type="Bitmap"/>
+            name="albumInfo"
+            type="peacemaker.oneplayer.entity.AlbumInfo"/>
         <variable
             name="oneConfig"
             type="OneConfig"/>
@@ -45,11 +42,11 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 app:contentScrim="@{oneConfig.themeColor}"
-                bind:title="@{displayName}"
+                bind:title="@{albumInfo.albumName}"
                 app:expandedTitleMarginStart="96dp"
                 app:layout_scrollFlags="scroll|exitUntilCollapsed">
                 <ImageView
-                    android:bitmapSrc="@{albumBitmap}"
+                    android:bitmapSrc="@{albumInfo.albumImage}"
                     android:id="@+id/id_imageView"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
@@ -81,15 +78,18 @@
         </android.support.design.widget.AppBarLayout>
 
         <android.support.v7.widget.RecyclerView
+
             android:requiresFadingEdge="none"
             app:layout_behavior="@string/appbar_scrolling_view_behavior"
             android:layout_below="@id/id_appbarlayout"
-            android:id="@+id/one_albumlist_album_detail_recycler"
-            android:layout_width="wrap_content"
+            android:id="@+id/recyclerview"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content">
         </android.support.v7.widget.RecyclerView>
         <include
+            android:id="@+id/one_layout"
             layout="@layout/one_layout"
+            bind:oneConfig="@{oneConfig}"
             bind:musicState="@{musicState}"
             bind:music="@{music}"
             bind:handler="@{handler}"

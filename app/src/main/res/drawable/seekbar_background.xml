@@ -5,7 +5,7 @@
     <!--&lt;!&ndash; 第二进度图 &ndash;&gt;-->
     <!--<item android:id="@+android:id/SecondaryProgress" android:drawable="@drawable/bar_dn" />-->
     <!-- 进度度 -->
-    <item android:id="@+android:id/progress" android:drawable="@drawable/bar_dn" />
+    <item android:id="@android:id/progress" android:drawable="@drawable/bar_dn" />
 
 
 </layer-list>

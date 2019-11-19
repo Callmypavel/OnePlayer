@@ -4,10 +4,10 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <data>
-        <import type="com.example.peacemaker.oneplayer.Music" />
-        <import type="com.example.peacemaker.oneplayer.MusicState" />
-        <import type="com.example.peacemaker.oneplayer.OneClickHandler"/>
-        <import type="com.example.peacemaker.oneplayer.OneConfig"/>
+        <import type="peacemaker.oneplayer.entity.Music" />
+        <import type="peacemaker.oneplayer.entity.MusicState" />
+        <import type="peacemaker.oneplayer.OneClickHandler"/>
+        <import type="peacemaker.oneplayer.entity.OneConfig"/>
         <variable
             name="music"
             type="Music" />
@@ -27,11 +27,17 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     >
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+    </RelativeLayout>
     <android.support.design.widget.AppBarLayout
         android:background="@{oneConfig.themeColor}"
         android:id="@+id/id_appbarlayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
+
         <android.support.v7.widget.Toolbar
             app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
             app:theme="@style/ThemeOverlay.AppCompat.ActionBar"
@@ -42,29 +48,32 @@
             android:layout_height="?attr/actionBarSize"
              >
             <!--<RelativeLayout-->
+
                 <!--android:layout_width="match_parent"-->
-                <!--android:layout_height="match_parent">-->
-                <!--<ImageView-->
-                    <!--android:layout_centerVertical="true"-->
-                    <!--android:id="@+id/toolbar_image"-->
-                    <!--android:background="?android:attr/selectableItemBackground"-->
-                    <!--android:scaleType="fitCenter"-->
-                    <!--android:src="@drawable/ic_menu_white_48dp"-->
-                    <!--android:layout_width="30dp"-->
+                <!--android:layout_height="?attr/actionBarSize">-->
+                <!--<EditText-->
+                    <!--android:id="@+id/search_bar"-->
+                    <!--android:layout_centerInParent="true"-->
+                    <!--android:gravity="center"-->
+                    <!--android:background="@drawable/shape_corner"-->
+                    <!--android:hint="@string/album"-->
+                    <!--android:layout_width="300dp"-->
                     <!--android:layout_height="30dp" />-->
-                <!--<TextView-->
-                    <!--android:layout_toRightOf="@id/toolbar_image"-->
-                    <!--android:layout_centerVertical="true"-->
+                <!--<ImageButton-->
+                    <!--android:id="@+id/search_button"-->
                     <!--android:layout_marginLeft="5dp"-->
-                    <!--android:textColor="@color/WHITE"-->
-                    <!--android:textSize="20sp"-->
-                    <!--android:text="@string/app_name"-->
-                    <!--android:layout_width="wrap_content"-->
-                    <!--android:layout_height="wrap_content" />-->
+                    <!--colorFilter="@color/BLACK"-->
+                    <!--android:layout_centerVertical="true"-->
+                    <!--android:background="@color/TOTAL_TRANSPARENT"-->
+                    <!--android:scaleType="fitCenter"-->
+                    <!--android:src="@drawable/search"-->
+                    <!--android:layout_toRightOf="@+id/search_bar"-->
+                    <!--android:layout_width="25dp"-->
+                    <!--android:layout_height="25dp" />-->
             <!--</RelativeLayout>-->
         </android.support.v7.widget.Toolbar>
         <android.support.design.widget.TabLayout
-            app:tabIndicatorColor="@color/WHITE"
+            app:tabIndicatorColor="@color/colorPrimary"
             app:tabSelectedTextColor="@color/WHITE"
             app:tabTextColor="@color/TAB_UNSELECT"
             app:tabGravity="fill"
@@ -79,18 +88,18 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 
-    <com.example.peacemaker.oneplayer.IndexView
-        android:highlightColor="@{oneConfig.themeColor}"
-        android:id="@+id/one_index_view"
-        android:layout_gravity="end"
-        android:layout_width="wrap_content"
-        android:layout_height="500dp" />
     <include
         layout="@layout/one_layout"
+        bind:oneConfig="@{oneConfig}"
         bind:musicState="@{musicState}"
         bind:music="@{music}"
         bind:handler="@{handler}"
         />
+    <peacemaker.oneplayer.view.IndexView
+        android:layout_gravity="end"
+        android:id="@+id/one_index_view"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent" />
 
 
 </android.support.design.widget.CoordinatorLayout>

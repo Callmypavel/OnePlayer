@@ -3,7 +3,7 @@
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="450dp">
     <android.support.v7.widget.RecyclerView
-        android:id="@+id/one_play_recycler_list"
+        android:id="@+id/one_fragment_recyclerView"
         android:layout_height="500dp"
         android:layout_width="match_parent">
     </android.support.v7.widget.RecyclerView>
