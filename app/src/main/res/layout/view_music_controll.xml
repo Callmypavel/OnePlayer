@@ -1,0 +1,235 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:bind="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+    <data>
+        <import type="one.peace.oneplayer.music.entity.MusicInfo" />
+        <import type="one.peace.oneplayer.music.player.MusicState" />
+        <import type="android.view.View.OnClickListener"/>
+        <import type="android.view.View" />
+        <variable
+            name="musicInfo"
+            type="MusicInfo" />
+        <variable
+            name="musicState"
+            type="MusicState"/>
+        <variable
+            name="onClickListener"
+            type="OnClickListener"/>
+    </data>
+    <one.peace.oneplayer.ui.view.StretchLayout
+        android:visibility="@{musicState.isClickable?View.VISIBLE:View.GONE}"
+        android:layout_gravity="bottom"
+        android:background="@color/WHITE"
+        android:layout_alignParentBottom="true"
+        android:id="@+id/main_content_bar"
+        android:layout_width="wrap_content"
+        tools:layout_height="60dp"
+        android:layout_height="60dp">
+        <RelativeLayout
+            android:background="@{musicState.musicColor}"
+            android:onClick="@{onClickListener.onClick}"
+            android:clickable="@{musicState.isClickable}"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:id="@+id/bottom_controll_bar"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true">
+            <ImageView
+                android:bitmapSrc="@{musicState.currentBitmap}"
+                android:id="@+id/bottom_album_image"
+                android:scaleType="fitXY"
+                tools:src="@drawable/audiotrack_black"
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:layout_alignParentTop="true"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentStart="true" />
+
+            <TextView
+                android:id="@+id/bottom_song_name"
+                android:textColor="@{musicState.isWhite?@color/WHITE:@color/BLACK}"
+                android:singleLine="true"
+                android:maxEms="7"
+                android:ellipsize="marquee"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@{musicInfo.displayName}"
+                tools:text="不该"
+                android:layout_alignTop="@+id/bottom_play_button"
+                android:layout_alignLeft="@+id/bottom_singer_name"
+                android:layout_alignStart="@+id/bottom_singer_name" />
+            <TextView
+                android:id="@+id/bottom_singer_name"
+                android:textColor="@{musicState.isWhite?@color/WHITE:@color/BLACK}"
+                android:singleLine="true"
+                android:maxEms="10"
+                android:ellipsize="marquee"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@{musicInfo.artist}"
+                tools:text="周杰伦"
+                android:layout_marginLeft="8dp"
+                android:layout_marginStart="8dp"
+                android:layout_below="@+id/bottom_song_name"
+                android:layout_toRightOf="@+id/bottom_album_image"
+                android:layout_toEndOf="@+id/bottom_album_image"
+                />
+            <ImageButton
+                android:clickable="@{musicState.isClickable}"
+                android:onClick="@{onClickListener.onClick}"
+                android:layout_marginRight="16dp"
+                android:layout_marginEnd="16dp"
+                android:layout_centerVertical="true"
+                android:layout_alignParentRight="true"
+                android:layout_alignParentEnd="true"
+                android:background="?android:attr/selectableItemBackground"
+                android:scaleType="fitXY"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                tools:src="@drawable/play_bare_black"
+                android:src="@{musicState.isPlaying?@drawable/play_bare_black:@drawable/pause_bare_black}"
+                android:id="@+id/bottom_play_button"
+                />
+
+        </RelativeLayout>
+        <RelativeLayout
+            android:background="@{musicState.musicColor}"
+            android:layout_width="match_parent"
+            android:layout_height="90dp"
+            android:id="@+id/top_tool_bar"
+            android:layout_below="@+id/bottom_controll_bar"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true">
+            <TextView
+                android:singleLine="true"
+                android:maxEms="10"
+                android:ellipsize="marquee"
+                android:layout_marginLeft="10dp"
+                android:layout_marginTop="30dp"
+                android:id="@+id/top_tool_bar_song_name"
+                android:textColor="@{musicState.isWhite?@color/WHITE:@color/BLACK}"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="20sp"
+                android:text="@{musicInfo.displayName}"
+                />
+            <TextView
+                android:singleLine="true"
+                android:maxEms="10"
+                android:ellipsize="marquee"
+                android:id="@+id/top_tool_bar_singer_name"
+                android:layout_marginLeft="10dp"
+                android:layout_below="@+id/top_tool_bar_song_name"
+                android:textColor="@{musicState.isWhite?@color/WHITE:@color/BLACK}"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@{musicInfo.artist}"
+                />
+        </RelativeLayout>
+        <RelativeLayout
+            android:layout_below="@+id/top_tool_bar"
+            android:id="@+id/main_content_view"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+            <ImageView
+                android:bitmapSrc="@{musicState.currentBitmap}"
+                android:layout_centerHorizontal="true"
+                android:scaleType="fitCenter"
+                android:id="@+id/play_view_album"
+                android:layout_width="match_parent"
+                android:layout_height="360dp" />
+        </RelativeLayout>
+        <RelativeLayout
+            android:background="@{musicState.musicColor}"
+            android:layout_margin="10dp"
+            android:id="@+id/play_view_controll_bar"
+            android:layout_width="match_parent"
+            android:layout_height="162dp"
+            android:layout_below="@+id/main_content_view"
+            android:layout_alignParentBottom="true"
+            >
+            <one.peace.oneplayer.ui.view.CircleSeekBar
+                android:clickable="@{musicState.isClickable}"
+                android:id="@+id/one_seekbar"
+                android:percentage="@{musicState.percentage}"
+                android:isPlaying="@{musicState.isPlaying}"
+                android:isWhite="@{musicState.isWhite}"
+                android:layout_marginTop="20dp"
+                android:layout_width="120dp"
+                android:layout_height="120dp"
+                android:layout_centerHorizontal="true" />
+
+            <TextView
+                android:textSize="19sp"
+                android:paddingLeft="15dp"
+                android:textColor="@{musicState.isWhite?@color/WHITE:@color/BLACK}"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:text="@{musicState.duration}"
+                android:id="@+id/play_view_duration"
+                android:layout_toRightOf="@id/one_seekbar" />
+
+            <ImageButton
+                android:onClick="@{onClickListener.onClick}"
+                android:background="?android:attr/selectableItemBackground"
+                android:scaleType="centerInside"
+                android:layout_width="55dp"
+                android:layout_height="55dp"
+                android:src="@{musicState.isWhite?(musicState.playMode==1?@drawable/repeat_white:(musicState.playMode==2?@drawable/repeat_one_white:@drawable/shuffle_white)):(musicState.playMode==1?@drawable/repeat:(musicState.playMode==2?@drawable/repeat_one:@drawable/shuffle))}"
+                android:id="@+id/play_view_playmode"
+                android:layout_alignParentBottom="true"
+                android:layout_alignRight="@id/play_view_duration" />
+
+            <ImageButton
+                android:onClick="@{onClickListener.onClick}"
+                android:background="?android:attr/selectableItemBackground"
+                android:scaleType="fitXY"
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:src="@{musicState.isWhite?@drawable/ic_skip_next_white_48dp:@drawable/next}"
+                android:id="@+id/play_view_next"
+                android:layout_centerVertical="true"
+                android:layout_toRightOf="@id/play_view_duration"
+                />
+            <TextView
+                android:textSize="19sp"
+                android:paddingRight="15dp"
+                android:textColor="@{musicState.isWhite?@color/WHITE:@color/BLACK}"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:text="@{musicState.progress}"
+                android:id="@+id/play_view_progress"
+                android:layout_toLeftOf="@id/one_seekbar" />
+
+
+            <ImageButton
+                android:onClick="@{onClickListener.onClick}"
+                android:background="?android:attr/selectableItemBackground"
+                android:scaleType="centerInside"
+                android:layout_width="55dp"
+                android:layout_height="55dp"
+                android:src="@{musicState.isWhite?@drawable/ic_queue_music_white_48dp:@drawable/queue}"
+                android:id="@+id/play_view_queue"
+                android:layout_alignParentBottom="true"
+                android:layout_toRightOf="@+id/play_view_previous"
+                android:layout_toEndOf="@+id/play_view_previous" />
+
+            <ImageButton
+                android:onClick="@{onClickListener.onClick}"
+                android:background="?android:attr/selectableItemBackground"
+                android:scaleType="fitXY"
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:src="@{musicState.isWhite?@drawable/ic_skip_previous_white_48dp:@drawable/previous}"
+                android:id="@+id/play_view_previous"
+                android:layout_alignTop="@+id/play_view_next"
+                android:layout_toLeftOf="@+id/play_view_progress"
+                android:layout_toStartOf="@+id/play_view_progress" />
+        </RelativeLayout>
+    </one.peace.oneplayer.ui.view.StretchLayout>
+</layout>

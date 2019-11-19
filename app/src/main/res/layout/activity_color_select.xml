@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:bind="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+    <data>
+        <import type="one.peace.oneplayer.global.config.Config"/>
+        <variable
+            name="config"
+            type="Config" />
+    </data>
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <com.google.android.material.appbar.AppBarLayout
+            android:id="@+id/id_appbarlayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <androidx.appcompat.widget.Toolbar
+                app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
+                app:theme="@style/ThemeOverlay.AppCompat.ActionBar"
+                app:layout_scrollFlags="scroll|enterAlways"
+                app:titleTextColor="@color/WHITE"
+                app:title="@string/color_select"
+                android:id="@+id/toolbar"
+                android:layout_width="match_parent"
+                android:layout_height="?attr/actionBarSize"
+                android:background="@{oneConfig.themeColor}" >
+            </androidx.appcompat.widget.Toolbar>
+        </com.google.android.material.appbar.AppBarLayout>
+        <RelativeLayout
+            android:layout_centerHorizontal="true"
+            android:background="@{oneConfig.themeColor}"
+            tools:background="@color/colorPrimary"
+            android:layout_marginTop="50dp"
+            android:layout_below="@id/id_appbarlayout"
+            android:id="@+id/preview_layout"
+            android:layout_width="200dp"
+            android:layout_height="200dp">
+            <TextView
+                android:textColor="@color/WHITE"
+                android:layout_centerHorizontal="true"
+                android:layout_centerVertical="true"
+                android:text="@string/preview"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+        </RelativeLayout>
+
+        <SeekBar
+            android:max="255"
+            android:layout_below="@id/preview_layout"
+            android:id="@+id/one_red_color_seekbar"
+            android:layout_width="300dp"
+            android:layout_height="50dp" />
+
+        <SeekBar
+            android:max="255"
+            android:layout_below="@id/one_red_color_seekbar"
+            android:id="@+id/one_green_color_seekbar"
+            android:layout_width="300dp"
+            android:layout_height="50dp" />
+        <SeekBar
+            android:max="255"
+            android:layout_below="@id/one_green_color_seekbar"
+            android:id="@+id/one_blue_color_seekbar"
+            android:layout_width="300dp"
+            android:layout_height="50dp" />
+
+        <TextView
+            android:textSize="20sp"
+            android:text="@string/color_red"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignTop="@id/one_red_color_seekbar"
+            android:layout_toRightOf="@+id/one_red_color_seekbar"
+            android:layout_toEndOf="@+id/one_red_color_seekbar"
+            android:id="@+id/red_tint" />
+        <TextView
+            android:textSize="20sp"
+            android:text="@string/color_green"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignTop="@id/one_green_color_seekbar"
+            android:layout_toRightOf="@+id/one_green_color_seekbar"
+            android:layout_toEndOf="@+id/one_green_color_seekbar"
+            android:id="@+id/green_tint" />
+
+        <TextView
+            android:textSize="20sp"
+            android:text="@string/color_blue"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/blue_tint"
+            android:layout_alignTop="@+id/one_blue_color_seekbar"
+            android:layout_toRightOf="@+id/one_blue_color_seekbar"
+            android:layout_toEndOf="@+id/one_blue_color_seekbar" />
+        <Button
+            android:layout_marginRight="20dp"
+            android:padding="20dp"
+            android:id="@+id/apply_button"
+            android:textColor="@{oneConfig.themeColor}"
+            android:background="@color/WHITE"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentRight="true"
+            android:layout_below="@id/one_blue_color_seekbar"
+            android:text="@string/apply_theme"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+    </RelativeLayout>
+</layout>
