@@ -8,12 +8,12 @@ import androidx.room.Database;
 import androidx.room.Room;
 import androidx.room.RoomDatabase;
 import one.peace.oneplayer.database.dao.ConfigDAO;
-import one.peace.oneplayer.global.config.OneConfig;
+import one.peace.oneplayer.global.config.Config;
 
 /**
  * Created by pavel on 2019/11/19.
  */
-@Database(entities = {OneConfig.class}, version = 1)
+@Database(entities = {Config.class}, version = 1)
 public abstract class AppDatabase extends RoomDatabase {
     private static AppDatabase sInstance;
 

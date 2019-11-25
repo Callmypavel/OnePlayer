@@ -1,6 +1,8 @@
 package one.peace.oneplayer.global.config;
 
 
+import android.content.Context;
+
 import java.util.ArrayList;
 
 import androidx.databinding.BaseObservable;
@@ -10,6 +12,8 @@ import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 import one.peace.oneplayer.BR;
 import one.peace.oneplayer.database.AppDatabase;
+import one.peace.oneplayer.database.dao.ConfigDAO;
+import one.peace.oneplayer.music.player.MusicState;
 
 /**
  * Created by ouyan on 2016/9/24.
@@ -29,6 +33,31 @@ public class Config extends BaseObservable {
     private int presetReverb;
     @ColumnInfo(name = "virtualizer_strength")
     private int virtualizerStrength;
+    @ColumnInfo(name = "bandlevel_range")
+    private short[] bandLevelRange;
+    @ColumnInfo(name = "blur_radius")
+    private int blurRadius;
+    @ColumnInfo(name = "red_value")
+    private int redValue;
+    @ColumnInfo(name = "green_value")
+    private int greenValue;
+    @ColumnInfo(name = "blue_value")
+    private int blueValue;
+    @ColumnInfo(name = "alpha_value")
+    private int alphaValue;
+
+    private static Config sInstance;
+
+    public static Config getInstance(final Context context) {
+        if (sInstance == null) {
+            synchronized (Config.class) {
+                if (sInstance == null) {
+                    sInstance = AppDatabase.getInstance(context).configDao().getConfig();
+                }
+            }
+        }
+        return sInstance;
+    }
 
     public EnvironmentReverbConfig getEnvironmentReverbConfig() {
         return environmentReverbConfig;
@@ -71,16 +100,6 @@ public class Config extends BaseObservable {
     }
 
     @Bindable
-    public int getVirtualizerStrenth() {
-        return virtualizerStrength;
-    }
-
-    public void setVirtualizerStrenth(int virtualizerStrenth) {
-        this.virtualizerStrength = virtualizerStrenth;
-        notifyPropertyChanged(BR.virtualizerStrenth);
-    }
-
-    @Bindable
     public int getThemeColor() {
         return themeColor;
     }
@@ -89,6 +108,86 @@ public class Config extends BaseObservable {
         this.themeColor = themeColor;
         notifyPropertyChanged(BR.themeColor);
 
+    }
+
+    @Bindable
+    public int getBassBoostStrength() {
+        return bassBoostStrength;
+    }
+
+    public void setBassBoostStrength(int bassBoostStrength) {
+        this.bassBoostStrength = bassBoostStrength;
+        notifyPropertyChanged(BR.bassBoostStrength);
+    }
+
+    @Bindable
+    public int getVirtualizerStrength() {
+        return virtualizerStrength;
+    }
+
+    public void setVirtualizerStrength(int virtualizerStrength) {
+        this.virtualizerStrength = virtualizerStrength;
+        notifyPropertyChanged(BR.virtualizerStrength);
+    }
+
+    @Bindable
+    public short[] getBandLevelRange() {
+        return bandLevelRange;
+    }
+
+    public void setBandLevelRange(short[] bandLevelRange) {
+        this.bandLevelRange = bandLevelRange;
+        notifyPropertyChanged(BR.bandLevelRange);
+    }
+
+    @Bindable
+    public int getBlurRadius() {
+        return blurRadius;
+    }
+
+    public void setBlurRadius(int blurRadius) {
+        this.blurRadius = blurRadius;
+        notifyPropertyChanged(BR.blurRadius);
+    }
+
+    @Bindable
+    public int getRedValue() {
+        return redValue;
+    }
+
+    public void setRedValue(int redValue) {
+        this.redValue = redValue;
+        notifyPropertyChanged(BR.redValue);
+    }
+
+    @Bindable
+    public int getGreenValue() {
+        return greenValue;
+    }
+
+    public void setGreenValue(int greenValue) {
+        this.greenValue = greenValue;
+        notifyPropertyChanged(BR.greenValue);
+    }
+
+    @Bindable
+    public int getBlueValue() {
+        return blueValue;
+    }
+
+    public void setBlueValue(int blueValue) {
+        this.blueValue = blueValue;
+        notifyPropertyChanged(BR.blueValue);
+    }
+
+    @Bindable
+    public int getAlphaValue() {
+        return alphaValue;
+    }
+
+    public void setAlphaValue(int alphaValue) {
+        this.alphaValue = alphaValue;
+        notifyPropertyChanged(BR.alphaValue);
     }
 
     @Override

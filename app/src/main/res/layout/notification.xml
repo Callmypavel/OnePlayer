@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+        <import type="one.peace.oneplayer.music.entity.MusicInfo" />
+        <variable
+            name="musicInfo"
+            type="MusicInfo" />
+    </data>
+    <RelativeLayout
+        android:id="@+id/noti_background"
+        android:layout_width="match_parent" android:layout_height="65dp">
+        <ImageView
+            android:scaleType="fitCenter"
+            android:src="@drawable/audiotrack_black"
+            android:layout_height="65dp"
+            android:layout_width="65dp"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentLeft="true"
+            android:id="@+id/noti_album_image" />
+        <TextView
+            android:singleLine="true"
+            android:maxEms="7"
+            android:ellipsize="marquee"
+            android:textSize="16sp"
+            android:textColor="@color/background_floating_material_dark"
+            android:id="@+id/noti_name"
+            tools:text="不该"
+            android:text="歌名"
+            android:layout_marginTop="12dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="8dp"
+            android:layout_toRightOf="@+id/noti_album_image" />
+        <TextView
+            android:singleLine="true"
+            android:maxEms="7"
+            android:ellipsize="marquee"
+            android:textSize="14sp"
+            android:textColor="@color/background_floating_material_dark"
+            android:id="@+id/noti_singer"
+            tools:text="周杰伦-周杰伦的床边故事"
+            android:text="歌手加专辑"
+            android:layout_below="@id/noti_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="8dp"
+            android:layout_toRightOf="@+id/noti_album_image" />
+        <ImageButton
+            android:layout_marginTop="10dp"
+            android:background="#00000000"
+            android:scaleType="fitCenter"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:src="@drawable/play_circle_outline_black"
+            android:id="@+id/noti_playandpause"
+            android:layout_centerVertical="true"
+            android:layout_toLeftOf="@+id/noti_next" />
+
+        <ImageButton
+            android:background="#00000000"
+            android:scaleType="fitXY"
+            android:layout_width="35dp"
+            android:layout_height="35dp"
+            android:src="@drawable/skip_next_black"
+            android:id="@+id/noti_next"
+            android:layout_marginTop="10dp"
+            android:layout_centerVertical="true"
+            android:layout_alignParentRight="true" />
+
+        <ImageButton
+            android:background="#00000000"
+            android:scaleType="fitXY"
+            android:layout_width="35dp"
+            android:layout_height="35dp"
+            android:src="@drawable/skip_previous_black"
+            android:id="@+id/noti_previous"
+            android:layout_centerVertical="true"
+            android:layout_toLeftOf="@+id/noti_playandpause" />
+    </RelativeLayout>
+</layout>

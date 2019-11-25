@@ -35,7 +35,8 @@ public class MusicInfo extends BaseObservable implements Parcelable {
     private String url;
     private boolean isPlayable;
     private boolean isPlaying;
-
+    private SingerInfo singerInfo;
+    private AlbumInfo albumInfo;
 
     public MusicInfo(){
 
@@ -93,6 +94,22 @@ public class MusicInfo extends BaseObservable implements Parcelable {
     public void setDuration(String duration) {
         this.duration = duration;
         notifyPropertyChanged(BR.duration);
+    }
+
+    public SingerInfo getSingerInfo() {
+        return singerInfo;
+    }
+
+    public void setSingerInfo(SingerInfo singerInfo) {
+        this.singerInfo = singerInfo;
+    }
+
+    public AlbumInfo getAlbumInfo() {
+        return albumInfo;
+    }
+
+    public void setAlbumInfo(AlbumInfo albumInfo) {
+        this.albumInfo = albumInfo;
     }
 
     @Bindable

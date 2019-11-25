@@ -6,7 +6,7 @@ import androidx.room.Insert;
 import androidx.room.OnConflictStrategy;
 import androidx.room.Query;
 import androidx.room.Update;
-import one.peace.oneplayer.global.config.OneConfig;
+import one.peace.oneplayer.global.config.Config;
 
 /**
  * Created by pavel on 2019/11/19.
@@ -15,14 +15,14 @@ import one.peace.oneplayer.global.config.OneConfig;
 public interface ConfigDAO {
 
     @Query("SELECT * FROM config")
-    OneConfig getConfig();
+    Config getConfig();
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    void insert(OneConfig oneConfig);
+    void insert(Config oneConfig);
 
     @Update
-    void update(OneConfig oneConfig);
+    void update(Config oneConfig);
 
     @Delete
-    void delete(OneConfig oneConfig);
+    void delete(Config oneConfig);
 }

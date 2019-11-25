@@ -34,7 +34,9 @@ public class LocalSingerFrament extends BaseListFragment<SingerInfo, BaseListFra
                 public void indexInfoUpdated(Object indexValue, Object entity, int position, int newSize) {
                     SingerInfo singerInfo = (SingerInfo) viewModel.getDatas().get(position);
                     singerInfo.setSongsNumber(newSize);
-                    singerInfo.getMusicInfos().add((MusicInfo)entity);
+                    MusicInfo musicInfo = (MusicInfo)entity;
+                    singerInfo.getMusicInfos().add(musicInfo);
+                    musicInfo.setSingerInfo(singerInfo);
                     //LogTool.log(this,"行天之道"+LogTool.toString(singerInfo));
                 }
 
@@ -46,6 +48,7 @@ public class LocalSingerFrament extends BaseListFragment<SingerInfo, BaseListFra
                     //LogTool.log(this,"走私一切"+LogTool.toString(singerInfo)); albumInfo.setAlbumBitmapUrl(musicInfo.getUrl());
                     ObservableArrayList<MusicInfo> musicInfos = new ObservableArrayList<>();
                     musicInfos.add(musicInfo);
+                    musicInfo.setSingerInfo(singerInfo);
                     singerInfo.setMusicInfos(musicInfos);
                     viewModel.getDatas().add(position, singerInfo);
                     if (singerInfos == null) {

@@ -26,11 +26,11 @@ public class StretchLayout extends RelativeLayout {
     private int timeInterval;
     private Handler handler;
     private View childView;
-    private OnReachMaxListener onReachMaxListener;
+    private OnReachListener mOnReachListener;
     private final static int STRETCH_ALL = 1;
     private final static int STRETCH_CHILD = 2;
     private final static int STRETCH_TO_MAX = 3;
-
+    private final static int STRETCH_TO_MIN = 4;
     public StretchLayout(Context context, AttributeSet attrs) {
         super(context, attrs);
         init();
@@ -44,12 +44,13 @@ public class StretchLayout extends RelativeLayout {
         init();
     }
 
-    public interface OnReachMaxListener {
+    public interface OnReachListener {
         void onReachMax();
+        void onReachMin();
     }
 
-    public void setOnReachMaxListener(OnReachMaxListener onReachMaxListener){
-        this.onReachMaxListener = onReachMaxListener;
+    public void setOnReachMaxListener(OnReachListener mOnReachListener){
+        this.mOnReachListener = mOnReachListener;
     }
 
 
@@ -80,7 +81,10 @@ public class StretchLayout extends RelativeLayout {
                     changeChildHeight();
                 }
                 if(msg.what== STRETCH_TO_MAX){
-                    onReachMaxListener.onReachMax();
+                    mOnReachListener.onReachMax();
+                }
+                if(msg.what== STRETCH_TO_MIN){
+                    mOnReachListener.onReachMin();
                 }
                 return false;
             }
@@ -132,8 +136,8 @@ public class StretchLayout extends RelativeLayout {
         ExecutorServiceUtil.submit(new Runnable() {
             @Override
             public void run() {
+                Message message = new Message();
                 while(currentHeight>minHeight) {
-                    Message message = new Message();
                     currentHeight -= stretchSpeed;
                     message.what = STRETCH_ALL;
                     if(currentHeight<=maxHeight-minHeight){
@@ -153,6 +157,8 @@ public class StretchLayout extends RelativeLayout {
                     }
                 }
                 currentHeight = minHeight;
+                message.what = STRETCH_TO_MIN;
+                handler.sendMessage(message);
             }
         });
     }

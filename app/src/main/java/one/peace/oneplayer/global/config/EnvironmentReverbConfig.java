@@ -1,11 +1,17 @@
 package one.peace.oneplayer.global.config;
 
+import android.content.Context;
+
+import java.util.ArrayList;
+
 import androidx.databinding.BaseObservable;
 import androidx.databinding.Bindable;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 import one.peace.oneplayer.BR;
+import one.peace.oneplayer.music.player.MusicState;
+
 /**
  * Created by pavel on 2019/11/19.
  */
@@ -33,6 +39,31 @@ public class EnvironmentReverbConfig extends BaseObservable {
     private short roomHFLevel;
     @ColumnInfo(name="room_level")
     private short roomLevel;
+
+    private int themeColor;
+    private ArrayList<Integer> bandLevels;
+    private int bassBoostStrength;
+    private int presetReverb;
+    private int virtualizerStrength;
+    private short[] bandLevelRange;
+    private int blurRadius;
+    private int redColor;
+    private int greenColor;
+    private int blueColor;
+    private int alphaColor;
+    private static EnvironmentReverbConfig sInstance;
+
+    public static EnvironmentReverbConfig getInstance(final Context context) {
+        if (sInstance == null) {
+            synchronized (MusicState.class) {
+                if (sInstance == null) {
+                    sInstance = buildDatabase(context.getApplicationContext());
+                    sInstance.updateDatabaseCreated(context.getApplicationContext());
+                }
+            }
+        }
+        return sInstance;
+    }
 
     @Bindable
     public int getReverbDelay() {

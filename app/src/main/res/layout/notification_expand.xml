@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/noti_background"
+    tools:layout_height="120dp"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+        <TextView
+            android:singleLine="true"
+            android:maxEms="15"
+            android:ellipsize="marquee"
+            android:textSize="18sp"
+            android:textColor="@color/BLACK"
+            android:id="@+id/noti_name"
+            android:text="@string/song_name"
+            tools:text="不该"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:layout_alignStart="@+id/noti_singer" />
+
+        <TextView
+            android:layout_toEndOf="@+id/noti_album_image"
+            android:singleLine="true"
+            android:maxEms="15"
+            android:ellipsize="marquee"
+            android:textSize="14sp"
+            android:textColor="@color/BLACK"
+            android:id="@+id/noti_singer"
+            android:text="@string/singer_name"
+            tools:text="周杰伦-阿妹"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_below="@+id/noti_name"
+            android:layout_marginTop="13dp" />
+
+        <ImageView
+            android:scaleType="fitCenter"
+            android:src="@drawable/audiotrack_black"
+            android:layout_height="120dp"
+            android:layout_width="120dp"
+            android:id="@+id/noti_album_image"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentStart="true" />
+    <ImageButton
+        android:background="?android:attr/selectableItemBackground"
+        android:scaleType="fitXY"
+        android:layout_width="35dp"
+        android:layout_height="35dp"
+        android:src="@drawable/close_black"
+        android:id="@+id/noti_close"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true" />
+    <RelativeLayout
+        android:layout_alignParentEnd="true"
+        android:layout_below="@id/noti_singer"
+
+        android:id="@+id/noti_buttons"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+        <ImageButton
+            android:layout_alignParentLeft="true"
+            android:layout_centerVertical="true"
+            android:background="?android:attr/selectableItemBackground"
+            android:scaleType="fitXY"
+            android:layout_width="35dp"
+            android:layout_height="35dp"
+            android:src="@drawable/skip_previous_black"
+            android:id="@+id/noti_previous"
+             />
+
+        <ImageButton
+            android:layout_toRightOf="@id/noti_previous"
+            android:background="?android:attr/selectableItemBackground"
+            android:scaleType="fitCenter"
+            android:layout_width="45dp"
+            android:layout_height="45dp"
+            android:src="@drawable/play_circle_outline_black"
+            android:id="@+id/noti_playandpause"
+             />
+
+        <ImageButton
+            android:layout_centerVertical="true"
+            android:layout_toRightOf="@id/noti_playandpause"
+            android:background="?android:attr/selectableItemBackground"
+            android:scaleType="fitXY"
+            android:layout_width="35dp"
+            android:layout_height="35dp"
+            android:src="@drawable/skip_next_black"
+            android:id="@+id/noti_next"
+             />
+    </RelativeLayout>
+
+
+    </RelativeLayout>

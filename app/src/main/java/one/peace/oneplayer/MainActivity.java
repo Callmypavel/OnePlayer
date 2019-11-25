@@ -32,7 +32,7 @@ public class MainActivity extends BaseActivity<MainActivity.MainViewModel> {
 
     @Override
     protected void onInitData(MainViewModel viewModel, ViewDataBinding viewDataBinding) {
-        PermissionUtil.requestAllPermission(this);
+
         ActivityMainBinding binding = (ActivityMainBinding)viewDataBinding;
         AppBarConfiguration appBarConfiguration = new AppBarConfiguration.Builder(
                 R.id.navigation_home, R.id.navigation_dashboard, R.id.navigation_notifications, R.id.navigation_music)

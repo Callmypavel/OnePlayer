@@ -43,7 +43,9 @@ public class LocalAlbumFragment extends BaseListFragment<AlbumInfo, BaseListFrag
                 public void indexInfoUpdated(Object indexValue, Object entity, int position, int newSize) {
                     AlbumInfo albumInfo = (AlbumInfo) viewModel.getDatas().get(position);
                     albumInfo.setSongsNumber(newSize);
-                    albumInfo.getMusicInfos().add((MusicInfo)entity);
+                    MusicInfo musicInfo = (MusicInfo)entity;
+                    albumInfo.getMusicInfos().add(musicInfo);
+                    musicInfo.setAlbumInfo(albumInfo);
                 }
 
                 @Override
@@ -53,6 +55,7 @@ public class LocalAlbumFragment extends BaseListFragment<AlbumInfo, BaseListFrag
                     albumInfo.setSongsNumber(1);
                     albumInfo.setSingerName(musicInfo.getArtist());
                     albumInfo.setAlbumBitmapUrl(musicInfo.getUrl());
+                    musicInfo.setAlbumInfo(albumInfo);
                     ObservableArrayList<MusicInfo> musicInfos = new ObservableArrayList<>();
                     musicInfos.add(musicInfo);
                     albumInfo.setMusicInfos(musicInfos);

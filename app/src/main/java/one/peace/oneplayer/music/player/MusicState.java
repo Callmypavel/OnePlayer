@@ -1,11 +1,14 @@
 package one.peace.oneplayer.music.player;
 
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 
 import androidx.databinding.BaseObservable;
 import androidx.databinding.Bindable;
 import one.peace.oneplayer.BR;
+import one.peace.oneplayer.music.entity.MusicInfo;
+import one.peace.oneplayer.util.StringUtil;
 
 /**
  * Created by ouyan on 2016/7/20.
@@ -18,9 +21,27 @@ public class MusicState extends BaseObservable {
     private boolean isWhite = true;//UI是否应该显示为白色
     private boolean isClickable = true;
     private boolean isPlaying = true;
+    private boolean isInPlayView = false;
     private int playMode = 1;
     private Bitmap currentBitmap;
     private float percentage;
+    private int durationInSeconds;
+    private MusicInfo currentMusic;
+    private byte[] waveformdata;
+    private static MusicState sInstance;
+
+
+    public static MusicState getInstance(final Context context) {
+        if (sInstance == null) {
+            synchronized (MusicState.class) {
+                if (sInstance == null) {
+                    sInstance = buildDatabase(context.getApplicationContext());
+                    sInstance.updateDatabaseCreated(context.getApplicationContext());
+                }
+            }
+        }
+        return sInstance;
+    }
 
     @Bindable
     public float getPercentage() {
@@ -30,6 +51,16 @@ public class MusicState extends BaseObservable {
     public void setPercentage(float percentage) {
         this.percentage = percentage;
         notifyPropertyChanged(BR.percentage);
+    }
+
+    @Bindable
+    public MusicInfo getCurrentMusic() {
+        return currentMusic;
+    }
+
+    public void setCurrentMusic(MusicInfo currentMusic) {
+        this.currentMusic = currentMusic;
+        notifyPropertyChanged(BR.currentMusic);
     }
 
     @Bindable
@@ -60,6 +91,16 @@ public class MusicState extends BaseObservable {
     public void setIsPlaying(boolean playing) {
         isPlaying = playing;
         notifyPropertyChanged(BR.isPlaying);
+    }
+
+    @Bindable
+    public boolean getIsInPlayView() {
+        return isInPlayView;
+    }
+
+    public void setInPlayView(boolean inPlayView) {
+        isInPlayView = inPlayView;
+        notifyPropertyChanged(BR.isInPlayView);
     }
 
     @Bindable
@@ -103,6 +144,17 @@ public class MusicState extends BaseObservable {
     }
 
     @Bindable
+    public int getDurationInSeconds() {
+        return durationInSeconds;
+    }
+
+    public void setDurationInSeconds(int durationInSeconds) {
+        this.durationInSeconds = durationInSeconds;
+        notifyPropertyChanged(BR.durationInSeconds);
+        setDuration(StringUtil.ten2sixty(durationInSeconds));
+    }
+
+    @Bindable
     public int getMusicColor() {
         return musicColor;
     }
@@ -110,5 +162,15 @@ public class MusicState extends BaseObservable {
     public void setMusicColor(int musicColor) {
         this.musicColor = musicColor;
         notifyPropertyChanged(BR.musicColor);
+    }
+
+    @Bindable
+    public byte[] getWaveformdata() {
+        return waveformdata;
+    }
+
+    public void setWaveformdata(byte[] waveformdata) {
+        this.waveformdata = waveformdata;
+        notifyPropertyChanged(BR.waveformdata);
     }
 }

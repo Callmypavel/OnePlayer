@@ -18,6 +18,19 @@ public class StringUtil {
     public static String getString(Context context,int resId){
         return context.getResources().getString(resId);
     }
+    public static String ten2sixty(float ten) {
+        String sixty;
+        String minute = (int)ten / 60 + "";
+        String second = (int)ten % 60 + "";
+        if (ten / 60 >= 0 && ten / 60 < 10) {
+            minute = "0" + minute;
+        }
+        if (ten % 60 >= 0 && ten % 60 < 10) {
+            second = "0" + second;
+        }
+        sixty = minute + ":" + second;
+        return sixty;
+    }
     public static String getString(Context context,int resId,Object... args){
         String data = context.getResources().getString(resId);
         return String.format(data,args);

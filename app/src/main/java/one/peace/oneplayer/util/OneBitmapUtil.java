@@ -7,10 +7,17 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffColorFilter;
 import android.graphics.Rect;
+import android.graphics.drawable.BitmapDrawable;
 import android.media.MediaMetadataRetriever;
+import android.renderscript.Allocation;
+import android.renderscript.RenderScript;
+import android.renderscript.ScriptIntrinsicBlur;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.View;
 import android.widget.ImageView;
 
 import java.io.ByteArrayInputStream;
@@ -32,6 +39,16 @@ public class OneBitmapUtil {
         imageView.setImageBitmap(bitmap);
     }
 
+    @BindingAdapter({"android:blurBitmap","android:blurRadius"})
+    public static void setBlusRadius(View view, Bitmap bitmap, int radius){
+        if(bitmap==null||radius==0){
+            return;
+        }
+        Bitmap bitmap1 = OneBitmapUtil.getBluredBitmap(bitmap,radius,view.getContext());
+        view.setBackground(new BitmapDrawable(view.getContext().getResources(),bitmap1));
+
+    }
+
     public static Bitmap defaultBitmap;
 
     public static Bitmap getDafaultBitmap() {
@@ -43,6 +60,42 @@ public class OneBitmapUtil {
 
     public interface LoadBitmapListener {
         void onBitmapLoaded(Bitmap bitmap);
+    }
+
+    public static Bitmap getBluredBitmap(Bitmap bitmap,int radius,Context context){
+        int width = bitmap.getWidth();
+        int newWidth = (int)(width*9/16.f);
+        int newHeight = width<bitmap.getHeight()?width:bitmap.getHeight();
+        Bitmap bitmap1 = Bitmap.createBitmap(bitmap,(width-newWidth)/2,0,newWidth,newHeight);
+        //LogTool.log("OneBitmapUtil","压缩前大小"+getSize(bitmap1)+"b");
+        bitmap1 = zoomImg(bitmap1,bitmap1.getWidth()/16,bitmap1.getHeight()/16);
+        //LogTool.log("OneBitmapUtil","压缩后大小"+getSize(bitmap1)+"b");
+        return blurBitmap(bitmap1,radius,context);
+
+    }
+    public static Bitmap blurBitmap(Bitmap bitmap,int radius,Context context){
+        RenderScript renderScript = RenderScript.create(context);
+        Allocation allocation = Allocation.createFromBitmap(renderScript,bitmap);
+        ScriptIntrinsicBlur blur = ScriptIntrinsicBlur.create(renderScript,allocation.getElement());
+        blur.setInput(allocation);
+        blur.setRadius(radius);
+        blur.forEach(allocation);
+        allocation.copyTo(bitmap);
+
+        return drawColorToBitmap(bitmap,Color.argb(150,0,0,0), PorterDuff.Mode.SRC_OVER);
+    }
+
+    public static Bitmap drawColorToBitmap(Bitmap bitmap,int color,PorterDuff.Mode mode){
+        Paint paint = new Paint();
+        paint.setColorFilter(new PorterDuffColorFilter(color, mode));
+        Bitmap result = Bitmap.createBitmap(bitmap).copy(bitmap.getConfig(),true);
+        Canvas canvas = new Canvas(result);
+        canvas.drawBitmap(bitmap,0,0,paint);
+        return result;
+    }
+
+    public static Bitmap getBitmapByResId(Context context,int resId){
+        return BitmapFactory.decodeResource(context.getResources(), resId);
     }
 
     public static void loadBitmapAsync(final Context context, final String url, final LoadBitmapListener bitmapLoadListener) {

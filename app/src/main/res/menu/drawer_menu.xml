@@ -3,7 +3,6 @@
     <group android:checkableBehavior="single">
         <item
             android:id="@+id/deepload_item"
-            android:icon="@drawable/ic_youtube_searched_for_black_48dp"
             android:title="@string/deep_load"/>
         <item
             android:id="@+id/colorselect_item"

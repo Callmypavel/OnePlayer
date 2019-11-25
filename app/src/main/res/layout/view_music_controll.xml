@@ -6,6 +6,7 @@
     <data>
         <import type="one.peace.oneplayer.music.entity.MusicInfo" />
         <import type="one.peace.oneplayer.music.player.MusicState" />
+        <import type="one.peace.oneplayer.global.config.Config"/>
         <import type="android.view.View.OnClickListener"/>
         <import type="android.view.View" />
         <variable
@@ -17,6 +18,9 @@
         <variable
             name="onClickListener"
             type="OnClickListener"/>
+        <variable
+            name="config"
+            type="Config" />
     </data>
     <one.peace.oneplayer.ui.view.StretchLayout
         android:visibility="@{musicState.isClickable?View.VISIBLE:View.GONE}"
@@ -25,7 +29,7 @@
         android:layout_alignParentBottom="true"
         android:id="@+id/main_content_bar"
         android:layout_width="wrap_content"
-        tools:layout_height="60dp"
+        tools:layout_height="760dp"
         android:layout_height="60dp">
         <RelativeLayout
             android:background="@{musicState.musicColor}"
@@ -95,141 +99,193 @@
                 />
 
         </RelativeLayout>
-        <RelativeLayout
-            android:background="@{musicState.musicColor}"
-            android:layout_width="match_parent"
-            android:layout_height="90dp"
-            android:id="@+id/top_tool_bar"
-            android:layout_below="@+id/bottom_controll_bar"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentStart="true">
-            <TextView
-                android:singleLine="true"
-                android:maxEms="10"
-                android:ellipsize="marquee"
-                android:layout_marginLeft="10dp"
-                android:layout_marginTop="30dp"
-                android:id="@+id/top_tool_bar_song_name"
-                android:textColor="@{musicState.isWhite?@color/WHITE:@color/BLACK}"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textSize="20sp"
-                android:text="@{musicInfo.displayName}"
-                />
-            <TextView
-                android:singleLine="true"
-                android:maxEms="10"
-                android:ellipsize="marquee"
-                android:id="@+id/top_tool_bar_singer_name"
-                android:layout_marginLeft="10dp"
-                android:layout_below="@+id/top_tool_bar_song_name"
-                android:textColor="@{musicState.isWhite?@color/WHITE:@color/BLACK}"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@{musicInfo.artist}"
-                />
-        </RelativeLayout>
-        <RelativeLayout
-            android:layout_below="@+id/top_tool_bar"
-            android:id="@+id/main_content_view"
+        <LinearLayout
+            android:layout_below="@id/bottom_controll_bar"
+            android:orientation="vertical"
+            android:blurBitmap="@{musicState.currentBitmap}"
+            android:blurRadius="@{config.blurRadius}"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content">
-            <ImageView
-                android:bitmapSrc="@{musicState.currentBitmap}"
-                android:layout_centerHorizontal="true"
-                android:scaleType="fitCenter"
-                android:id="@+id/play_view_album"
+            <RelativeLayout
+                android:visibility="@{musicState.isPlayView?View.VISIBLE:View.GONE}"
                 android:layout_width="match_parent"
-                android:layout_height="360dp" />
-        </RelativeLayout>
-        <RelativeLayout
-            android:background="@{musicState.musicColor}"
-            android:layout_margin="10dp"
-            android:id="@+id/play_view_controll_bar"
-            android:layout_width="match_parent"
-            android:layout_height="162dp"
-            android:layout_below="@+id/main_content_view"
-            android:layout_alignParentBottom="true"
-            >
-            <one.peace.oneplayer.ui.view.CircleSeekBar
-                android:clickable="@{musicState.isClickable}"
-                android:id="@+id/one_seekbar"
-                android:percentage="@{musicState.percentage}"
-                android:isPlaying="@{musicState.isPlaying}"
-                android:isWhite="@{musicState.isWhite}"
-                android:layout_marginTop="20dp"
-                android:layout_width="120dp"
-                android:layout_height="120dp"
-                android:layout_centerHorizontal="true" />
+                android:layout_height="70dp"
+                android:id="@+id/top_tool_bar">
+                <ImageView
+                    android:colorFilter="@{@color/WHITE}"
+                    android:onClick="@{onClickListener.onClick}"
+                    android:id="@+id/down_button"
+                    android:layout_alignParentRight="true"
+                    android:layout_marginRight="10dp"
+                    android:layout_centerVertical="true"
+                    android:rotation="90"
+                    android:src="@drawable/arrow_back_black"
+                    android:layout_width="25dp"
+                    android:layout_height="25dp" />
+                <TextView
+                    tools:textColor="@color/BLACK"
+                    tools:text="白金协奏黑夜领衔无上之士算法是曲"
+                    android:singleLine="true"
+                    android:maxEms="15"
+                    android:ellipsize="marquee"
+                    android:textColor="@color/WHITE"
+                    android:layout_marginLeft="10dp"
+                    android:layout_centerVertical="true"
+                    android:id="@+id/top_tool_bar_song_name"
+                    android:layout_width="300dp"
+                    android:layout_height="wrap_content"
+                    android:textSize="20sp"
+                    android:text="@{musicInfo.displayName}"
+                    />
 
-            <TextView
-                android:textSize="19sp"
-                android:paddingLeft="15dp"
-                android:textColor="@{musicState.isWhite?@color/WHITE:@color/BLACK}"
+                <View
+                    android:layout_alignParentBottom="true"
+                    android:layout_centerHorizontal="true"
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="@color/colorDivider" />
+            </RelativeLayout>
+            <RelativeLayout
+                android:background="@color/colorPrimary"
+                android:layout_below="@+id/top_tool_bar"
+                android:id="@+id/main_content_view"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerVertical="true"
-                android:text="@{musicState.duration}"
-                android:id="@+id/play_view_duration"
-                android:layout_toRightOf="@id/one_seekbar" />
+                android:layout_height="wrap_content">
+                <ImageView
+                    tools:background="@color/colorPrimaryDark"
+                    android:bitmapSrc="@{musicState.currentMusic.currentBitmap}"
+                    android:layout_centerHorizontal="true"
+                    android:scaleType="fitCenter"
+                    android:id="@+id/play_view_album"
+                    android:layout_width="match_parent"
+                    android:layout_height="360dp" />
 
-            <ImageButton
-                android:onClick="@{onClickListener.onClick}"
-                android:background="?android:attr/selectableItemBackground"
-                android:scaleType="centerInside"
-                android:layout_width="55dp"
-                android:layout_height="55dp"
-                android:src="@{musicState.isWhite?(musicState.playMode==1?@drawable/repeat_white:(musicState.playMode==2?@drawable/repeat_one_white:@drawable/shuffle_white)):(musicState.playMode==1?@drawable/repeat:(musicState.playMode==2?@drawable/repeat_one:@drawable/shuffle))}"
-                android:id="@+id/play_view_playmode"
-                android:layout_alignParentBottom="true"
-                android:layout_alignRight="@id/play_view_duration" />
+            </RelativeLayout>
 
-            <ImageButton
-                android:onClick="@{onClickListener.onClick}"
-                android:background="?android:attr/selectableItemBackground"
-                android:scaleType="fitXY"
-                android:layout_width="60dp"
-                android:layout_height="60dp"
-                android:src="@{musicState.isWhite?@drawable/ic_skip_next_white_48dp:@drawable/next}"
-                android:id="@+id/play_view_next"
-                android:layout_centerVertical="true"
-                android:layout_toRightOf="@id/play_view_duration"
-                />
-            <TextView
-                android:textSize="19sp"
-                android:paddingRight="15dp"
-                android:textColor="@{musicState.isWhite?@color/WHITE:@color/BLACK}"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerVertical="true"
-                android:text="@{musicState.progress}"
-                android:id="@+id/play_view_progress"
-                android:layout_toLeftOf="@id/one_seekbar" />
+            <RelativeLayout
+                android:visibility="@{musicState.isPlayView?View.VISIBLE:View.GONE}"
+                android:id="@+id/play_view_controll_bar"
+                android:layout_width="match_parent"
+                android:layout_height="190dp"
+                >
+
+                <RelativeLayout
+                    android:background="@color/colorControllBarTransparent"
+                    android:layout_centerInParent="true"
+                    android:layout_width="340dp"
+                    android:layout_height="170dp">
+
+                    <one.peace.oneplayer.ui.view.CircleSeekBar
+                        android:id="@+id/one_seekbar"
+                        android:layout_width="84dp"
+                        android:layout_height="84dp"
+                        android:layout_centerHorizontal="true"
+                        android:layout_below="@+id/play_view_duration"
+                        android:clickable="@{musicState.isClickable}"
+                        android:isPlaying="@{musicState.isPlaying}"
+                        android:percentage="@{musicState.percentage}" />
+                    <Button
+                        android:onClick="toSoundEffect"
+                        android:background="@color/TOTAL_TRANSPARENT"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="@color/BLACK"
+                        android:text="@string/sound_effect"
+                        android:id="@+id/play_view_sound_effect_button"
+                        android:layout_centerHorizontal="true"
+                        android:layout_below="@id/one_seekbar"
+                        />
+                    <TextView
+                        tools:text="66:66"
+                        android:textSize="16sp"
+                        android:layout_marginLeft="16dp"
+                        android:textColor="@color/WHITE"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="20dp"
+                        android:text="@{musicState.duration}"
+                        android:id="@+id/play_view_duration"
+                        android:layout_toRightOf="@id/one_seekbar" />
+                    <ImageButton
+                        android:padding="4dp"
+                        android:onClick="@{onClickListener.onClick}"
+                        android:background="?android:attr/selectableItemBackground"
+                        android:scaleType="centerInside"
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:src="@{musicState.playMode==1?@drawable/repeat_black:(musicState.playMode==2?@drawable/repeat_one_black:@drawable/shuffle_black)}"
+                        tools:src="@drawable/shuffle_black"
+                        android:id="@+id/play_view_playmode"
+                        android:layout_below="@id/play_view_next"
+                        android:layout_alignRight="@id/play_view_duration" />
+
+                    <Button
+                        android:onClick="toSoundEffect"
+                        android:background="@color/TOTAL_TRANSPARENT"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="@color/WHITE"
+                        android:text="@string/sound_effect"
+                        android:id="@+id/play_view_sound_effect"
+                        android:layout_centerHorizontal="true"
+                        android:layout_below="@id/one_seekbar"
+                        />
+                    <ImageButton
+                        android:padding="1dp"
+                        android:onClick="@{onClickListener.onClick}"
+                        android:background="?android:attr/selectableItemBackground"
+                        android:scaleType="fitXY"
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:src="@drawable/skip_next_black"
+                        android:id="@+id/play_view_next"
+                        android:layout_marginTop="50dp"
+                        android:layout_toRightOf="@id/one_seekbar"
+                        android:layout_marginLeft="25dp"
+                        />
+
+                    <TextView
+                        android:id="@+id/play_view_progress"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignBaseline="@+id/play_view_duration"
+                        android:layout_alignBottom="@+id/play_view_duration"
+                        android:layout_toStartOf="@+id/one_seekbar"
+                        android:layout_marginRight="16dp"
+                        android:text="@{musicState.progress}"
+                        android:textColor="@color/WHITE"
+                        android:textSize="16sp"
+                        tools:text="00:00" />
 
 
-            <ImageButton
-                android:onClick="@{onClickListener.onClick}"
-                android:background="?android:attr/selectableItemBackground"
-                android:scaleType="centerInside"
-                android:layout_width="55dp"
-                android:layout_height="55dp"
-                android:src="@{musicState.isWhite?@drawable/ic_queue_music_white_48dp:@drawable/queue}"
-                android:id="@+id/play_view_queue"
-                android:layout_alignParentBottom="true"
-                android:layout_toRightOf="@+id/play_view_previous"
-                android:layout_toEndOf="@+id/play_view_previous" />
+                    <ImageButton
+                        android:padding="4dp"
+                        android:onClick="@{onClickListener.onClick}"
+                        android:background="?android:attr/selectableItemBackground"
+                        android:scaleType="centerInside"
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:src="@drawable/queue_music_black"
+                        android:id="@+id/play_view_queue"
+                        android:layout_below="@id/play_view_previous"
+                        android:layout_alignLeft="@id/play_view_progress"
+                        />
 
-            <ImageButton
-                android:onClick="@{onClickListener.onClick}"
-                android:background="?android:attr/selectableItemBackground"
-                android:scaleType="fitXY"
-                android:layout_width="60dp"
-                android:layout_height="60dp"
-                android:src="@{musicState.isWhite?@drawable/ic_skip_previous_white_48dp:@drawable/previous}"
-                android:id="@+id/play_view_previous"
-                android:layout_alignTop="@+id/play_view_next"
-                android:layout_toLeftOf="@+id/play_view_progress"
-                android:layout_toStartOf="@+id/play_view_progress" />
-        </RelativeLayout>
+                    <ImageButton
+                        android:padding="1dp"
+                        android:id="@+id/play_view_previous"
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:layout_above="@+id/play_view_playmode"
+                        android:layout_marginRight="25dp"
+                        android:layout_toLeftOf="@id/one_seekbar"
+                        android:background="?android:attr/selectableItemBackground"
+                        android:onClick="@{onClickListener.onClick}"
+                        android:scaleType="fitXY"
+                        android:src="@drawable/skip_previous_black" />
+                </RelativeLayout>
+
+            </RelativeLayout>
+        </LinearLayout>
     </one.peace.oneplayer.ui.view.StretchLayout>
 </layout>

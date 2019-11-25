@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+
 import one.peace.oneplayer.util.ReflectUtil;
 import one.peace.oneplayer.util.StringUtil;
 
@@ -17,6 +18,7 @@ public class IndexedEntities<E> {
 
     public interface IndexInfoChangedListener {
         void indexInfoUpdated(Object indexValue, Object entity, int position, int newSize);
+
         void indexInfoAdded(Object indexValue, Object entity, int position);
     }
 
@@ -27,14 +29,14 @@ public class IndexedEntities<E> {
 
     public IndexedEntities(Class clazz, String attributeName, ArrayList<E> entities, IndexInfoChangedListener indexInfoChangedListener) {
         indices = new ArrayList<>();
-        getMethod = ReflectUtil.getGetMethod(clazz,attributeName);
+        getMethod = ReflectUtil.getGetMethod(clazz, attributeName);
         comparator = new Comparator<E>() {
             @Override
             public int compare(E lhs, E rhs) {
-                if(lhs!=null&&rhs!=null) {
-                    return StringUtil.mandarin2Pinyin(ReflectUtil.invokeGetMethod(lhs,getMethod)).toLowerCase()
-                            .compareTo(StringUtil.mandarin2Pinyin(ReflectUtil.invokeGetMethod(rhs,getMethod)).toLowerCase());
-                }else {
+                if (lhs != null && rhs != null) {
+                    return StringUtil.mandarin2Pinyin(ReflectUtil.invokeGetMethod(lhs, getMethod)).toLowerCase()
+                            .compareTo(StringUtil.mandarin2Pinyin(ReflectUtil.invokeGetMethod(rhs, getMethod)).toLowerCase());
+                } else {
                     return 0;
                 }
             }
@@ -55,8 +57,8 @@ public class IndexedEntities<E> {
         return dataSource;
     }
 
-    public void initialize(ArrayList<E> entities){
-        if (entities == null || entities.size() == 0){
+    public void initialize(ArrayList<E> entities) {
+        if (entities == null || entities.size() == 0) {
             return;
         }
         dataSource = entities;

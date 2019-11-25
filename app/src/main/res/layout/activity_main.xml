@@ -39,12 +39,12 @@
             <include
                 layout="@layout/view_music_controll"
                 bind:musicState="@{musicState}"
-                bind:musicInfo="@{music}"
+                bind:musicInfo="@{musicInfo}"
                 bind:onClickListener="@{onClickListener}"
                 />
 
         </RelativeLayout>
-        <android.support.design.widget.NavigationView
+        <com.google.android.material.navigation.NavigationView
             android:id="@+id/navigation_view"
             android:layout_width="260dp"
             android:layout_height="match_parent"
