@@ -62,10 +62,9 @@ public class OnePlayer implements Serializable {
     private ArrayList<MusicInfo> playList;
     private OnMusicListener onMusicListener;
     private Config config;
-    private boolean isUsingAudioTrack = false;
-    private AudioTrack audioTrack;
     private static MusicInfo lastMusic;
-    private boolean isAudioEffectOpened = false;
+    private boolean isMediaPlayerInited = false;
+
     private Timer timer;
     private TimerTask timerTask;
     private int ticklePeriod = 500;
@@ -108,6 +107,7 @@ public class OnePlayer implements Serializable {
     public OnePlayer(Context context){
         config = Config.getInstance(context);
         currentPosition = 0;
+        init();
     }
 
     public OnePlayer(ArrayList<MusicInfo> playList, int currentPosition) {
@@ -118,7 +118,6 @@ public class OnePlayer implements Serializable {
         this.config = config;
         this.onMusicListener = onMusicListener;
         setPlayList(playList, currentPosition);
-        this.isUsingAudioTrack = isUsingAudioTrack;
     }
 
     public void setOnMusicListener(OnMusicListener onMusicListener) {
@@ -141,52 +140,51 @@ public class OnePlayer implements Serializable {
         return environmentalReverb;
     }
 
-    public void init(MusicInfo music) {
+    public void init() {
         Log.v("OnePlayer", "init()");
+        if(isMediaPlayerInited){
+            return;
+        }
+        if (mediaPlayer == null) {
+            initMediaPlayer();
+            initSoundEffects();
+            activateSoundEffects(true);
+        }
+        mediaPlayer.reset();
+        isStarted = false;
+        isMediaPlayerInited = true;
+    }
+
+    public void selectMusic(MusicInfo musicInfo){
+        init();
         if (onMusicListener != null) {
             if (lastMusic != null) {
                 lastMusic.setPlaying(false);
                 lastMusic.getSingerInfo().setPlaying(false);
                 lastMusic.getAlbumInfo().setPlaying(false);
             }
-            music.setPlaying(true);
-            music.getSingerInfo().setPlaying(true);
-            music.getAlbumInfo().setPlaying(true);
-            lastMusic = music;
-            onMusicListener.onMusicChanged(music);
-            Log.v("OnePlayer", "init()" + music.getDisplayName());
+            musicInfo.setPlaying(true);
+            musicInfo.getSingerInfo().setPlaying(true);
+            musicInfo.getAlbumInfo().setPlaying(true);
+            lastMusic = musicInfo;
+            onMusicListener.onMusicChanged(musicInfo);
+            Log.v("OnePlayer", "init()" + musicInfo.getDisplayName());
         }
         try {
-            if (!isUsingAudioTrack) {
-                if (mediaPlayer == null) {
-                    initMediaPlayer();
-                    initSoundEffects();
-                    activateSoundEffects(true);
-                }
-                mediaPlayer.reset();
-                mediaPlayer.setDataSource(music.getUrl());
-            } else {
-                if (audioTrack == null) {
-                    //initAudioTrack(music.getUrl());
-                    initSoundEffects();
-                }
-            }
-            isStarted = false;
-
+            mediaPlayer.setDataSource(musicInfo.getUrl());
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
+    public void selectMusic(int position) {
+        currentPosition = position;
+        selectMusic(playList.get(position));
+    }
+
 
     private void initSoundEffects() {
-        int sessionId;
-        if (!isUsingAudioTrack) {
-            sessionId = mediaPlayer.getAudioSessionId();
-        } else {
-            sessionId = audioTrack.getAudioSessionId();
-        }
-
+        int sessionId = mediaPlayer.getAudioSessionId();
         visualizer = new Visualizer(sessionId);
         equalizer = new Equalizer(5, sessionId);
         bassBoost = new BassBoost(5, sessionId);
@@ -316,77 +314,39 @@ public class OnePlayer implements Serializable {
     }
 
     public void play() {
-        if (!isUsingAudioTrack) {
-            if (isStarted) {
-                Log.v("OnePlayer", "已经开始");
-                if (mediaPlayer.isPlaying()) {
-                    Log.v("OnePlayer", "正在播放，暂停音乐");
-                    pause();
-                    activateVisualizer(false);
-                    if (onMusicListener != null) {
-                        onMusicListener.onPause();
-                    }
-                } else {
-                    Log.v("OnePlayer", "暂停中，开始音乐");
-                    mediaPlayer.start();
-                    if (onMusicListener != null) {
-                        onMusicListener.onContinue();
-                    }
-                    activateVisualizer(true);
+        if (isStarted) {
+            Log.v("OnePlayer", "已经开始");
+            if (mediaPlayer.isPlaying()) {
+                Log.v("OnePlayer", "正在播放，暂停音乐");
+                pause();
+                activateVisualizer(false);
+                if (onMusicListener != null) {
+                    onMusicListener.onPause();
                 }
             } else {
-                Log.v("OnePlayer", "尚未开始,重设");
-                currentTime = 0;
-                try {
-                    mediaPlayer.prepareAsync();
-
-                } catch (Exception e) {
+                Log.v("OnePlayer", "暂停中，开始音乐");
+                mediaPlayer.start();
+                if (onMusicListener != null) {
+                    onMusicListener.onContinue();
                 }
-                isStarted = true;
+                activateVisualizer(true);
             }
         } else {
-            if (isStarted) {
-                Log.v("OnePlayer", "已经开始(AudioTrack模式)");
-                if (audioTrack.getPlayState() == AudioTrack.PLAYSTATE_PLAYING) {
-                    Log.v("OnePlayer", "正在播放，暂停音乐(AudioTrack模式)");
-                    audioTrack.pause();
-                    activateSoundEffects(false);
-                    if (onMusicListener != null) {
-                        onMusicListener.onPause();
-                    }
-                } else if (audioTrack.getPlayState() == AudioTrack.PLAYSTATE_PAUSED) {
-                    Log.v("OnePlayer", "暂停中，开始音乐(AudioTrack模式)");
-                    audioTrack.play();
-                    //byte[] chunk = musicDecoder.getChunk();
-                    //audioTrack.write(chunk, 0, chunk.length);
-                    if (onMusicListener != null) {
-                        onMusicListener.onContinue();
-                    }
-                    activateSoundEffects(true);
-                }
-            } else {
-                Log.v("OnePlayer", "尚未开始,重设(AudioTrack模式)");
-                currentTime = 0;
-                try {
-                    //byte[] chunk = musicDecoder.getChunk();
-                    //LogTool.log("OnePlayer", "play()检查Chunk" + chunk);
-                    //audioTrack.write(chunk, 0, chunk.length);
-                    activateSoundEffects(true);
-                } catch (Exception e) {
-                }
-                isStarted = true;
+            Log.v("OnePlayer", "尚未开始,重设");
+            currentTime = 0;
+            try {
+                mediaPlayer.prepareAsync();
+
+            } catch (Exception e) {
             }
+            isStarted = true;
         }
 
     }
 
     public void activateSoundEffects(boolean enabled) {
         visualizer.setEnabled(enabled);
-        equalizer.setEnabled(enabled);
-        bassBoost.setEnabled(enabled);
-        presetReverb.setEnabled(enabled);
-        virtualizer.setEnabled(enabled);
-        environmentalReverb.setEnabled(enabled);
+        activateSoundEffectsExceptVisualizer(enabled);
     }
 
     public void activateSoundEffectsExceptVisualizer(boolean enabled) {
@@ -456,7 +416,7 @@ public class OnePlayer implements Serializable {
         this.playList = playList;
         if (playList != null) {
             musicNumber = playList.size();
-            init(playList.get(currentPosition));
+            selectMusic(playList.get(currentPosition));
         }
 
     }
@@ -497,27 +457,30 @@ public class OnePlayer implements Serializable {
         mediaPlayer.stop();
     }
 
-    public void selectMusic(MusicInfo musicInfo, int position) {
+    public void playMusic(MusicInfo musicInfo, int position) {
         Log.v("OnePlayer", "selectMusic()");
         stopTimer();
         if (mediaPlayer.isPlaying()) {
             pause();
         }
         currentPosition = position;
-        init(musicInfo);
+        selectMusic(musicInfo);
         play();
 
     }
 
     public void getNextMusic() {
         if (playMode == looping) {
-            selectMusic(playList.get(currentPosition), currentPosition);
+            playMusic(playList.get(currentPosition), currentPosition);
         } else {
             changeMusic(true);
         }
     }
 
     public void changeMusic(boolean isNext) {
+        if (playList == null || playList.size() == 0){
+            return;
+        }
         LogTool.log(this, "changeMusic()");
         switch (playMode) {
             case random:
@@ -536,7 +499,7 @@ public class OnePlayer implements Serializable {
                 }
                 break;
         }
-        selectMusic(playList.get(currentPosition), currentPosition);
+        playMusic(playList.get(currentPosition), currentPosition);
     }
 
     protected void setLooping() {

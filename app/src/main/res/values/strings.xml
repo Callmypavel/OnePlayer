@@ -51,7 +51,7 @@
     <string name="bass">重低音</string>
     <string name="value">%1$d</string>
     <string name="preset">音场</string>
-    <string name="virtualizer">虚拟</string>
+    <string name="virtualizer">虚拟等级</string>
     <string name="decay">衰减时间</string>
     <string name="decayHF">高频衰减时间</string>
     <string name="timeMeasurement">%1$dms</string>

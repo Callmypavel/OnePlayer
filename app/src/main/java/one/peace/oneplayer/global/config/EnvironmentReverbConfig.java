@@ -10,6 +10,7 @@ import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 import one.peace.oneplayer.BR;
+import one.peace.oneplayer.database.AppDatabase;
 import one.peace.oneplayer.music.player.MusicState;
 
 /**
@@ -57,8 +58,7 @@ public class EnvironmentReverbConfig extends BaseObservable {
         if (sInstance == null) {
             synchronized (MusicState.class) {
                 if (sInstance == null) {
-                    sInstance = buildDatabase(context.getApplicationContext());
-                    sInstance.updateDatabaseCreated(context.getApplicationContext());
+                    sInstance = AppDatabase.getInstance(context).configDao().getConfig().getEnvironmentReverbConfig();
                 }
             }
         }

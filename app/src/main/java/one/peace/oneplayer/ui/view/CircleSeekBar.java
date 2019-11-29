@@ -13,6 +13,7 @@ import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
 
+import androidx.databinding.BindingAdapter;
 import one.peace.oneplayer.R;
 import one.peace.oneplayer.util.OneBitmapUtil;
 
@@ -58,6 +59,32 @@ public class CircleSeekBar extends View implements GestureDetector.OnGestureList
     public interface OnSeekBarActionListener {
         void onProgressUpdated(float progress);
         void onButtonClick();
+    }
+
+    @BindingAdapter("android:isWhite")
+    public static void setIsWhite(CircleSeekBar oneSeekBar, boolean isWhite){
+        if (isWhite) {
+            Log.v("OneActivity","updateMusicInfo()绘制白色");
+            oneSeekBar.setColorInt(Color.WHITE);
+        } else {
+            Log.v("OneActivity","updateMusicInfo()绘制黑色");
+            oneSeekBar.setColorInt(Color.BLACK);
+        }
+        oneSeekBar.setButtonBitmap(true);
+    }
+    @BindingAdapter("android:seekBarColor")
+    public static void setSeekBarColor(CircleSeekBar oneSeekBar, int color){
+        oneSeekBar.setColorInt(color);
+        oneSeekBar.setButtonBitmap(true);
+    }
+    @BindingAdapter("android:isPlaying")
+    public static void setIsPlaying(CircleSeekBar oneSeekBar, boolean isPlaying){
+        oneSeekBar.setButtonBitmap(isPlaying);
+    }
+
+    @BindingAdapter("android:percentage")
+    public static void setPercentage(CircleSeekBar oneSeekBar, float percentage){
+        oneSeekBar.setProgress(percentage);
     }
 
     private void initialize(Context context){

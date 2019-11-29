@@ -5,12 +5,15 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.ColorFilter;
 import android.graphics.Matrix;
 import android.graphics.Paint;
+import android.graphics.PixelFormat;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
 import android.graphics.Rect;
 import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.media.MediaMetadataRetriever;
 import android.renderscript.Allocation;
 import android.renderscript.RenderScript;
@@ -117,6 +120,34 @@ public class OneBitmapUtil {
                 bitmapLoadListener.onBitmapLoaded(cachedBitmap);
             }
         }
+    }
+
+    public static Drawable getBackArrowDrawable(Context context){
+        final Bitmap bitmap = OneBitmapUtil.zoomImg(context, R.drawable.arrow_back_black,12);
+        Drawable drawable = new Drawable() {
+            Paint paint = new Paint();
+            @Override
+            public void draw(Canvas canvas) {
+
+                canvas.drawBitmap(bitmap,canvas.getWidth()/2-bitmap.getWidth()/2,canvas.getHeight()/2-bitmap.getHeight()/2,paint);
+            }
+
+            @Override
+            public void setAlpha(int alpha) {
+
+            }
+
+            @Override
+            public void setColorFilter(ColorFilter colorFilter) {
+
+            }
+
+            @Override
+            public int getOpacity() {
+                return PixelFormat.OPAQUE;
+            }
+        };
+        return drawable;
     }
 
     public static Bitmap getMiddleAlbumArt(Context context, String url) {

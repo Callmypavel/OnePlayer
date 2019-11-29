@@ -65,38 +65,31 @@ public class Config extends BaseObservable {
 
     public void setEnvironmentReverbConfig(EnvironmentReverbConfig environmentReverbConfig) {
         this.environmentReverbConfig = environmentReverbConfig;
-        notifyPropertyChanged(BR.environmentReverbConfig);
     }
 
     private EnvironmentReverbConfig environmentReverbConfig;
 
-    @Bindable
     public ArrayList<Integer> getBandLevels() {
         return bandLevels;
     }
 
     public void setBandLevels(ArrayList<Integer> bandLevels) {
         this.bandLevels = bandLevels;
-        notifyPropertyChanged(BR.bandLevels);
     }
-    @Bindable
     public int getBassBoostStrenth() {
         return bassBoostStrength;
     }
 
     public void setBassBoostStrenth(int bassBoostStrenth) {
         this.bassBoostStrength = bassBoostStrenth;
-        notifyPropertyChanged(BR.bassBoostStrenth);
     }
 
-    @Bindable
     public int getPresetReverb() {
         return presetReverb;
     }
 
     public void setPresetReverb(int presetReverb) {
         this.presetReverb = presetReverb;
-        notifyPropertyChanged(BR.presetReverb);
     }
 
     @Bindable

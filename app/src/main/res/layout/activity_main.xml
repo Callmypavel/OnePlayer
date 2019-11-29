@@ -3,6 +3,20 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:bind="http://schemas.android.com/tools">
+    <data>
+        <import type="one.peace.oneplayer.global.config.Config"/>
+        <import type="one.peace.oneplayer.music.player.MusicState"/>
+        <import type="android.view.View.OnClickListener"/>
+        <variable
+            name="config"
+            type="Config" />
+        <variable
+            name="musicState"
+            type="MusicState" />
+        <variable
+            name="onClickListener"
+            type="OnClickListener" />
+    </data>
     <androidx.drawerlayout.widget.DrawerLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
@@ -11,7 +25,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent">
             <androidx.appcompat.widget.Toolbar
-                android:background="@{oneConfig.themeColor}"
+                android:background="@{config.themeColor}"
                 tools:background = "@color/colorPrimary"
                 app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
                 app:theme="@style/ThemeOverlay.AppCompat.ActionBar"
@@ -39,7 +53,7 @@
             <include
                 layout="@layout/view_music_controll"
                 bind:musicState="@{musicState}"
-                bind:musicInfo="@{musicInfo}"
+                bind:musicInfo="@{musicState.currentMusic}"
                 bind:onClickListener="@{onClickListener}"
                 />
 

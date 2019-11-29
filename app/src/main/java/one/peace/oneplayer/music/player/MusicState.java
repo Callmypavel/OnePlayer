@@ -35,8 +35,7 @@ public class MusicState extends BaseObservable {
         if (sInstance == null) {
             synchronized (MusicState.class) {
                 if (sInstance == null) {
-                    sInstance = buildDatabase(context.getApplicationContext());
-                    sInstance.updateDatabaseCreated(context.getApplicationContext());
+                    sInstance = new MusicState();
                 }
             }
         }
@@ -173,4 +172,6 @@ public class MusicState extends BaseObservable {
         this.waveformdata = waveformdata;
         notifyPropertyChanged(BR.waveformdata);
     }
+
+
 }

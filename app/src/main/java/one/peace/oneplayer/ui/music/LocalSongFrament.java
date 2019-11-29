@@ -10,6 +10,7 @@ import one.peace.oneplayer.R;
 import one.peace.oneplayer.base.IndexedEntities;
 import one.peace.oneplayer.music.entity.MusicInfo;
 import one.peace.oneplayer.music.entity.SingerInfo;
+import one.peace.oneplayer.music.player.OnePlayer;
 import one.peace.oneplayer.ui.base.BaseFragment;
 import one.peace.oneplayer.ui.base.BaseListFragment;
 import one.peace.oneplayer.util.LogTool;
@@ -55,6 +56,7 @@ public class LocalSongFrament extends BaseListFragment<MusicInfo, BaseListFragme
         if(getViewModel() != null){
             getViewModel().getDatas().add(musicInfo);
         }else {
+            //fragment还未初始化,先临时承载
             if (musicInfos == null) {
                 musicInfos = new ObservableArrayList<>();
             }
@@ -70,10 +72,12 @@ public class LocalSongFrament extends BaseListFragment<MusicInfo, BaseListFragme
             dataSource = new ObservableArrayList<>();
         }
         if(getViewModel().getDatas() != null){
+            //已经初始化完成，所有数据都在viewmodel里
             dataSource.addAll(getViewModel().getDatas());
             return;
         }
         if(musicInfos != null){
+            //framgent没有初始化，从临时容器中获取
             dataSource.addAll(musicInfos);
         }
     }
@@ -85,6 +89,9 @@ public class LocalSongFrament extends BaseListFragment<MusicInfo, BaseListFragme
 
     @Override
     public void onItemClick(View view, Object data, int position) {
-
+        LogTool.log(this,"即将播放"+((MusicInfo)data).getUrl());
+        OnePlayer.getInstance(getContext()).setPlayList(getViewModel().getDatas());
+        OnePlayer.getInstance(getContext()).selectMusic(position);
+        OnePlayer.getInstance(getContext()).play();
     }
 }

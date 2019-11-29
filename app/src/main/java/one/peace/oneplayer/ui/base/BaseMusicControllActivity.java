@@ -25,6 +25,7 @@ import androidx.annotation.NonNull;
 import androidx.databinding.ViewDataBinding;
 import androidx.lifecycle.ViewModel;
 import androidx.palette.graphics.Palette;
+import one.peace.oneplayer.BR;
 import one.peace.oneplayer.MainActivity;
 import one.peace.oneplayer.R;
 import one.peace.oneplayer.base.OneApplication;
@@ -41,26 +42,30 @@ import one.peace.oneplayer.util.OneBitmapUtil;
 import one.peace.oneplayer.util.PermissionUtil;
 import one.peace.oneplayer.util.StringUtil;
 import one.peace.oneplayer.util.ViewTool;
+import one.peace.oneplayer.BR;
 
 
 
 /**
  * Created by pavel on 2019/11/25.
  */
-public abstract class BaseMusicControllActivity<T extends ViewModel> extends BaseActivity<T> {
+public abstract class BaseMusicControllActivity<T extends ViewModel> extends BaseActivity<T> implements View.OnClickListener {
     private StretchLayout stretchLayout;
-    private MusicState mMusicState;
-    private Config mConfig;
+    protected MusicState mMusicState;
+    protected Config mConfig;
     private BroadcastReceiver playReceiver;
     private BroadcastReceiver previousReceiver;
     private BroadcastReceiver nextReceiver;
     private OnePlayer mOnePlayer;
+    private boolean isNotiClickable = true;
     //状态栏的初始颜色
     private int statusInitColor = Color.argb(0, 0, 0, 0);
 
     @Override
     protected void onInitData(T viewModel, ViewDataBinding viewDataBinding) {
         initialize();
+        viewDataBinding.setVariable(BR.musicState,mMusicState);
+        viewDataBinding.setVariable(BR.onClickListener,this);
     }
 
     protected void initialize() {
@@ -222,8 +227,6 @@ public abstract class BaseMusicControllActivity<T extends ViewModel> extends Bas
         if (Build.VERSION.SDK_INT >= 24) {
             builder = new Notification.Builder(this)
                     .setAutoCancel(true)
-                    .setContentTitle("title")
-                    .setContentText("describe")
                     .setCustomContentView(remoteViews)
                     .setCustomBigContentView(bigRemoteViews)
                     .setContentIntent(pendingIntent)
@@ -234,8 +237,6 @@ public abstract class BaseMusicControllActivity<T extends ViewModel> extends Bas
         }else {
             builder = new Notification.Builder(this)
                     .setAutoCancel(true)
-                    .setContentTitle("title")
-                    .setContentText("describe")
                     .setContentIntent(pendingIntent)
                     .setWhen(System.currentTimeMillis())
                     .setSmallIcon(R.drawable.start_small)
@@ -310,8 +311,8 @@ public abstract class BaseMusicControllActivity<T extends ViewModel> extends Bas
         previousReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                if (isNotiClikable) {
-                    playPrevious();
+                if (isNotiClickable) {
+                    mOnePlayer.changeMusic(false);
                 }
             }
         };
@@ -323,8 +324,8 @@ public abstract class BaseMusicControllActivity<T extends ViewModel> extends Bas
         nextReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                if (isNotiClikable) {
-                    playNext();
+                if (isNotiClickable) {
+                    mOnePlayer.changeMusic(true);
                 }
             }
         };
@@ -337,7 +338,7 @@ public abstract class BaseMusicControllActivity<T extends ViewModel> extends Bas
         registerReceiver(new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                if (isNotiClikable) {
+                if (isNotiClickable) {
                     closeNotification();
                 }
             }
@@ -400,6 +401,11 @@ public abstract class BaseMusicControllActivity<T extends ViewModel> extends Bas
         stretchLayout.toMinHeight();
         MusicState.getInstance(this).setInPlayView(false);
         ViewTool.setStatusColor(this,mConfig.getThemeColor());
+    }
+
+    @Override
+    public void onClick(View v) {
+
     }
 
     //在底部控制栏占据屏幕时，为了防止误触，要让它背后遮住的控件不响应触控
