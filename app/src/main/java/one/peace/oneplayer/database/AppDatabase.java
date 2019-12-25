@@ -13,7 +13,7 @@ import one.peace.oneplayer.global.config.Config;
 /**
  * Created by pavel on 2019/11/19.
  */
-@Database(entities = {Config.class}, version = 1)
+@Database(entities = {Config.class}, version = 1, exportSchema = false)
 public abstract class AppDatabase extends RoomDatabase {
     private static AppDatabase sInstance;
 

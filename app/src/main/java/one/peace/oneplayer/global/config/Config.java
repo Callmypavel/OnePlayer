@@ -2,6 +2,7 @@ package one.peace.oneplayer.global.config;
 
 
 import android.content.Context;
+import android.media.audiofx.EnvironmentalReverb;
 
 import java.util.ArrayList;
 
@@ -10,6 +11,7 @@ import androidx.databinding.Bindable;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
+import androidx.room.TypeConverter;
 import one.peace.oneplayer.BR;
 import one.peace.oneplayer.database.AppDatabase;
 import one.peace.oneplayer.database.dao.ConfigDAO;
@@ -45,8 +47,20 @@ public class Config extends BaseObservable {
     private int blueValue;
     @ColumnInfo(name = "alpha_value")
     private int alphaValue;
+    @ColumnInfo(name = "environmentreverb_config")
+    private EnvironmentReverbConfig environmentReverbConfig;
 
     private static Config sInstance;
+
+    @TypeConverter
+    public static String convertEnvironmentReverbConfig(EnvironmentReverbConfig environmentalReverbConfig){
+        return environmentalReverbConfig.toString();
+    }
+
+    @TypeConverter
+    public static EnvironmentReverbConfig convertString(String storedValue){
+
+    }
 
     public static Config getInstance(final Context context) {
         if (sInstance == null) {
@@ -67,7 +81,6 @@ public class Config extends BaseObservable {
         this.environmentReverbConfig = environmentReverbConfig;
     }
 
-    private EnvironmentReverbConfig environmentReverbConfig;
 
     public ArrayList<Integer> getBandLevels() {
         return bandLevels;
