@@ -13,7 +13,7 @@
 
     <androidx.viewpager.widget.ViewPager
         android:layout_below="@id/id_tablayout"
-        android:id="@+id/id_viewpager"
+        android:id="@+id/id_fragment_viewpager"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 </RelativeLayout>

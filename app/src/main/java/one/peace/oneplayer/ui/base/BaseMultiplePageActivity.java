@@ -17,6 +17,7 @@ import androidx.databinding.DataBindingUtil;
 import androidx.databinding.ViewDataBinding;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentStatePagerAdapter;
+import androidx.lifecycle.ViewModel;
 import androidx.viewpager.widget.ViewPager;
 import one.peace.oneplayer.R;
 import one.peace.oneplayer.databinding.ActivityMainBinding;
@@ -32,13 +33,10 @@ public abstract class BaseMultiplePageActivity extends BaseMusicControllActivity
     private ArrayList<String> titles;
     private FragmentStatePagerAdapter fragmentStatePagerAdapter;
     private int currentFragmentPosition = 0;
-    private ViewDataBinding mViewDataBinding;
-
 
     @Override
-    protected void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        mViewDataBinding = DataBindingUtil.setContentView(this,getLayoutId());
+    protected void onInitData(ViewModel viewModel, ViewDataBinding viewDataBinding) {
+        super.onInitData(viewModel, viewDataBinding);
         tabLayout = findViewById(R.id.id_tablayout);
         viewPager = findViewById(R.id.id_viewpager);
         fragments = generateFragments();

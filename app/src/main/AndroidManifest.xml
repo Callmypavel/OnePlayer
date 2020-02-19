@@ -30,6 +30,7 @@
         </activity>
         <activity android:name=".ui.music.AlbumDetailActivity" />
         <activity android:name=".ui.music.SingerDetailActivity" />
+        <activity android:name=".ui.music.SoundEffectActivity" />
     </application>
 
 </manifest>

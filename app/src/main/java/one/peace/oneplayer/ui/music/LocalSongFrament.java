@@ -17,8 +17,7 @@ import one.peace.oneplayer.util.LogTool;
 import one.peace.oneplayer.util.MusicLoader;
 
 public class LocalSongFrament extends BaseListFragment<MusicInfo, BaseListFragment.BaseListViewModel> implements MusicLoader.LoadMusicListener {
-    private ObservableArrayList<MusicInfo> musicInfos;
-    private ObservableArrayList<MusicInfo> dataSource;
+    private ObservableArrayList<MusicInfo> tempMusicInfos = new ObservableArrayList<>();
     @Override
     protected int getItemLayoutId() {
         return R.layout.item_local_song;
@@ -27,16 +26,8 @@ public class LocalSongFrament extends BaseListFragment<MusicInfo, BaseListFragme
     @Override
     protected void onInitData(final BaseListFragment.BaseListViewModel viewModel, ViewDataBinding viewDataBinding) {
         super.onInitData(viewModel, viewDataBinding);
-        LogTool.log(this,"天照！"+viewModel.getDatas());
-        if (musicInfos != null) {
-            viewModel.getDatas().addAll(musicInfos);
-            musicInfos = null;
-        }else {
-            //临时的为空
-            if (dataSource != null){
-                //数据源不为空
-                viewModel.getDatas().addAll(dataSource);
-            }
+        if (tempMusicInfos != null) {
+            viewModel.getDatas().addAll(tempMusicInfos);
         }
     }
 
@@ -53,33 +44,17 @@ public class LocalSongFrament extends BaseListFragment<MusicInfo, BaseListFragme
 
     @Override
     public void loadFound(MusicInfo musicInfo) {
-        if(getViewModel() != null){
+        if (getViewModel() != null) {
             getViewModel().getDatas().add(musicInfo);
         }else {
-            //fragment还未初始化,先临时承载
-            if (musicInfos == null) {
-                musicInfos = new ObservableArrayList<>();
-            }
-            musicInfos.add(musicInfo);
+            tempMusicInfos.add(musicInfo);
         }
 
-        //LogTool.log(this,"我day到了！"+LogTool.toString(musicInfo));
     }
 
     @Override
     public void loadFinished() {
-        if(dataSource == null) {
-            dataSource = new ObservableArrayList<>();
-        }
-        if(getViewModel().getDatas() != null){
-            //已经初始化完成，所有数据都在viewmodel里
-            dataSource.addAll(getViewModel().getDatas());
-            return;
-        }
-        if(musicInfos != null){
-            //framgent没有初始化，从临时容器中获取
-            dataSource.addAll(musicInfos);
-        }
+
     }
 
     @Override

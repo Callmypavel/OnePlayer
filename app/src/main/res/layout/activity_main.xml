@@ -44,7 +44,6 @@
             </androidx.appcompat.widget.Toolbar>
 
             <androidx.viewpager.widget.ViewPager
-                android:layout_below="@id/toolbar"
                 app:layout_behavior="@string/appbar_scrolling_view_behavior"
                 android:id="@+id/id_viewpager"
                 android:layout_width="match_parent"

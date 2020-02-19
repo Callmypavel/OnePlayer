@@ -19,6 +19,7 @@ import androidx.databinding.ViewDataBinding;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProviders;
+import one.peace.oneplayer.util.LogTool;
 
 
 /**
@@ -32,6 +33,7 @@ public abstract class BaseActivity<T extends ViewModel> extends AppCompatActivit
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mViewModel = (T) ViewModelProviders.of(this).get(getViewModelClass());
+        LogTool.log(this, "查看将要设置的layoutid" + getLayoutId());
         mViewDataBinding = DataBindingUtil.setContentView(this,getLayoutId());
         mViewDataBinding.setLifecycleOwner(this);
         onInitData(mViewModel, mViewDataBinding);

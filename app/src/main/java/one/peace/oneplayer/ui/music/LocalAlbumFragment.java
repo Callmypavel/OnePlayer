@@ -24,10 +24,8 @@ import one.peace.oneplayer.util.LogTool;
 import one.peace.oneplayer.util.MusicLoader;
 import one.peace.oneplayer.util.OneBitmapUtil;
 
-public class LocalAlbumFragment extends BaseListFragment<AlbumInfo, BaseListFragment.BaseListViewModel> implements MusicLoader.LoadMusicListener {
-    private IndexedEntities<MusicInfo> indexedEntities;
-    private ArrayList<MusicInfo> musicDataSource = new ArrayList<>();
-    private ObservableArrayList<AlbumInfo> albumInfos;
+public class LocalAlbumFragment extends BaseListFragment<AlbumInfo, BaseListFragment.BaseListViewModel> implements IndexedEntities.IndexInfoChangedListener {
+    private ObservableArrayList<AlbumInfo> tempAlbumInfos = new ObservableArrayList<>();
 
     @Override
     protected int getItemLayoutId() {
@@ -37,50 +35,20 @@ public class LocalAlbumFragment extends BaseListFragment<AlbumInfo, BaseListFrag
     @Override
     protected void onInitData(final BaseListFragment.BaseListViewModel viewModel, ViewDataBinding viewDataBinding) {
         super.onInitData(viewModel, viewDataBinding);
-        if (albumInfos == null) {
-            indexedEntities = new IndexedEntities<MusicInfo>(MusicInfo.class, "album", musicDataSource, new IndexedEntities.IndexInfoChangedListener() {
-                @Override
-                public void indexInfoUpdated(Object indexValue, Object entity, int position, int newSize) {
-                    AlbumInfo albumInfo = (AlbumInfo) viewModel.getDatas().get(position);
-                    albumInfo.setSongsNumber(newSize);
-                    MusicInfo musicInfo = (MusicInfo)entity;
-                    albumInfo.getMusicInfos().add(musicInfo);
-                    musicInfo.setAlbumInfo(albumInfo);
-                }
-
-                @Override
-                public void indexInfoAdded(Object indexValue, Object entity, int position) {
-                    MusicInfo musicInfo = (MusicInfo) entity;
-                    AlbumInfo albumInfo = new AlbumInfo(musicInfo.getAlbum());
-                    albumInfo.setSongsNumber(1);
-                    albumInfo.setSingerName(musicInfo.getArtist());
-                    albumInfo.setAlbumBitmapUrl(musicInfo.getUrl());
-                    musicInfo.setAlbumInfo(albumInfo);
-                    ObservableArrayList<MusicInfo> musicInfos = new ObservableArrayList<>();
-                    musicInfos.add(musicInfo);
-                    albumInfo.setMusicInfos(musicInfos);
-                    viewModel.getDatas().add(position, albumInfo);
-                    if (albumInfos == null) {
-                        albumInfos = new ObservableArrayList<>();
+        getUniversalAdapter().setOnBindHandler(new UniversalAdapter.OnBindHandler() {
+            @Override
+            public void onBinded(Object data) {
+                final AlbumInfo albumInfo = (AlbumInfo) data;
+                OneBitmapUtil.loadBitmapAsync(getContext(), albumInfo.getAlbumBitmapUrl(), new OneBitmapUtil.LoadBitmapListener() {
+                    @Override
+                    public void onBitmapLoaded(Bitmap bitmap) {
+                        albumInfo.setAlbumImage(bitmap);
                     }
-                    albumInfos.add(position, albumInfo);
-                }
-            });
-            getUniversalAdapter().setOnBindHandler(new UniversalAdapter.OnBindHandler() {
-                @Override
-                public void onBinded(Object data) {
-                    final AlbumInfo albumInfo = (AlbumInfo) data;
-                    OneBitmapUtil.loadBitmapAsync(getContext(), albumInfo.getAlbumBitmapUrl(), new OneBitmapUtil.LoadBitmapListener() {
-                        @Override
-                        public void onBitmapLoaded(Bitmap bitmap) {
-                            albumInfo.setAlbumImage(bitmap);
-                        }
-                    });
-                }
-            });
-            musicDataSource = null;
-        } else {
-            viewModel.getDatas().addAll(albumInfos);
+                });
+            }
+        });
+        if (tempAlbumInfos != null) {
+            viewModel.getDatas().addAll(tempAlbumInfos);
         }
 
     }
@@ -104,6 +72,40 @@ public class LocalAlbumFragment extends BaseListFragment<AlbumInfo, BaseListFrag
         activity.jumpToActivity(AlbumDetailActivity.class,"albumInfo",albumInfo);
     }
 
+    @Override
+    public void indexInfoUpdated(Object indexValue, Object entity, int position, int newSize) {
+        AlbumInfo albumInfo;
+        if (getViewModel() != null) {
+            albumInfo = (AlbumInfo) getViewModel().getDatas().get(position);
+        } else {
+            albumInfo = tempAlbumInfos.get(position);
+        }
+        albumInfo.setSongsNumber(newSize);
+        MusicInfo musicInfo = (MusicInfo) entity;
+        albumInfo.getMusicInfos().add(musicInfo);
+        musicInfo.setAlbumInfo(albumInfo);
+        LogTool.log(this, "专辑更新:" + albumInfo.getAlbumName() + "," + musicInfo.getDisplayName());
+    }
+
+    @Override
+    public void indexInfoAdded(Object indexValue, Object entity, int position) {
+        MusicInfo musicInfo = (MusicInfo) entity;
+        AlbumInfo albumInfo = new AlbumInfo(musicInfo.getAlbum());
+        albumInfo.setSongsNumber(1);
+        albumInfo.setSingerName(musicInfo.getArtist());
+        albumInfo.setAlbumBitmapUrl(musicInfo.getUrl());
+        musicInfo.setAlbumInfo(albumInfo);
+        ObservableArrayList<MusicInfo> musicInfos = new ObservableArrayList<>();
+        musicInfos.add(musicInfo);
+        albumInfo.setMusicInfos(musicInfos);
+        if (getViewModel() != null) {
+            getViewModel().getDatas().add(position, albumInfo);
+        } else {
+            tempAlbumInfos.add(position, albumInfo);
+        }
+        LogTool.log(this, "专辑增加:" + albumInfo.getAlbumName() + "," + musicInfo.getDisplayName());
+    }
+
     class SpacesItemDecoration extends RecyclerView.ItemDecoration {
         private int space;
 
@@ -121,36 +123,4 @@ public class LocalAlbumFragment extends BaseListFragment<AlbumInfo, BaseListFrag
         }
     }
 
-
-    @Override
-    public void loadPass(String fileName) {
-
-    }
-
-    @Override
-    public void loadFound(MusicInfo musicInfo) {
-        if (indexedEntities == null) {
-            musicDataSource.add(musicInfo);
-            LogTool.log(this,"受死吧"+musicInfo.getDisplayName());
-        } else {
-            if (indexedEntities.getIndexInfoChangedListener() != null) {
-                indexedEntities.addNew(musicInfo);
-                LogTool.log(this,"后启示录"+musicInfo.getDisplayName());
-            } else {
-                musicDataSource.add(musicInfo);
-                LogTool.log(this,"受死吧"+musicInfo.getDisplayName());
-            }
-        }
-
-    }
-
-    @Override
-    public void loadFinished() {
-
-    }
-
-    @Override
-    public void loadProgressChanged(int progress) {
-
-    }
 }

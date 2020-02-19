@@ -67,7 +67,7 @@ public class OnePlayer implements Serializable {
 
     private Timer timer;
     private TimerTask timerTask;
-    private int ticklePeriod = 500;
+    private int ticklePeriod = 1000;
     private Boolean isErrorOcccured = false;
 
     public interface OnMusicListener {
@@ -83,9 +83,9 @@ public class OnePlayer implements Serializable {
 
         void onWaveForm(byte[] data);
 
-        void onPause();
+        void onMusicPause();
 
-        void onContinue();
+        void onMusicContinue();
 
         void onSoundEffectLoaded(Config config);
 
@@ -104,10 +104,31 @@ public class OnePlayer implements Serializable {
         return sInstance;
     }
 
+    public static OnePlayer getInstance(Context context, Config.ConfigListener listener) {
+        if (sInstance == null) {
+            synchronized (OnePlayer.class) {
+                if (sInstance == null) {
+                    sInstance = new OnePlayer(context, listener);
+                }
+            }
+        }
+        return sInstance;
+    }
+
+    public OnePlayer(Context context, Config.ConfigListener listener) {
+        Config.getInstance(context, listener);
+    }
+
     public OnePlayer(Context context){
-        config = Config.getInstance(context);
-        currentPosition = 0;
-        init();
+        Config.getInstance(context, new Config.ConfigListener() {
+            @Override
+            public void onConfigLoaded(Config config) {
+                OnePlayer.this.config = config;
+                currentPosition = 0;
+                init();
+            }
+        });
+
     }
 
     public OnePlayer(ArrayList<MusicInfo> playList, int currentPosition) {
@@ -140,15 +161,15 @@ public class OnePlayer implements Serializable {
         return environmentalReverb;
     }
 
-    public void init() {
-        Log.v("OnePlayer", "init()");
+    private void init() {
+        LogTool.log(this, "初始化");
         if(isMediaPlayerInited){
             return;
         }
         if (mediaPlayer == null) {
             initMediaPlayer();
             initSoundEffects();
-            activateSoundEffects(true);
+            activateVisualizer(true);
         }
         mediaPlayer.reset();
         isStarted = false;
@@ -168,9 +189,10 @@ public class OnePlayer implements Serializable {
             musicInfo.getAlbumInfo().setPlaying(true);
             lastMusic = musicInfo;
             onMusicListener.onMusicChanged(musicInfo);
-            Log.v("OnePlayer", "init()" + musicInfo.getDisplayName());
+            LogTool.log(this, "选择音乐:" + musicInfo.getDisplayName());
         }
         try {
+            mediaPlayer.reset();
             mediaPlayer.setDataSource(musicInfo.getUrl());
         } catch (IOException e) {
             e.printStackTrace();
@@ -207,7 +229,7 @@ public class OnePlayer implements Serializable {
                 }
             }
         }, Visualizer.getMaxCaptureRate() / 2, false, true);
-        LogTool.log("OnePlayer", "visualizer已被唤醒，魔王再临");
+        LogTool.log(this, "visualizer已被唤醒，魔王再临" + config);
         if (config.getBassBoostStrenth() == -1) {
             config.setBassBoostStrenth(bassBoost.getRoundedStrength());
         }
@@ -261,6 +283,7 @@ public class OnePlayer implements Serializable {
             environmentReverbConfig.setRoomHFLevel((short) (environmentalReverb.getRoomHFLevel() / 1000));
         }
         config.setEnvironmentReverbConfig(environmentReverbConfig);
+        LogTool.log(this, "查看配置" + config);
         onMusicListener.onSoundEffectLoaded(config);
     }
 
@@ -277,7 +300,7 @@ public class OnePlayer implements Serializable {
                     duration = mediaPlayer.getDuration();
                     onMusicListener.onPrepared(duration);
                 }
-                activateVisualizer(true);
+
 
             }
         });
@@ -321,13 +344,13 @@ public class OnePlayer implements Serializable {
                 pause();
                 activateVisualizer(false);
                 if (onMusicListener != null) {
-                    onMusicListener.onPause();
+                    onMusicListener.onMusicPause();
                 }
             } else {
                 Log.v("OnePlayer", "暂停中，开始音乐");
                 mediaPlayer.start();
                 if (onMusicListener != null) {
-                    onMusicListener.onContinue();
+                    onMusicListener.onMusicContinue();
                 }
                 activateVisualizer(true);
             }

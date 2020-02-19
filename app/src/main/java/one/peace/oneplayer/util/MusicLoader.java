@@ -4,16 +4,21 @@ import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.os.Parcelable;
 
 import java.io.File;
 import java.util.ArrayList;
 
 import androidx.annotation.NonNull;
+import androidx.databinding.ObservableArrayList;
 import androidx.work.OneTimeWorkRequest;
 import androidx.work.WorkManager;
 import androidx.work.Worker;
 import androidx.work.WorkerParameters;
+import one.peace.oneplayer.base.IndexedEntities;
+import one.peace.oneplayer.music.entity.AlbumInfo;
 import one.peace.oneplayer.music.entity.MusicInfo;
+import one.peace.oneplayer.music.entity.SingerInfo;
 
 /**
  * Created by pavel on 2019/11/14.
@@ -24,13 +29,13 @@ public abstract class MusicLoader extends Worker {
     public final static int LOAD_FOUND = 2;
     public final static int LOAD_PROGRESS = 3;
     public final static int LOAD_FINISHED = 4;
+    private static IndexedEntities<MusicInfo> indexedSingerInfos;
+    private static IndexedEntities<MusicInfo> indexAlbumInfos;
     private static ArrayList<LoadMusicListener> mLoadMusicListeners;
     private static Handler handler;
 
     public MusicLoader(@NonNull Context context, @NonNull WorkerParameters workerParams) {
         super(context, workerParams);
-
-
     }
 
     @NonNull
@@ -60,6 +65,11 @@ public abstract class MusicLoader extends Worker {
         mLoadMusicListeners.add(loadMusicListener);
     }
 
+    public static void addLoadSingerAndAlbumListeners(IndexedEntities.IndexInfoChangedListener singerListener, IndexedEntities.IndexInfoChangedListener albumListener) {
+        indexedSingerInfos = new IndexedEntities<MusicInfo>(MusicInfo.class, "artist", null, singerListener);
+        indexAlbumInfos = new IndexedEntities<MusicInfo>(MusicInfo.class, "album", null, albumListener);
+    }
+
     protected abstract void loadMusic();
 
     public static void initHandler() {
@@ -75,7 +85,10 @@ public abstract class MusicLoader extends Worker {
                                     musicListener.loadPass(msg.getData().getString("fileName"));
                                     break;
                                 case LOAD_FOUND:
-                                    musicListener.loadFound((MusicInfo) msg.getData().getParcelable("musicInfo"));
+                                    MusicInfo musicInfo = msg.getData().getParcelable("musicInfo");
+                                    musicListener.loadFound(musicInfo);
+                                    indexedSingerInfos.addNew(musicInfo);
+                                    indexAlbumInfos.addNew(musicInfo);
                                     break;
                                 case LOAD_PROGRESS:
                                     musicListener.loadProgressChanged(msg.getData().getInt("progress"));
@@ -104,35 +117,52 @@ public abstract class MusicLoader extends Worker {
 //    }
 
     protected void scanFinished(){
-        Message message = Message.obtain();
-        message.what = LOAD_FINISHED;
-        handler.sendMessage(message);
+        sendSimpleMessage(LOAD_FINISHED);
     }
 
     protected void scanPass(String fileName){
+        sendSimpleStringMessage(LOAD_PASS, "fileName", fileName);
+    }
+
+    protected void scanFound(MusicInfo musicInfo) {
+        sendSimpleParcelableMessage(LOAD_FOUND, "musicInfo", musicInfo);
+
+    }
+
+    protected void scanProgressChanged(int progress) {
+        sendSimpleIntMessage(LOAD_PROGRESS, "progress", progress);
+    }
+
+    private void sendSimpleParcelableMessage(int what, String key, Parcelable value) {
         Message message = Message.obtain();
-        message.what = LOAD_PASS;
+        message.what = what;
         Bundle bundle = new Bundle();
-        bundle.putString("fileName", fileName);
+        bundle.putParcelable(key, value);
         message.setData(bundle);
         handler.sendMessage(message);
     }
 
-    protected void scanFound(MusicInfo musicInfo){
+    private void sendSimpleStringMessage(int what, String key, String value) {
         Message message = Message.obtain();
-        message.what = LOAD_FOUND;
+        message.what = what;
         Bundle bundle = new Bundle();
-        bundle.putParcelable("musicInfo", musicInfo);
+        bundle.putString(key, value);
         message.setData(bundle);
         handler.sendMessage(message);
     }
 
-    protected void scanProgressChanged(int progress){
+    private void sendSimpleIntMessage(int what, String key, int value) {
         Message message = Message.obtain();
-        message.what = LOAD_PROGRESS;
+        message.what = what;
         Bundle bundle = new Bundle();
-        bundle.putInt("progress", progress);
+        bundle.putInt(key, value);
         message.setData(bundle);
+        handler.sendMessage(message);
+    }
+
+    private void sendSimpleMessage(int what) {
+        Message message = Message.obtain();
+        message.what = what;
         handler.sendMessage(message);
     }
 }

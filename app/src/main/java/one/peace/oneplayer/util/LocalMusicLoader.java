@@ -8,7 +8,10 @@ import java.util.LinkedList;
 
 import androidx.annotation.NonNull;
 import androidx.work.WorkerParameters;
+import one.peace.oneplayer.base.IndexedEntities;
+import one.peace.oneplayer.music.entity.AlbumInfo;
 import one.peace.oneplayer.music.entity.MusicInfo;
+import one.peace.oneplayer.music.entity.SingerInfo;
 
 public class LocalMusicLoader extends MusicLoader {
     private String[] supportedMusicFormats = new String[]{".mp3",".ogg",".flac"};
@@ -17,6 +20,7 @@ public class LocalMusicLoader extends MusicLoader {
     public LocalMusicLoader(@NonNull Context context, @NonNull WorkerParameters workerParams) {
         super(context, workerParams);
     }
+
 
     @Override
     protected void loadMusic() {
@@ -32,6 +36,7 @@ public class LocalMusicLoader extends MusicLoader {
                 MusicInfo musicInfo = getMusic(rootFile,mediaMetadataRetriever);
                 if(musicInfo != null) {
                     scanFound(musicInfo);
+
                 }
             }
         }
@@ -62,6 +67,8 @@ public class LocalMusicLoader extends MusicLoader {
 
 
         }
+
+
     }
 
     public MusicInfo getMusic(File file,MediaMetadataRetriever mediaMetadataRetriever){

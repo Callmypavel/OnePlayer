@@ -8,6 +8,7 @@ import one.peace.oneplayer.music.entity.MusicInfo;
 import one.peace.oneplayer.ui.base.BaseMultiplePageFragment;
 import one.peace.oneplayer.util.LoaderManager;
 import one.peace.oneplayer.util.LocalMusicLoader;
+import one.peace.oneplayer.util.LogTool;
 import one.peace.oneplayer.util.MediaMusicLoader;
 
 public class LocalMusicFragment extends BaseMultiplePageFragment {
@@ -38,10 +39,10 @@ public class LocalMusicFragment extends BaseMultiplePageFragment {
 
     @Override
     protected void onInit() {
+        LogTool.log(this, "你应该只调一遍");
         MediaMusicLoader.initHandler();
         MediaMusicLoader.addLoadMusicListener(localSongFrament);
-        MediaMusicLoader.addLoadMusicListener(localAlbumFragment);
-        MediaMusicLoader.addLoadMusicListener(localSingerFrament);
+        MediaMusicLoader.addLoadSingerAndAlbumListeners(localSingerFrament, localAlbumFragment);
         LoaderManager loaderManager = new LoaderManager(MediaMusicLoader.class);
         loaderManager.startLoading();
     }

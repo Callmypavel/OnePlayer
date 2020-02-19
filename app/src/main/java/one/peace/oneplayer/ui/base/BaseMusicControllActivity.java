@@ -49,7 +49,7 @@ import one.peace.oneplayer.BR;
 /**
  * Created by pavel on 2019/11/25.
  */
-public abstract class BaseMusicControllActivity<T extends ViewModel> extends BaseActivity<T> implements View.OnClickListener {
+public abstract class BaseMusicControllActivity<T extends ViewModel> extends BaseActivity<T> implements View.OnClickListener, OnePlayer.OnMusicListener {
     private StretchLayout stretchLayout;
     protected MusicState mMusicState;
     protected Config mConfig;
@@ -71,77 +71,7 @@ public abstract class BaseMusicControllActivity<T extends ViewModel> extends Bas
     protected void initialize() {
         mMusicState = MusicState.getInstance(this);
         mOnePlayer = OnePlayer.getInstance(this);
-        mOnePlayer.setOnMusicListener(new OnePlayer.OnMusicListener() {
-            @Override
-            public void onComplete() {
-
-            }
-
-            @Override
-            public void onMusicChanged(MusicInfo musicInfo) {
-                mMusicState.setCurrentMusic(musicInfo);
-                updateMusicInfo(musicInfo);
-            }
-
-            @Override
-            public void onMusicTickling(float time) {
-                mMusicState.setProgress(StringUtil.ten2sixty(time));
-                mMusicState.setPercentage(time*1.f/mMusicState.getDurationInSeconds());
-            }
-
-            @Override
-            public void onPrepared(int duration) {
-                duration = duration/1000;
-                Log.v("OneApplication","onPrepared()总时长"+duration);
-                mMusicState.setDurationInSeconds(duration);
-                mMusicState.setIsPlaying(true);
-                initNotification(false,null);
-            }
-
-            @Override
-            public void onError(int what, int extra) {
-
-            }
-
-            @Override
-            public void onWaveForm(byte[] data) {
-                mMusicState.setWaveformdata(data);
-            }
-
-            @Override
-            public void onPause() {
-                Log.v("OneApplication","onPause()");
-                mMusicState.setIsPlaying(false);
-                initNotification(true,null);
-            }
-
-            @Override
-            public void onContinue() {
-                Log.v("OneApplication","onContinue()");
-                mMusicState.setIsPlaying(true);
-                initNotification(false,null);
-            }
-
-            @Override
-            public void onSoundEffectLoaded(Config config) {
-                mConfig = config;
-            }
-
-            @Override
-            public void onPlayModeChanged(int playMode) {
-                mMusicState.setPlayMode(playMode);
-                String text="当前播放模式：";
-                switch (playMode){
-                    case OnePlayer.cycle:
-                        text += "列表循环";break;
-                    case OnePlayer.random:
-                        text += "随机播放";break;
-                    case OnePlayer.looping:
-                        text += "单曲循环";break;
-                }
-                Snackbar.make(stretchLayout,text,Snackbar.LENGTH_SHORT);
-            }
-        });
+        mOnePlayer.setOnMusicListener(this);
         CircleSeekBar circleSeekBar = getWindow().getDecorView().findViewById(R.id.one_seekbar);
         circleSeekBar.setOnSeekBarActionListener(new CircleSeekBar.OnSeekBarActionListener() {
             @Override
@@ -160,7 +90,7 @@ public abstract class BaseMusicControllActivity<T extends ViewModel> extends Bas
 
             }
         });
-        StretchLayout stretchLayout = getWindow().getDecorView().findViewById(R.id.main_content_bar);
+        stretchLayout = getWindow().getDecorView().findViewById(R.id.main_content_bar);
         stretchLayout.setOnReachMaxListener(new StretchLayout.OnReachListener() {
             @Override
             public void onReachMax() {
@@ -368,7 +298,7 @@ public abstract class BaseMusicControllActivity<T extends ViewModel> extends Bas
 
     public void seekTo(float progress) {
         int second = (int) (progress * mMusicState.getDurationInSeconds());
-        Log.v("OneApplication", "seekTo()查看秒" + second);
+        LogTool.log(this, "seekTo()查看秒" + second);
         mMusicState.setProgress(StringUtil.ten2sixty(second));
         mOnePlayer.seekto(second * 1000);
         //play();
@@ -405,7 +335,32 @@ public abstract class BaseMusicControllActivity<T extends ViewModel> extends Bas
 
     @Override
     public void onClick(View v) {
-
+        switch (v.getId()) {
+            case R.id.play_view_previous:
+                mOnePlayer.changeMusic(false);
+                break;
+            case R.id.play_view_next:
+                LogTool.log(this, "播放下一首");
+                mOnePlayer.changeMusic(true);
+                break;
+            case R.id.play_view_queue:
+                quitPlayView();
+                break;
+            case R.id.play_view_playmode:
+                mOnePlayer.changePlayMode();
+                break;
+            case R.id.bottom_play_button:
+                LogTool.log(this, "按下播放按键");
+                mOnePlayer.play();
+                break;
+            case R.id.bottom_controll_bar:
+                LogTool.log(this, "按下底部控制栏");
+                toPlayView();
+                break;
+            case R.id.down_button:
+                quitPlayView();
+                break;
+        }
     }
 
     //在底部控制栏占据屏幕时，为了防止误触，要让它背后遮住的控件不响应触控
@@ -416,5 +371,82 @@ public abstract class BaseMusicControllActivity<T extends ViewModel> extends Bas
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         PermissionUtil.onPermissionResult(this, requestCode, grantResults);
+    }
+
+    @Override
+    public void onComplete() {
+        LogTool.log(this, "播放完成");
+    }
+
+    @Override
+    public void onMusicChanged(MusicInfo musicInfo) {
+        LogTool.log(this, "更换音乐:" + musicInfo.getDisplayName());
+        mMusicState.setIsPlaying(true);
+        mMusicState.setCurrentMusic(musicInfo);
+        updateMusicInfo(musicInfo);
+    }
+
+    @Override
+    public void onMusicTickling(float time) {
+        mMusicState.setProgress(StringUtil.ten2sixty(time));
+        mMusicState.setPercentage(time * 1.f / mMusicState.getDurationInSeconds());
+        //LogTool.log(this,"走时:"+StringUtil.ten2sixty(time));
+    }
+
+    @Override
+    public void onPrepared(int duration) {
+        duration = duration / 1000;
+        LogTool.log(this, "准备完毕，总时长:" + duration);
+        mMusicState.setDurationInSeconds(duration);
+        mMusicState.setIsPlaying(true);
+        initNotification(false, null);
+    }
+
+    @Override
+    public void onError(int what, int extra) {
+
+    }
+
+    @Override
+    public void onWaveForm(byte[] data) {
+        mMusicState.setWaveformdata(data);
+    }
+
+    @Override
+    public void onMusicPause() {
+        LogTool.log(this, "暂停播放");
+        mMusicState.setIsPlaying(false);
+        initNotification(true, null);
+    }
+
+    @Override
+    public void onMusicContinue() {
+        LogTool.log(this, "继续播放");
+        mMusicState.setIsPlaying(true);
+        initNotification(false, null);
+    }
+
+    @Override
+    public void onSoundEffectLoaded(Config config) {
+        mConfig = config;
+        LogTool.log(this, "看看配置" + mConfig);
+    }
+
+    @Override
+    public void onPlayModeChanged(int playMode) {
+        mMusicState.setPlayMode(playMode);
+        String text = "当前播放模式：";
+        switch (playMode) {
+            case OnePlayer.cycle:
+                text += "列表循环";
+                break;
+            case OnePlayer.random:
+                text += "随机播放";
+                break;
+            case OnePlayer.looping:
+                text += "单曲循环";
+                break;
+        }
+        Snackbar.make(stretchLayout, text, Snackbar.LENGTH_SHORT);
     }
 }

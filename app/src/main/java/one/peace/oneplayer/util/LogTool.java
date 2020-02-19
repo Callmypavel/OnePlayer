@@ -47,6 +47,24 @@ public class LogTool {
         log(object.getClass().getSimpleName(), stringBuilder.toString());
     }
 
+    public static void log(Object object, ArrayList arrayList) {
+        StringBuilder stringBuilder = new StringBuilder();
+        for (int i = 0; i < arrayList.size(); i++) {
+            Object element = arrayList.get(i);
+            stringBuilder.append("[");
+            stringBuilder.append(i);
+            stringBuilder.append("]");
+            stringBuilder.append(LogTool.toString(element));
+            stringBuilder.append(",");
+        }
+        String result = stringBuilder.toString();
+        result = result.substring(0, result.length() - 1);
+        log(object.getClass().getSimpleName(), result);
+    }
+
+    public static void log(Object object, Object value) {
+        log(object.getClass().getSimpleName(), LogTool.toString(value));
+    }
 
     public static void log(Object object,String message,int... values) {
         StringBuilder stringBuilder = new StringBuilder();

@@ -7,6 +7,7 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.room.Database;
 import androidx.room.Room;
 import androidx.room.RoomDatabase;
+import androidx.room.TypeConverters;
 import one.peace.oneplayer.database.dao.ConfigDAO;
 import one.peace.oneplayer.global.config.Config;
 
@@ -14,6 +15,7 @@ import one.peace.oneplayer.global.config.Config;
  * Created by pavel on 2019/11/19.
  */
 @Database(entities = {Config.class}, version = 1, exportSchema = false)
+@TypeConverters({Converters.class})
 public abstract class AppDatabase extends RoomDatabase {
     private static AppDatabase sInstance;
 

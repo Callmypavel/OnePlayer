@@ -2,7 +2,10 @@ package one.peace.oneplayer.global.config;
 
 
 import android.content.Context;
+import android.graphics.Color;
 import android.media.audiofx.EnvironmentalReverb;
+
+import com.google.gson.Gson;
 
 import java.util.ArrayList;
 
@@ -16,6 +19,8 @@ import one.peace.oneplayer.BR;
 import one.peace.oneplayer.database.AppDatabase;
 import one.peace.oneplayer.database.dao.ConfigDAO;
 import one.peace.oneplayer.music.player.MusicState;
+import one.peace.oneplayer.util.ExecutorServiceUtil;
+import one.peace.oneplayer.util.StringUtil;
 
 /**
  * Created by ouyan on 2016/9/24.
@@ -26,7 +31,7 @@ public class Config extends BaseObservable {
     @PrimaryKey
     private int configId = 1;
     @ColumnInfo(name = "theme_color")
-    private int themeColor;
+    private int themeColor = Color.BLACK;
     @ColumnInfo(name = "band_levels")
     private ArrayList<Integer> bandLevels;
     @ColumnInfo(name = "bassboost_strength")
@@ -52,25 +57,33 @@ public class Config extends BaseObservable {
 
     private static Config sInstance;
 
-    @TypeConverter
-    public static String convertEnvironmentReverbConfig(EnvironmentReverbConfig environmentalReverbConfig){
-        return environmentalReverbConfig.toString();
+    public interface ConfigListener {
+        void onConfigLoaded(Config config);
     }
 
-    @TypeConverter
-    public static EnvironmentReverbConfig convertString(String storedValue){
-
-    }
-
-    public static Config getInstance(final Context context) {
-        if (sInstance == null) {
-            synchronized (Config.class) {
+    public static void getInstance(final Context context, final ConfigListener listener) {
+        ExecutorServiceUtil.submit(new Runnable() {
+            @Override
+            public void run() {
                 if (sInstance == null) {
-                    sInstance = AppDatabase.getInstance(context).configDao().getConfig();
+                    synchronized (Config.class) {
+                        if (sInstance == null) {
+                            sInstance = AppDatabase.getInstance(context).configDao().getConfig();
+                        }
+                    }
                 }
+                listener.onConfigLoaded(sInstance);
             }
-        }
-        return sInstance;
+        });
+
+    }
+
+    public int getConfigId() {
+        return configId;
+    }
+
+    public void setConfigId(int configId) {
+        this.configId = configId;
     }
 
     public EnvironmentReverbConfig getEnvironmentReverbConfig() {

@@ -27,10 +27,10 @@ public class StretchLayout extends RelativeLayout {
     private Handler handler;
     private View childView;
     private OnReachListener mOnReachListener;
-    private final static int STRETCH_ALL = 1;
-    private final static int STRETCH_CHILD = 2;
-    private final static int STRETCH_TO_MAX = 3;
-    private final static int STRETCH_TO_MIN = 4;
+    private final static int STRETCH_ALL = 0x123;
+    private final static int STRETCH_CHILD = 0x124;
+    private final static int STRETCH_TO_MAX = 0x125;
+    private final static int STRETCH_TO_MIN = 0x126;
     public StretchLayout(Context context, AttributeSet attrs) {
         super(context, attrs);
         init();
@@ -61,6 +61,11 @@ public class StretchLayout extends RelativeLayout {
             minHeight = getHeight();
             currentHeight = minHeight;
             childcurrentHeight = minHeight;
+            LogTool.log(this, "看看高度是否正确22222222:" + getHeight());
+            stretchSpeed = (int) ((maxHeight - minHeight) * timeInterval * 1.f / totalTime);
+            LogTool.log(this, "看看伸缩速度:" + stretchSpeed);
+            LogTool.log(this, "看看子View:" + getChildAt(0));
+            childView = getChildAt(0);
         }
     }
 
@@ -90,23 +95,15 @@ public class StretchLayout extends RelativeLayout {
             }
         });
 
-        post(new Runnable() {
-            @Override
-            public void run() {
-                LogTool.log(this,"看看高度是否正确:"+getHeight());
-                stretchSpeed = (int)((maxHeight - minHeight)*timeInterval*1.f/totalTime);
-                LogTool.log(this,"看看伸缩速度:"+ stretchSpeed);
-                LogTool.log(this,"看看子View:"+getChildAt(0));
-                childView = getChildAt(0);
-            }
-        });
     }
     public void toMaxHeight(){
+        LogTool.log(this, "开始长高");
         ExecutorServiceUtil.submit(new Runnable() {
             @Override
             public void run() {
-                Message message = Message.obtain();
+                LogTool.log(this, "开始运行");
                 while(currentHeight<maxHeight) {
+                    Message message = new Message();
                     currentHeight += stretchSpeed;
                     message.what = STRETCH_ALL;
                     if(currentHeight>=maxHeight-minHeight){
@@ -119,12 +116,14 @@ public class StretchLayout extends RelativeLayout {
                         }
                     }
                     handler.sendMessage(message);
+                    LogTool.log(this, "发消息改变高度" + currentHeight);
                     try {
                         Thread.sleep(timeInterval);
                     } catch (Exception e) {
-
+                        e.printStackTrace();
                     }
                 }
+                Message message = new Message();
                 message.what = STRETCH_TO_MAX;
                 handler.sendMessage(message);
                 currentHeight = maxHeight;
@@ -136,8 +135,8 @@ public class StretchLayout extends RelativeLayout {
         ExecutorServiceUtil.submit(new Runnable() {
             @Override
             public void run() {
-                Message message = new Message();
                 while(currentHeight>minHeight) {
+                    Message message = new Message();
                     currentHeight -= stretchSpeed;
                     message.what = STRETCH_ALL;
                     if(currentHeight<=maxHeight-minHeight){
@@ -149,14 +148,17 @@ public class StretchLayout extends RelativeLayout {
                             message.what = STRETCH_CHILD;
                         }
                     }
+
                     handler.sendMessage(message);
+                    LogTool.log(this, "发消息改变高度" + currentHeight);
                     try {
                         Thread.sleep(timeInterval);
                     } catch (Exception e) {
-
+                        e.printStackTrace();
                     }
                 }
                 currentHeight = minHeight;
+                Message message = new Message();
                 message.what = STRETCH_TO_MIN;
                 handler.sendMessage(message);
             }
@@ -167,12 +169,14 @@ public class StretchLayout extends RelativeLayout {
         layoutParams.height = currentHeight;
         setLayoutParams(layoutParams);
         invalidate();
+        //LogTool.log(this,"改变高度"+currentHeight);
     }
     private void changeChildHeight(){
         if(childView!=null) {
             ViewGroup.LayoutParams layoutParams = childView.getLayoutParams();
             layoutParams.height = childcurrentHeight;
             childView.setLayoutParams(layoutParams);
+            //LogTool.log(this,"改变child高度"+childcurrentHeight);
             invalidate();
         }
     }
