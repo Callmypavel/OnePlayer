@@ -33,6 +33,7 @@ import java.util.TimerTask;
 
 import one.peace.oneplayer.global.config.Config;
 import one.peace.oneplayer.global.config.EnvironmentReverbConfig;
+import one.peace.oneplayer.global.config.SoundEffectConfig;
 import one.peace.oneplayer.music.entity.MusicInfo;
 import one.peace.oneplayer.util.LogTool;
 
@@ -61,7 +62,7 @@ public class OnePlayer implements Serializable {
     private MediaPlayer mediaPlayer;
     private ArrayList<MusicInfo> playList;
     private OnMusicListener onMusicListener;
-    private Config config;
+    private SoundEffectConfig mSoundEffectConfig;
     private static MusicInfo lastMusic;
     private boolean isMediaPlayerInited = false;
 
@@ -123,6 +124,7 @@ public class OnePlayer implements Serializable {
         Config.getInstance(context, new Config.ConfigListener() {
             @Override
             public void onConfigLoaded(Config config) {
+                LogTool.log(this, "你到底加载了甚么配置" + LogTool.toString(config));
                 OnePlayer.this.config = config;
                 currentPosition = 0;
                 init();
@@ -162,7 +164,8 @@ public class OnePlayer implements Serializable {
     }
 
     private void init() {
-        LogTool.log(this, "初始化");
+        LogTool.log(this, "初始化" + config);
+
         if(isMediaPlayerInited){
             return;
         }
@@ -171,29 +174,28 @@ public class OnePlayer implements Serializable {
             initSoundEffects();
             activateVisualizer(true);
         }
-        mediaPlayer.reset();
         isStarted = false;
         isMediaPlayerInited = true;
     }
 
     public void selectMusic(MusicInfo musicInfo){
         init();
-        if (onMusicListener != null) {
-            if (lastMusic != null) {
-                lastMusic.setPlaying(false);
-                lastMusic.getSingerInfo().setPlaying(false);
-                lastMusic.getAlbumInfo().setPlaying(false);
-            }
-            musicInfo.setPlaying(true);
-            musicInfo.getSingerInfo().setPlaying(true);
-            musicInfo.getAlbumInfo().setPlaying(true);
-            lastMusic = musicInfo;
-            onMusicListener.onMusicChanged(musicInfo);
-            LogTool.log(this, "选择音乐:" + musicInfo.getDisplayName());
-        }
         try {
             mediaPlayer.reset();
             mediaPlayer.setDataSource(musicInfo.getUrl());
+            if (onMusicListener != null) {
+                if (lastMusic != null) {
+                    lastMusic.setPlaying(false);
+                    lastMusic.getSingerInfo().setPlaying(false);
+                    lastMusic.getAlbumInfo().setPlaying(false);
+                }
+                musicInfo.setPlaying(true);
+                musicInfo.getSingerInfo().setPlaying(true);
+                musicInfo.getAlbumInfo().setPlaying(true);
+                lastMusic = musicInfo;
+                onMusicListener.onMusicChanged(musicInfo);
+                LogTool.log(this, "选择音乐:" + musicInfo.getDisplayName());
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -295,13 +297,11 @@ public class OnePlayer implements Serializable {
                 initHandler();
                 initTimer();
                 mediaPlayer.start();
-
                 if (onMusicListener != null) {
+                    LogTool.log(this, "当前音乐播放长度" + duration);
                     duration = mediaPlayer.getDuration();
                     onMusicListener.onPrepared(duration);
                 }
-
-
             }
         });
         mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
@@ -338,16 +338,16 @@ public class OnePlayer implements Serializable {
 
     public void play() {
         if (isStarted) {
-            Log.v("OnePlayer", "已经开始");
+            LogTool.log("OnePlayer", "已经开始");
             if (mediaPlayer.isPlaying()) {
-                Log.v("OnePlayer", "正在播放，暂停音乐");
+                LogTool.log("OnePlayer", "正在播放，暂停音乐");
                 pause();
                 activateVisualizer(false);
                 if (onMusicListener != null) {
                     onMusicListener.onMusicPause();
                 }
             } else {
-                Log.v("OnePlayer", "暂停中，开始音乐");
+                LogTool.log("OnePlayer", "暂停中，开始音乐");
                 mediaPlayer.start();
                 if (onMusicListener != null) {
                     onMusicListener.onMusicContinue();
@@ -355,12 +355,13 @@ public class OnePlayer implements Serializable {
                 activateVisualizer(true);
             }
         } else {
-            Log.v("OnePlayer", "尚未开始,重设");
+            LogTool.log("OnePlayer", "尚未开始,重设");
             currentTime = 0;
             try {
                 mediaPlayer.prepareAsync();
 
             } catch (Exception e) {
+                e.printStackTrace();
             }
             isStarted = true;
         }
@@ -403,7 +404,7 @@ public class OnePlayer implements Serializable {
     }
 
     public void initTimer() {
-        Log.v("OnePlayer", "initTimer()");
+        LogTool.log("OnePlayer", "初始化定时器");
         timer = new Timer();
         timerTask = new TimerTask() {
             @Override

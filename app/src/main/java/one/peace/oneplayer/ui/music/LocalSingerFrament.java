@@ -57,7 +57,7 @@ public class LocalSingerFrament extends BaseListFragment<SingerInfo, BaseListFra
         MusicInfo musicInfo = (MusicInfo) entity;
         singerInfo.getMusicInfos().add(musicInfo);
         musicInfo.setSingerInfo(singerInfo);
-        LogTool.log(this, "歌手更新:" + singerInfo.getSingerName() + "," + musicInfo.getDisplayName());
+        //LogTool.log(this, "歌手更新:" + singerInfo.getSingerName() + "," + musicInfo.getDisplayName());
     }
 
     @Override
@@ -69,7 +69,7 @@ public class LocalSingerFrament extends BaseListFragment<SingerInfo, BaseListFra
         musicInfos.add(musicInfo);
         musicInfo.setSingerInfo(singerInfo);
         singerInfo.setMusicInfos(musicInfos);
-        LogTool.log(this, "歌手增加:" + singerInfo.getSingerName() + "," + musicInfo.getDisplayName());
+        //LogTool.log(this, "歌手增加:" + singerInfo.getSingerName() + "," + musicInfo.getDisplayName());
         if (getViewModel() != null) {
             getViewModel().getDatas().add(position, singerInfo);
         } else {

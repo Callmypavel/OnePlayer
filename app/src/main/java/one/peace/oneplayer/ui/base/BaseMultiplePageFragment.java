@@ -29,7 +29,7 @@ public abstract class BaseMultiplePageFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_multiple_page, container, false);
-        tabLayout = view.findViewById(R.id.id_tablayout);
+        tabLayout = view.findViewById(R.id.id_fragment_tablayout);
         viewPager = view.findViewById(R.id.id_fragment_viewpager);
         fragments = generateFragments();
         titles = generateTitles();

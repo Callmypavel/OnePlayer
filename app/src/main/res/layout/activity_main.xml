@@ -24,24 +24,17 @@
             android:id="@+id/container"
             android:layout_width="match_parent"
             android:layout_height="match_parent">
-            <androidx.appcompat.widget.Toolbar
+
+            <com.google.android.material.tabs.TabLayout
                 android:background="@{config.themeColor}"
                 tools:background = "@color/colorPrimary"
-                app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
-                app:theme="@style/ThemeOverlay.AppCompat.ActionBar"
-                app:titleTextColor="@color/WHITE"
-                android:id="@+id/toolbar"
+                app:tabTextColor="@color/TAB_UNSELECT"
+                app:tabGravity="fill"
+                app:tabIndicatorColor="@color/WHITE"
+                app:tabSelectedTextColor="@color/WHITE"
+                android:id="@+id/id_tablayout"
                 android:layout_width="match_parent"
-                android:layout_height="?attr/actionBarSize">
-                <com.google.android.material.tabs.TabLayout
-                    app:tabIndicatorColor="@color/WHITE"
-                    app:tabSelectedTextColor="@color/WHITE"
-                    app:tabTextColor="@color/TAB_UNSELECT"
-                    app:tabGravity="fill"
-                    android:id="@+id/id_tablayout"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"/>
-            </androidx.appcompat.widget.Toolbar>
+                android:layout_height="?attr/actionBarSize"></com.google.android.material.tabs.TabLayout>
 
             <androidx.viewpager.widget.ViewPager
                 app:layout_behavior="@string/appbar_scrolling_view_behavior"

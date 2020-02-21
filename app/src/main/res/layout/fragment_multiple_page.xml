@@ -7,12 +7,12 @@
     <com.google.android.material.tabs.TabLayout
         app:tabIndicatorColor="@color/colorPrimary"
         app:tabGravity="fill"
-        android:id="@+id/id_tablayout"
+        android:id="@+id/id_fragment_tablayout"
         android:layout_width="match_parent"
         android:layout_height="40dp" />
 
     <androidx.viewpager.widget.ViewPager
-        android:layout_below="@id/id_tablayout"
+        android:layout_below="@id/id_fragment_tablayout"
         android:id="@+id/id_fragment_viewpager"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />

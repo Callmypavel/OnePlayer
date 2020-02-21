@@ -31,19 +31,9 @@ public class Config extends BaseObservable {
     @PrimaryKey
     private int configId = 1;
     @ColumnInfo(name = "theme_color")
-    private int themeColor = Color.BLACK;
-    @ColumnInfo(name = "band_levels")
-    private ArrayList<Integer> bandLevels;
-    @ColumnInfo(name = "bassboost_strength")
-    private int bassBoostStrength;
-    @ColumnInfo(name = "preset_reverb")
-    private int presetReverb;
-    @ColumnInfo(name = "virtualizer_strength")
-    private int virtualizerStrength;
-    @ColumnInfo(name = "bandlevel_range")
-    private short[] bandLevelRange;
+    private int themeColor = Color.GREEN;
     @ColumnInfo(name = "blur_radius")
-    private int blurRadius;
+    private int blurRadius = 5;
     @ColumnInfo(name = "red_value")
     private int redValue;
     @ColumnInfo(name = "green_value")
@@ -52,8 +42,7 @@ public class Config extends BaseObservable {
     private int blueValue;
     @ColumnInfo(name = "alpha_value")
     private int alphaValue;
-    @ColumnInfo(name = "environmentreverb_config")
-    private EnvironmentReverbConfig environmentReverbConfig;
+
 
     private static Config sInstance;
 
@@ -72,6 +61,10 @@ public class Config extends BaseObservable {
                         }
                     }
                 }
+                //加载出来还是空
+                if (sInstance == null) {
+                    sInstance = new Config();
+                }
                 listener.onConfigLoaded(sInstance);
             }
         });
@@ -86,37 +79,7 @@ public class Config extends BaseObservable {
         this.configId = configId;
     }
 
-    public EnvironmentReverbConfig getEnvironmentReverbConfig() {
-        return environmentReverbConfig;
-    }
 
-    public void setEnvironmentReverbConfig(EnvironmentReverbConfig environmentReverbConfig) {
-        this.environmentReverbConfig = environmentReverbConfig;
-    }
-
-
-    public ArrayList<Integer> getBandLevels() {
-        return bandLevels;
-    }
-
-    public void setBandLevels(ArrayList<Integer> bandLevels) {
-        this.bandLevels = bandLevels;
-    }
-    public int getBassBoostStrenth() {
-        return bassBoostStrength;
-    }
-
-    public void setBassBoostStrenth(int bassBoostStrenth) {
-        this.bassBoostStrength = bassBoostStrenth;
-    }
-
-    public int getPresetReverb() {
-        return presetReverb;
-    }
-
-    public void setPresetReverb(int presetReverb) {
-        this.presetReverb = presetReverb;
-    }
 
     @Bindable
     public int getThemeColor() {
@@ -129,35 +92,7 @@ public class Config extends BaseObservable {
 
     }
 
-    @Bindable
-    public int getBassBoostStrength() {
-        return bassBoostStrength;
-    }
 
-    public void setBassBoostStrength(int bassBoostStrength) {
-        this.bassBoostStrength = bassBoostStrength;
-        notifyPropertyChanged(BR.bassBoostStrength);
-    }
-
-    @Bindable
-    public int getVirtualizerStrength() {
-        return virtualizerStrength;
-    }
-
-    public void setVirtualizerStrength(int virtualizerStrength) {
-        this.virtualizerStrength = virtualizerStrength;
-        notifyPropertyChanged(BR.virtualizerStrength);
-    }
-
-    @Bindable
-    public short[] getBandLevelRange() {
-        return bandLevelRange;
-    }
-
-    public void setBandLevelRange(short[] bandLevelRange) {
-        this.bandLevelRange = bandLevelRange;
-        notifyPropertyChanged(BR.bandLevelRange);
-    }
 
     @Bindable
     public int getBlurRadius() {
@@ -211,6 +146,6 @@ public class Config extends BaseObservable {
 
     @Override
     public String toString() {
-        return "主题色为"+themeColor+"bandLevels个数"+bandLevels.size()+super.toString();
+        return "主题色为" + themeColor + super.toString();
     }
 }

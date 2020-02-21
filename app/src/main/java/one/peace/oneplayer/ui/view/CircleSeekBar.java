@@ -15,6 +15,7 @@ import android.view.View;
 
 import androidx.databinding.BindingAdapter;
 import one.peace.oneplayer.R;
+import one.peace.oneplayer.util.LogTool;
 import one.peace.oneplayer.util.OneBitmapUtil;
 
 /**
@@ -22,6 +23,7 @@ import one.peace.oneplayer.util.OneBitmapUtil;
  */
 
 public class CircleSeekBar extends View implements GestureDetector.OnGestureListener{
+    private static String TAG = "CircleSeekBar";
     private Bitmap draw_bitmap;
     private Bitmap play_white_bitmap;
     private Bitmap pause_white_bitmap;
@@ -30,16 +32,24 @@ public class CircleSeekBar extends View implements GestureDetector.OnGestureList
     private int centreX;
     private int centreY;
     private int radius;
-    private int ringRadius = 40;
     private int innerRadius;
+    private int ringRadius;
     private RectF oval;
+    //进度圆环
     private Paint ringPaint;
+    //进度背景圆环
     private Paint tintRingPaint;
     private Paint defaultPaint;
     private float degree = 0;
     private int colorInt = Color.WHITE;
     private OnSeekBarActionListener mOnSeekBarActionListener;
     private GestureDetector gestureDetector;
+    //大环占屏幕宽度的比
+    private float occupyRatio = 0.17f;
+    //小环占大环的比
+    private float innerRingRatio = 0.78f;
+    //按键图占整体View的比
+    private float buttonRatio = 0.6f;
     public CircleSeekBar(Context context) {
         super(context);
         initialize(context);
@@ -62,56 +72,81 @@ public class CircleSeekBar extends View implements GestureDetector.OnGestureList
     }
 
     @BindingAdapter("android:isWhite")
-    public static void setIsWhite(CircleSeekBar oneSeekBar, boolean isWhite){
+    public static void setIsWhite(CircleSeekBar circleSeekBar, boolean isWhite) {
         if (isWhite) {
-            Log.v("OneActivity","updateMusicInfo()绘制白色");
-            oneSeekBar.setColorInt(Color.WHITE);
+            LogTool.log(TAG, "绘制白色进度条");
+            circleSeekBar.setColorInt(Color.WHITE);
         } else {
-            Log.v("OneActivity","updateMusicInfo()绘制黑色");
-            oneSeekBar.setColorInt(Color.BLACK);
+            LogTool.log(TAG, "绘制黑色进度条");
+            circleSeekBar.setColorInt(Color.BLACK);
         }
-        oneSeekBar.setButtonBitmap(true);
     }
     @BindingAdapter("android:seekBarColor")
-    public static void setSeekBarColor(CircleSeekBar oneSeekBar, int color){
-        oneSeekBar.setColorInt(color);
-        oneSeekBar.setButtonBitmap(true);
+    public static void setSeekBarColor(CircleSeekBar circleSeekBar, int color) {
+        circleSeekBar.setColorInt(color);
     }
     @BindingAdapter("android:isPlaying")
-    public static void setIsPlaying(CircleSeekBar oneSeekBar, boolean isPlaying){
-        oneSeekBar.setButtonBitmap(isPlaying);
+    public static void setIsPlaying(CircleSeekBar circleSeekBar, boolean isPlaying) {
+        circleSeekBar.setButtonBitmap(isPlaying);
     }
 
     @BindingAdapter("android:percentage")
-    public static void setPercentage(CircleSeekBar oneSeekBar, float percentage){
-        oneSeekBar.setProgress(percentage);
+    public static void setPercentage(CircleSeekBar circleSeekBar, float percentage) {
+        circleSeekBar.setProgress(percentage);
     }
 
-    private void initialize(Context context){
+    @BindingAdapter("android:occupyRatio")
+    public static void setOccupyRatio(CircleSeekBar circleSeekBar, float ratio) {
+        circleSeekBar.setOccupyRatio(ratio);
+        LogTool.log(TAG, "查看宽高设置情况:占宽比" + ratio);
+        circleSeekBar.resize();
+        circleSeekBar.invalidate();
+    }
+
+    /*
+    重新设置绘制范围并更新
+     */
+    private void resize() {
+        Context context = getContext();
         DisplayMetrics dm =getResources().getDisplayMetrics();
-        radius = (int)(dm.widthPixels/6.f);
-        ringRadius = (int)(dm.widthPixels/27.f);
+        radius = (int) (dm.widthPixels * occupyRatio / 2);
+        innerRadius = (int) (radius * innerRingRatio);
+        ringRadius = radius - innerRadius;
+        LogTool.log(TAG, "查看宽高设置情况:三巨头", radius, innerRadius, ringRadius);
+        LogTool.log(TAG, "查看宽高设置情况:占宽比和内环比:" + occupyRatio + "," + innerRingRatio);
 
         centreX = radius;
         centreY = radius;
         oval = new RectF(centreX - radius + ringRadius/2, centreY - radius + ringRadius/2, centreX + radius - ringRadius/2, centreY + radius - ringRadius/2);
-        innerRadius = radius - ringRadius;
-        play_white_bitmap = OneBitmapUtil.zoomImg(context,R.drawable.play_bare_white,2*radius,2*radius);
-        pause_white_bitmap = OneBitmapUtil.zoomImg(context,R.drawable.pause_bare_white,2*radius,2*radius);
-        play_black_bitmap = OneBitmapUtil.zoomImg(context,R.drawable.play_bare_black,2*radius,2*radius);
-        pause_black_bitmap = OneBitmapUtil.zoomImg(context,R.drawable.pause_bare_black,2*radius,2*radius);
+
+        play_white_bitmap = OneBitmapUtil.zoomImg(context, R.drawable.play_bare_white, (int) (2 * radius * buttonRatio), (int) (2 * radius * buttonRatio));
+        pause_white_bitmap = OneBitmapUtil.zoomImg(context, R.drawable.pause_bare_white, (int) (2 * radius * buttonRatio), (int) (2 * radius * buttonRatio));
+        play_black_bitmap = OneBitmapUtil.zoomImg(context, R.drawable.play_bare_black, (int) (2 * radius * buttonRatio), (int) (2 * radius * buttonRatio));
+        pause_black_bitmap = OneBitmapUtil.zoomImg(context, R.drawable.pause_bare_black, (int) (2 * radius * buttonRatio), (int) (2 * radius * buttonRatio));
 
         draw_bitmap = play_white_bitmap;
+    }
+
+    private void initialize(Context context) {
+        resize();
+
         setPaintColor();
         defaultPaint = new Paint();
 
         gestureDetector = new GestureDetector(context,this);
     }
+
+    public void setOccupyRatio(float occupyRatio) {
+        this.occupyRatio = occupyRatio;
+
+    }
+
     public void setColorInt(int colorInt){
         this.colorInt = colorInt;
         setPaintColor();
         invalidate();
     }
+
     public void setPaintColor(){
         if(ringPaint==null) {
             ringPaint = new Paint();
@@ -146,7 +181,7 @@ public class CircleSeekBar extends View implements GestureDetector.OnGestureList
         canvas.drawArc(oval,-90,degree,false,ringPaint);
     }
     private void drawButton(Canvas canvas){
-        canvas.drawBitmap(draw_bitmap,0,0,defaultPaint);
+        canvas.drawBitmap(draw_bitmap, centreX - draw_bitmap.getWidth() / 2, centreY - draw_bitmap.getWidth() / 2, defaultPaint);
     }
 
     @Override

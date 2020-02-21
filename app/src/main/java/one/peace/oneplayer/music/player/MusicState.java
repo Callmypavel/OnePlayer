@@ -8,6 +8,7 @@ import androidx.databinding.BaseObservable;
 import androidx.databinding.Bindable;
 import one.peace.oneplayer.BR;
 import one.peace.oneplayer.music.entity.MusicInfo;
+import one.peace.oneplayer.util.LogTool;
 import one.peace.oneplayer.util.StringUtil;
 
 /**
@@ -20,7 +21,7 @@ public class MusicState extends BaseObservable {
     private int musicColor = Color.WHITE;
     private boolean isWhite = true;//UI是否应该显示为白色
     private boolean isClickable = true;
-    private boolean isPlaying = true;
+    private boolean isPlaying = false;
     private boolean isInPlayView = false;
     private int playMode = 1;
     private Bitmap currentBitmap;
@@ -68,6 +69,7 @@ public class MusicState extends BaseObservable {
     }
 
     public void setCurrentBitmap(Bitmap currentBitmap) {
+        LogTool.log(this, "设置Bitmap" + currentBitmap);
         this.currentBitmap = currentBitmap;
         notifyPropertyChanged(BR.currentBitmap);
     }

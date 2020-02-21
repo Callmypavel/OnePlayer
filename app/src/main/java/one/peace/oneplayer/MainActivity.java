@@ -19,9 +19,11 @@ import androidx.navigation.ui.NavigationUI;
 import androidx.viewpager.widget.PagerAdapter;
 import one.peace.oneplayer.R;
 import one.peace.oneplayer.databinding.ActivityMainBinding;
+import one.peace.oneplayer.music.entity.MusicInfo;
 import one.peace.oneplayer.ui.base.BaseActivity;
 import one.peace.oneplayer.ui.base.BaseMultiplePageActivity;
 import one.peace.oneplayer.ui.music.LocalMusicFragment;
+import one.peace.oneplayer.util.MusicLoader;
 import one.peace.oneplayer.util.PermissionUtil;
 
 public class MainActivity extends BaseMultiplePageActivity {
@@ -43,7 +45,7 @@ public class MainActivity extends BaseMultiplePageActivity {
     @Override
     protected ArrayList<Fragment> generateFragments() {
         ArrayList<Fragment> fragments = new ArrayList<>();
-        fragments.add(new LocalMusicFragment());
+        fragments.add(new LocalMusicFragment(this));
         return fragments;
     }
 

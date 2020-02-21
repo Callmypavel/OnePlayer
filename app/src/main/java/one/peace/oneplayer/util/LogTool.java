@@ -26,7 +26,7 @@ public class LogTool {
                 if ("LogTool.java".equals(lastElement.getFileName())) {
                     lastElement = stackTraceElements[4];
                 }
-                Log.v(tag, lastElement.getFileName() + ",第" + lastElement.getLineNumber() + "行," + message);
+                Log.v(tag, "第" + lastElement.getLineNumber() + "行," + message);
             } else {
                 Log.v(tag, message);
             }

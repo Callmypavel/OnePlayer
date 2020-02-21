@@ -41,17 +41,6 @@ public class EnvironmentReverbConfig extends BaseObservable {
     @ColumnInfo(name="room_level")
     private short roomLevel;
 
-    private int themeColor;
-    private ArrayList<Integer> bandLevels;
-    private int bassBoostStrength;
-    private int presetReverb;
-    private int virtualizerStrength;
-    private short[] bandLevelRange;
-    private int blurRadius;
-    private int redColor;
-    private int greenColor;
-    private int blueColor;
-    private int alphaColor;
     private static EnvironmentReverbConfig sInstance;
 
     public static EnvironmentReverbConfig getInstance(final Context context) {

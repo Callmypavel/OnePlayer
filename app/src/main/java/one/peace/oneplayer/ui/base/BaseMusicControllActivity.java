@@ -60,18 +60,25 @@ public abstract class BaseMusicControllActivity<T extends ViewModel> extends Bas
     private boolean isNotiClickable = true;
     //状态栏的初始颜色
     private int statusInitColor = Color.argb(0, 0, 0, 0);
-
+    private ViewDataBinding mViewDataBinding;
     @Override
     protected void onInitData(T viewModel, ViewDataBinding viewDataBinding) {
         initialize();
         viewDataBinding.setVariable(BR.musicState,mMusicState);
         viewDataBinding.setVariable(BR.onClickListener,this);
+        mViewDataBinding = viewDataBinding;
     }
 
     protected void initialize() {
         mMusicState = MusicState.getInstance(this);
         mOnePlayer = OnePlayer.getInstance(this);
         mOnePlayer.setOnMusicListener(this);
+        Config.getInstance(this, new Config.ConfigListener() {
+            @Override
+            public void onConfigLoaded(Config config) {
+                mConfig = config;
+            }
+        });
         CircleSeekBar circleSeekBar = getWindow().getDecorView().findViewById(R.id.one_seekbar);
         circleSeekBar.setOnSeekBarActionListener(new CircleSeekBar.OnSeekBarActionListener() {
             @Override
@@ -112,6 +119,7 @@ public abstract class BaseMusicControllActivity<T extends ViewModel> extends Bas
     }
 
     public void updateMusicInfo(MusicInfo musicInfo) {
+        mMusicState.setCurrentMusic(musicInfo);
         mMusicState.setCurrentBitmap(OneBitmapUtil.getMiddleAlbumArt(this,musicInfo.getUrl()));
         Palette.Builder builder = Palette.from(mMusicState.getCurrentBitmap());
         builder.generate(new Palette.PaletteAsyncListener() {
@@ -145,7 +153,7 @@ public abstract class BaseMusicControllActivity<T extends ViewModel> extends Bas
 
 
     private void initNotification(boolean isPlayState, Bitmap bitmap) {
-        Log.v("OneApplication","initNotification()发出通知"+bitmap);
+        LogTool.log(this, "initNotification()发出通知" + bitmap);
         NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         Intent intent = new Intent(this, MainActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);//
@@ -311,7 +319,6 @@ public abstract class BaseMusicControllActivity<T extends ViewModel> extends Bas
 
     public void queue() {
         quitPlayView();
-
     }
 
     public void toSoundEffect(View v) {
@@ -321,16 +328,27 @@ public abstract class BaseMusicControllActivity<T extends ViewModel> extends Bas
     }
 
     public void toPlayView() {
-        Log.v("OneActivity", "toPlayView()");
+        LogTool.log(this, "进入播放视图");
         stretchLayout.toMaxHeight();
         mMusicState.setInPlayView(true);
     }
 
     public void quitPlayView() {
-        Log.v("OneActivity", "quitPlayView()");
+        LogTool.log(this, "退出播放视图");
         stretchLayout.toMinHeight();
-        MusicState.getInstance(this).setInPlayView(false);
-        ViewTool.setStatusColor(this,mConfig.getThemeColor());
+        mMusicState.setInPlayView(false);
+        if (mConfig != null) {
+            ViewTool.setStatusColor(this, mConfig.getThemeColor());
+        }
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (mMusicState.getIsInPlayView()) {
+            quitPlayView();
+        } else {
+            super.onBackPressed();
+        }
     }
 
     @Override
@@ -381,8 +399,6 @@ public abstract class BaseMusicControllActivity<T extends ViewModel> extends Bas
     @Override
     public void onMusicChanged(MusicInfo musicInfo) {
         LogTool.log(this, "更换音乐:" + musicInfo.getDisplayName());
-        mMusicState.setIsPlaying(true);
-        mMusicState.setCurrentMusic(musicInfo);
         updateMusicInfo(musicInfo);
     }
 

@@ -22,7 +22,7 @@ public class StretchLayout extends RelativeLayout {
     private int childcurrentHeight;
     private int stretchSpeed;
     private int frameRate = 60;
-    private int totalTime = 1000;
+    private int totalTime = 300;
     private int timeInterval;
     private Handler handler;
     private View childView;
@@ -61,10 +61,10 @@ public class StretchLayout extends RelativeLayout {
             minHeight = getHeight();
             currentHeight = minHeight;
             childcurrentHeight = minHeight;
-            LogTool.log(this, "看看高度是否正确22222222:" + getHeight());
+            //LogTool.log(this, "看看高度是否正确22222222:" + getHeight());
             stretchSpeed = (int) ((maxHeight - minHeight) * timeInterval * 1.f / totalTime);
-            LogTool.log(this, "看看伸缩速度:" + stretchSpeed);
-            LogTool.log(this, "看看子View:" + getChildAt(0));
+            //LogTool.log(this, "看看伸缩速度:" + stretchSpeed);
+            //LogTool.log(this, "看看子View:" + getChildAt(0));
             childView = getChildAt(0);
         }
     }

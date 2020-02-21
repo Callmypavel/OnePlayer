@@ -44,7 +44,8 @@ public class OneBitmapUtil {
 
     @BindingAdapter({"android:blurBitmap","android:blurRadius"})
     public static void setBlusRadius(View view, Bitmap bitmap, int radius){
-        if(bitmap==null||radius==0){
+        LogTool.log(TAG, "高斯模糊" + bitmap + "," + radius);
+        if (bitmap == null || radius == 0) {
             return;
         }
         Bitmap bitmap1 = OneBitmapUtil.getBluredBitmap(bitmap,radius,view.getContext());
@@ -161,10 +162,10 @@ public class OneBitmapUtil {
     }
 
     public static Bitmap getAlbumBitmap(Context context, String url) {
-        LogTool.log("Music", "getAlbumBitmap()拿url" + url);
+        //LogTool.log(TAG, "getAlbumBitmap()拿url" + url);
         Bitmap bitmap = getAlbumArt(url);
         if (bitmap == null) {
-            LogTool.log("Music", "娶不到专辑图");
+            //LogTool.log(TAG, "娶不到专辑图");
             return BitmapFactory.decodeResource(context.getResources(), R.drawable.music);
         }
         return bitmap;

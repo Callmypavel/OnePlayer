@@ -29,7 +29,7 @@
         android:layout_alignParentBottom="true"
         android:id="@+id/main_content_bar"
         android:layout_width="wrap_content"
-        tools:layout_height="960dp"
+        tools:layout_height="660dp"
         android:layout_height="60dp">
         <RelativeLayout
             android:background="@{musicState.musicColor}"
@@ -112,7 +112,7 @@
                 android:layout_height="70dp"
                 android:id="@+id/top_tool_bar">
                 <ImageView
-                    android:colorFilter="@{@color/WHITE}"
+                    android:colorFilter="@{musicState.isWhite?@color/WHITE:@color/BLACK}"
                     android:onClick="@{onClickListener.onClick}"
                     android:id="@+id/down_button"
                     android:layout_alignParentRight="true"
@@ -123,12 +123,11 @@
                     android:layout_width="25dp"
                     android:layout_height="25dp" />
                 <TextView
-                    tools:textColor="@color/BLACK"
+                    android:textColor="@{musicState.isWhite?@color/WHITE:@color/BLACK}"
                     tools:text="白金协奏黑夜领衔无上之士算法是曲"
                     android:singleLine="true"
                     android:maxEms="15"
                     android:ellipsize="marquee"
-                    android:textColor="@color/WHITE"
                     android:layout_marginLeft="10dp"
                     android:layout_centerVertical="true"
                     android:id="@+id/top_tool_bar_song_name"
@@ -182,6 +181,8 @@
                         android:layout_centerHorizontal="true"
                         android:layout_below="@+id/play_view_duration"
                         android:clickable="@{musicState.isClickable}"
+                        android:occupyRatio="@{0.23f}"
+                        android:isWhite="@{musicState.isWhite}"
                         android:isPlaying="@{musicState.isPlaying}"
                         android:percentage="@{musicState.percentage}" />
                     <Button
@@ -189,7 +190,7 @@
                         android:background="@color/TOTAL_TRANSPARENT"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:textColor="@color/BLACK"
+                        android:textColor="@{musicState.isWhite?@color/WHITE:@color/BLACK}"
                         android:text="@string/sound_effect"
                         android:id="@+id/play_view_sound_effect_button"
                         android:layout_centerHorizontal="true"
@@ -199,7 +200,7 @@
                         tools:text="66:66"
                         android:textSize="16sp"
                         android:layout_marginLeft="16dp"
-                        android:textColor="@color/BLACK"
+                        android:textColor="@{musicState.isWhite?@color/WHITE:@color/BLACK}"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="20dp"
@@ -213,7 +214,7 @@
                         android:scaleType="centerInside"
                         android:layout_width="48dp"
                         android:layout_height="48dp"
-                        android:src="@{musicState.playMode==1?@drawable/repeat_black:(musicState.playMode==2?@drawable/repeat_one_black:@drawable/shuffle_black)}"
+                        android:src="@{musicState.isWhite?(musicState.playMode==1?@drawable/repeat_white:(musicState.playMode==2?@drawable/repeat_one_white:@drawable/shuffle_white)):(musicState.playMode==1?@drawable/repeat_black:(musicState.playMode==2?@drawable/repeat_one_black:@drawable/shuffle_black))}"
                         tools:src="@drawable/shuffle_black"
                         android:id="@+id/play_view_playmode"
                         android:layout_below="@id/play_view_next"
@@ -224,7 +225,7 @@
                         android:background="@color/TOTAL_TRANSPARENT"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:textColor="@color/WHITE"
+                        android:textColor="@{musicState.isWhite?@color/WHITE:@color/BLACK}"
                         android:text="@string/sound_effect"
                         android:id="@+id/play_view_sound_effect"
                         android:layout_centerHorizontal="true"
@@ -237,7 +238,8 @@
                         android:scaleType="fitXY"
                         android:layout_width="48dp"
                         android:layout_height="48dp"
-                        android:src="@drawable/skip_next_black"
+                        tools:src="@drawable/skip_next_black"
+                        android:src="@{musicState.isWhite?@drawable/skip_next_white:@drawable/skip_next_black}"
                         android:id="@+id/play_view_next"
                         android:layout_marginTop="50dp"
                         android:layout_toRightOf="@id/one_seekbar"
@@ -253,7 +255,7 @@
                         android:layout_toStartOf="@+id/one_seekbar"
                         android:layout_marginRight="16dp"
                         android:text="@{musicState.progress}"
-                        android:textColor="@color/BLACK"
+                        android:textColor="@{musicState.isWhite?@color/WHITE:@color/BLACK}"
                         android:textSize="16sp"
                         tools:text="00:00" />
 
@@ -282,7 +284,8 @@
                         android:background="?android:attr/selectableItemBackground"
                         android:onClick="@{onClickListener.onClick}"
                         android:scaleType="fitXY"
-                        android:src="@drawable/skip_previous_black" />
+                        tools:src="@drawable/skip_previous_black"
+                        android:src="@{musicState.isWhite?@drawable/skip_previous_white:@drawable/skip_previous_black}" />
                 </RelativeLayout>
 
             </RelativeLayout>
