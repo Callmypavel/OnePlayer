@@ -80,25 +80,30 @@ public abstract class MusicLoader extends Worker {
                 @Override
                 public boolean handleMessage(Message msg) {
                     if (mLoadMusicListeners != null) {
-                        for (LoadMusicListener musicListener : mLoadMusicListeners) {
-                            switch (msg.what) {
-                                case LOAD_PASS:
+                        switch (msg.what) {
+                            case LOAD_PASS:
+                                for (LoadMusicListener musicListener : mLoadMusicListeners) {
                                     musicListener.loadPass(msg.getData().getString("fileName"));
-                                    break;
-                                case LOAD_FOUND:
-                                    MusicInfo musicInfo = msg.getData().getParcelable("musicInfo");
+                                }
+                                break;
+                            case LOAD_FOUND:
+                                MusicInfo musicInfo = msg.getData().getParcelable("musicInfo");
+                                for (LoadMusicListener musicListener : mLoadMusicListeners) {
                                     musicListener.loadFound(musicInfo);
-                                    indexedSingerInfos.addNew(musicInfo);
-                                    indexAlbumInfos.addNew(musicInfo);
-                                    LogTool.log(this,"紫塞:"+musicInfo.getUrl());
-                                    break;
-                                case LOAD_PROGRESS:
+                                }
+                                indexedSingerInfos.addNew(musicInfo);
+                                indexAlbumInfos.addNew(musicInfo);
+                                break;
+                            case LOAD_PROGRESS:
+                                for (LoadMusicListener musicListener : mLoadMusicListeners) {
                                     musicListener.loadProgressChanged(msg.getData().getInt("progress"));
-                                    break;
-                                case LOAD_FINISHED:
+                                }
+                                break;
+                            case LOAD_FINISHED:
+                                for (LoadMusicListener musicListener : mLoadMusicListeners) {
                                     musicListener.loadFinished();
-                                    break;
-                            }
+                                }
+                                break;
                         }
                     }
                     return false;
