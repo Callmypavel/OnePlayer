@@ -45,8 +45,11 @@ public class LocalSongFrament extends BaseListFragment<MusicInfo, BaseListFragme
     @Override
     public void loadFound(MusicInfo musicInfo) {
         if (getViewModel() != null) {
+            LogTool.log(this,"新增单曲"+musicInfo.getDisplayName());
             getViewModel().getDatas().add(musicInfo);
         }else {
+            //先放在临时区
+            LogTool.log(this,"临时新增单曲"+musicInfo.getDisplayName());
             tempMusicInfos.add(musicInfo);
         }
 

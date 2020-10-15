@@ -11,13 +11,15 @@ import java.util.ArrayList;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.databinding.ViewDataBinding;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentStatePagerAdapter;
+import androidx.lifecycle.ViewModel;
 import androidx.viewpager.widget.ViewPager;
 import one.peace.oneplayer.R;
 import one.peace.oneplayer.util.LogTool;
 
-public abstract class BaseMultiplePageFragment extends Fragment {
+public abstract class BaseMultiplePageFragment extends BaseFragment {
     private ArrayList<Fragment> fragments;
     public TabLayout tabLayout;
     public ViewPager viewPager;
@@ -70,10 +72,16 @@ public abstract class BaseMultiplePageFragment extends Fragment {
             }
 
         };
+        //防止销毁
+        viewPager.setOffscreenPageLimit(3);
         viewPager.setAdapter(fragmentStatePagerAdapter);
         tabLayout.setupWithViewPager(viewPager);
         tabLayout.setTabMode(TabLayout.MODE_FIXED);
         return view;
+    }
+
+    public ArrayList<Fragment> getFragments() {
+        return fragments;
     }
 
     @Override
@@ -87,4 +95,19 @@ public abstract class BaseMultiplePageFragment extends Fragment {
     protected abstract ArrayList<String> generateTitles();
 
     protected abstract void onInit();
+
+    @Override
+    protected Class getViewModelClass() {
+        return null;
+    }
+
+    @Override
+    protected int getLayoutId() {
+        return 0;
+    }
+
+    @Override
+    protected void onInitData(ViewModel viewModel, ViewDataBinding viewDataBinding) {
+
+    }
 }

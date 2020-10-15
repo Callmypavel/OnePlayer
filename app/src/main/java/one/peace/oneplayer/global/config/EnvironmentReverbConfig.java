@@ -47,7 +47,7 @@ public class EnvironmentReverbConfig extends BaseObservable {
         if (sInstance == null) {
             synchronized (MusicState.class) {
                 if (sInstance == null) {
-                    sInstance = AppDatabase.getInstance(context).configDao().getConfig().getEnvironmentReverbConfig();
+                    sInstance = AppDatabase.getInstance(context).soundEffectConfigDao().getSoundEffectConfig().getEnvironmentReverbConfig();
                 }
             }
         }

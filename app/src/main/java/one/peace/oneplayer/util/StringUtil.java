@@ -75,14 +75,21 @@ public class StringUtil {
         return result;
     }
 
-    public static String listToString(ArrayList arrayList) {
+    public static String[] listToStringArray(ArrayList<String> arrayList) {
+        if (arrayList != null) {
+            return arrayList.toArray(new String[0]);
+        }
+        return null;
+    }
+
+    public static String listToString(ArrayList arrayList,String delimiter) {
         if (arrayList == null) {
             return "null";
         }
         StringBuilder stringBuilder = new StringBuilder();
         for (Object element : arrayList) {
             stringBuilder.append(element.toString());
-            stringBuilder.append(",");
+            stringBuilder.append(delimiter);
         }
         String result = stringBuilder.toString();
         result = result.substring(0, result.length() - 1);

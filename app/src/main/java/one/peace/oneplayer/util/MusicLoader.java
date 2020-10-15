@@ -73,6 +73,7 @@ public abstract class MusicLoader extends Worker {
     protected abstract void loadMusic();
 
     public static void initHandler() {
+        LogTool.logCrime("MusicLoader","调用几次！！！");
         //默认情况下获取当前线程的Looper
         if (handler == null) {
             handler = new Handler(new Handler.Callback() {
@@ -89,6 +90,7 @@ public abstract class MusicLoader extends Worker {
                                     musicListener.loadFound(musicInfo);
                                     indexedSingerInfos.addNew(musicInfo);
                                     indexAlbumInfos.addNew(musicInfo);
+                                    LogTool.log(this,"紫塞:"+musicInfo.getUrl());
                                     break;
                                 case LOAD_PROGRESS:
                                     musicListener.loadProgressChanged(msg.getData().getInt("progress"));
@@ -126,7 +128,7 @@ public abstract class MusicLoader extends Worker {
 
     protected void scanFound(MusicInfo musicInfo) {
         sendSimpleParcelableMessage(LOAD_FOUND, "musicInfo", musicInfo);
-
+        LogTool.log(this,"秋风:"+musicInfo.getUrl());
     }
 
     protected void scanProgressChanged(int progress) {

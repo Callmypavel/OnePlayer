@@ -1,12 +1,6 @@
 package one.peace.oneplayer.music.player;
 
 import android.content.Context;
-import android.media.AudioFormat;
-import android.media.AudioManager;
-import android.media.AudioTrack;
-import android.media.MediaCodec;
-import android.media.MediaExtractor;
-import android.media.MediaFormat;
 import android.media.MediaPlayer;
 import android.media.audiofx.BassBoost;
 import android.media.audiofx.EnvironmentalReverb;
@@ -14,24 +8,16 @@ import android.media.audiofx.Equalizer;
 import android.media.audiofx.PresetReverb;
 import android.media.audiofx.Virtualizer;
 import android.media.audiofx.Visualizer;
-import android.os.Build;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.widget.SeekBar;
-import android.widget.TextView;
 
 import java.io.IOException;
 import java.io.Serializable;
-import java.net.URI;
-import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import one.peace.oneplayer.global.config.Config;
 import one.peace.oneplayer.global.config.EnvironmentReverbConfig;
 import one.peace.oneplayer.global.config.SoundEffectConfig;
 import one.peace.oneplayer.music.entity.MusicInfo;
@@ -88,7 +74,7 @@ public class OnePlayer implements Serializable {
 
         void onMusicContinue();
 
-        void onSoundEffectLoaded(Config config);
+        void onSoundEffectLoaded(SoundEffectConfig soundEffectConfig);
 
         void onPlayModeChanged(int playMode);
 
@@ -105,7 +91,7 @@ public class OnePlayer implements Serializable {
         return sInstance;
     }
 
-    public static OnePlayer getInstance(Context context, Config.ConfigListener listener) {
+    public static OnePlayer getInstance(Context context, SoundEffectConfig.SoundEffectConfigListener listener) {
         if (sInstance == null) {
             synchronized (OnePlayer.class) {
                 if (sInstance == null) {
@@ -116,16 +102,16 @@ public class OnePlayer implements Serializable {
         return sInstance;
     }
 
-    public OnePlayer(Context context, Config.ConfigListener listener) {
-        Config.getInstance(context, listener);
+    public OnePlayer(Context context, SoundEffectConfig.SoundEffectConfigListener listener) {
+        SoundEffectConfig.getInstance(context, listener);
     }
 
     public OnePlayer(Context context){
-        Config.getInstance(context, new Config.ConfigListener() {
+        SoundEffectConfig.getInstance(context, new SoundEffectConfig.SoundEffectConfigListener() {
             @Override
-            public void onConfigLoaded(Config config) {
-                LogTool.log(this, "你到底加载了甚么配置" + LogTool.toString(config));
-                OnePlayer.this.config = config;
+            public void onSoundEffectConfigLoaded(SoundEffectConfig soundEffectConfig) {
+                LogTool.log(this, "你到底加载了甚么配置" + LogTool.toString(soundEffectConfig));
+                OnePlayer.this.mSoundEffectConfig = soundEffectConfig;
                 currentPosition = 0;
                 init();
             }
@@ -137,8 +123,8 @@ public class OnePlayer implements Serializable {
         setPlayList(playList, currentPosition);
     }
 
-    public OnePlayer(Config config, ArrayList<MusicInfo> playList, int currentPosition, OnMusicListener onMusicListener, boolean isUsingAudioTrack) {
-        this.config = config;
+    public OnePlayer(SoundEffectConfig soundEffectConfig, ArrayList<MusicInfo> playList, int currentPosition, OnMusicListener onMusicListener, boolean isUsingAudioTrack) {
+        this.mSoundEffectConfig = soundEffectConfig;
         this.onMusicListener = onMusicListener;
         setPlayList(playList, currentPosition);
     }
@@ -164,7 +150,7 @@ public class OnePlayer implements Serializable {
     }
 
     private void init() {
-        LogTool.log(this, "初始化" + config);
+        LogTool.log(this, "初始化" + mSoundEffectConfig);
 
         if(isMediaPlayerInited){
             return;
@@ -231,28 +217,28 @@ public class OnePlayer implements Serializable {
                 }
             }
         }, Visualizer.getMaxCaptureRate() / 2, false, true);
-        LogTool.log(this, "visualizer已被唤醒，魔王再临" + config);
-        if (config.getBassBoostStrenth() == -1) {
-            config.setBassBoostStrenth(bassBoost.getRoundedStrength());
+        LogTool.log(this, "visualizer已被唤醒，魔王再临" + mSoundEffectConfig);
+        if (mSoundEffectConfig.getBassBoostStrenth() == -1) {
+            mSoundEffectConfig.setBassBoostStrenth(bassBoost.getRoundedStrength());
         }
-        if (config.getPresetReverb() == -1) {
-            config.setPresetReverb(presetReverb.getPreset());
+        if (mSoundEffectConfig.getPresetReverb() == -1) {
+            mSoundEffectConfig.setPresetReverb(presetReverb.getPreset());
         }
-        if (config.getVirtualizerStrength() == -1) {
-            config.setVirtualizerStrength(virtualizer.getRoundedStrength());
+        if (mSoundEffectConfig.getVirtualizerStrength() == -1) {
+            mSoundEffectConfig.setVirtualizerStrength(virtualizer.getRoundedStrength());
         }
-        if (config.getBandLevels().size() == 0) {
+        if (mSoundEffectConfig.getBandLevels().size() == 0) {
             short bandNumber = equalizer.getNumberOfBands();
             ArrayList<Integer> temp = new ArrayList<>();
             for (short i = 0; i < bandNumber; i++) {
                 LogTool.log("OnePlayer", i + "查看bandlevel" + equalizer.getBandLevel(i));
                 temp.add(equalizer.getBandLevel(i) / 100);
             }
-            config.setBandLevels(temp);
+            mSoundEffectConfig.setBandLevels(temp);
         }
-        config.setBandLevelRange(equalizer.getBandLevelRange());
+        mSoundEffectConfig.setBandLevelRange(equalizer.getBandLevelRange());
 
-        EnvironmentReverbConfig environmentReverbConfig = config.getEnvironmentReverbConfig();
+        EnvironmentReverbConfig environmentReverbConfig = mSoundEffectConfig.getEnvironmentReverbConfig();
         environmentalReverb = new EnvironmentalReverb(5, 0);
         if (environmentReverbConfig.getDecayTime() == -1) {
             environmentReverbConfig.setDecayTime(environmentalReverb.getDecayTime());
@@ -284,9 +270,9 @@ public class OnePlayer implements Serializable {
         if (environmentReverbConfig.getRoomHFLevel() == -1) {
             environmentReverbConfig.setRoomHFLevel((short) (environmentalReverb.getRoomHFLevel() / 1000));
         }
-        config.setEnvironmentReverbConfig(environmentReverbConfig);
-        LogTool.log(this, "查看配置" + config);
-        onMusicListener.onSoundEffectLoaded(config);
+        mSoundEffectConfig.setEnvironmentReverbConfig(environmentReverbConfig);
+        LogTool.log(this, "查看配置" + mSoundEffectConfig);
+        onMusicListener.onSoundEffectLoaded(mSoundEffectConfig);
     }
 
     private void initMediaPlayer() {

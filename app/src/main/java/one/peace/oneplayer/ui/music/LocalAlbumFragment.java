@@ -84,7 +84,7 @@ public class LocalAlbumFragment extends BaseListFragment<AlbumInfo, BaseListFrag
         MusicInfo musicInfo = (MusicInfo) entity;
         albumInfo.getMusicInfos().add(musicInfo);
         musicInfo.setAlbumInfo(albumInfo);
-        //LogTool.log(this, "专辑更新:" + albumInfo.getAlbumName() + "," + musicInfo.getDisplayName());
+        LogTool.log(this, "专辑更新:" + albumInfo.getAlbumName());
     }
 
     @Override
@@ -103,7 +103,7 @@ public class LocalAlbumFragment extends BaseListFragment<AlbumInfo, BaseListFrag
         } else {
             tempAlbumInfos.add(position, albumInfo);
         }
-        //LogTool.log(this, "专辑增加:" + albumInfo.getAlbumName() + "," + musicInfo.getDisplayName());
+        LogTool.log(this, "专辑增加:" + albumInfo.getAlbumName() );
     }
 
     class SpacesItemDecoration extends RecyclerView.ItemDecoration {

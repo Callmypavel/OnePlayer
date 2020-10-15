@@ -1,26 +1,16 @@
 package one.peace.oneplayer.ui.base;
 
-import android.app.Activity;
-import android.os.Bundle;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
 
 import com.google.android.material.tabs.TabLayout;
 
 import java.util.ArrayList;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.databinding.DataBindingUtil;
 import androidx.databinding.ViewDataBinding;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentStatePagerAdapter;
 import androidx.lifecycle.ViewModel;
 import androidx.viewpager.widget.ViewPager;
 import one.peace.oneplayer.R;
-import one.peace.oneplayer.databinding.ActivityMainBinding;
 import one.peace.oneplayer.util.LogTool;
 
 /**
@@ -78,9 +68,32 @@ public abstract class BaseMultiplePageActivity extends BaseMusicControllActivity
             }
 
         };
+
         viewPager.setAdapter(fragmentStatePagerAdapter);
         tabLayout.setupWithViewPager(viewPager);
         tabLayout.setTabMode(TabLayout.MODE_FIXED);
+    }
+
+
+    @Override
+    public ArrayList<Fragment> getFragments() {
+        ArrayList<Fragment> allFragments = new ArrayList<>();
+        //添加第一层所有fragment
+        if (fragments != null) {
+            allFragments.addAll(fragments);
+            //添加fragment里层的fragment
+            for (Fragment surfaceFragment : fragments){
+                if (surfaceFragment instanceof BaseMultiplePageFragment){
+                    //里层还有fragment
+                    BaseMultiplePageFragment multiplePageFragment = (BaseMultiplePageFragment)surfaceFragment;
+                    ArrayList<Fragment> innerFragments = multiplePageFragment.getFragments();
+                    if (innerFragments != null) {
+                        allFragments.addAll(innerFragments);
+                    }
+                }
+            }
+        }
+        return allFragments;
     }
 
     protected abstract int getLayoutId();

@@ -4,12 +4,9 @@ import android.content.Context;
 
 import java.util.ArrayList;
 
-import androidx.databinding.BaseObservable;
-import androidx.databinding.Bindable;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
-import one.peace.oneplayer.BR;
 import one.peace.oneplayer.database.AppDatabase;
 import one.peace.oneplayer.util.ExecutorServiceUtil;
 
@@ -17,7 +14,7 @@ import one.peace.oneplayer.util.ExecutorServiceUtil;
  * Created by pavel on 2020/2/21.
  */
 @Entity
-public class SoundEffectConfig extends BaseObservable {
+public class SoundEffectConfig{
     @PrimaryKey
     private int soundEffectConfigId = 1;
     @ColumnInfo(name = "band_levels")
@@ -59,6 +56,14 @@ public class SoundEffectConfig extends BaseObservable {
 
     }
 
+    public int getSoundEffectConfigId() {
+        return soundEffectConfigId;
+    }
+
+    public void setSoundEffectConfigId(int soundEffectConfigId) {
+        this.soundEffectConfigId = soundEffectConfigId;
+    }
+
     public EnvironmentReverbConfig getEnvironmentReverbConfig() {
         return environmentReverbConfig;
     }
@@ -82,7 +87,7 @@ public class SoundEffectConfig extends BaseObservable {
 
     public void setBassBoostStrenth(int bassBoostStrenth) {
         this.bassBoostStrength = bassBoostStrenth;
-        notifyPropertyChanged(one.peace.oneplayer.BR.bassBoostStrenth);
+//        notifyPropertyChanged(BR.bassBoostStrenth);
     }
 
     public int getPresetReverb() {
@@ -93,33 +98,28 @@ public class SoundEffectConfig extends BaseObservable {
         this.presetReverb = presetReverb;
     }
 
-    @Bindable
     public int getBassBoostStrength() {
         return bassBoostStrength;
     }
 
     public void setBassBoostStrength(int bassBoostStrength) {
         this.bassBoostStrength = bassBoostStrength;
-        notifyPropertyChanged(one.peace.oneplayer.BR.bassBoostStrength);
     }
 
-    @Bindable
     public int getVirtualizerStrength() {
         return virtualizerStrength;
     }
 
     public void setVirtualizerStrength(int virtualizerStrength) {
         this.virtualizerStrength = virtualizerStrength;
-        notifyPropertyChanged(BR.virtualizerStrength);
     }
 
-    @Bindable
     public short[] getBandLevelRange() {
         return bandLevelRange;
     }
 
     public void setBandLevelRange(short[] bandLevelRange) {
         this.bandLevelRange = bandLevelRange;
-        notifyPropertyChanged(BR.bandLevelRange);
     }
+
 }

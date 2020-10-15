@@ -30,6 +30,7 @@ import one.peace.oneplayer.MainActivity;
 import one.peace.oneplayer.R;
 import one.peace.oneplayer.base.OneApplication;
 import one.peace.oneplayer.global.config.Config;
+import one.peace.oneplayer.global.config.SoundEffectConfig;
 import one.peace.oneplayer.music.entity.MusicInfo;
 import one.peace.oneplayer.music.player.MusicState;
 import one.peace.oneplayer.music.player.OnePlayer;
@@ -52,7 +53,7 @@ import one.peace.oneplayer.BR;
 public abstract class BaseMusicControllActivity<T extends ViewModel> extends BaseActivity<T> implements View.OnClickListener, OnePlayer.OnMusicListener {
     private StretchLayout stretchLayout;
     protected MusicState mMusicState;
-    protected Config mConfig;
+    protected SoundEffectConfig mSoundEffectConfig;
     private BroadcastReceiver playReceiver;
     private BroadcastReceiver previousReceiver;
     private BroadcastReceiver nextReceiver;
@@ -83,7 +84,7 @@ public abstract class BaseMusicControllActivity<T extends ViewModel> extends Bas
         circleSeekBar.setOnSeekBarActionListener(new CircleSeekBar.OnSeekBarActionListener() {
             @Override
             public void onProgressUpdated(float progress) {
-                Log.v("OneActivity", "onSeekBarUpdated()progress:" + progress);
+                Log.v("OneActivity", "onSeekBarUpdated()进度:" + progress);
                 if (mOnePlayer.isStarted) {
                     seekTo(progress);
                 } else {
@@ -110,7 +111,7 @@ public abstract class BaseMusicControllActivity<T extends ViewModel> extends Bas
                 mMusicState.setInPlayView(false);
             }
         });
-        PermissionUtil.requestAllPermission(this);
+
     }
 
     public void setOneConfig(Config config) {
@@ -386,10 +387,6 @@ public abstract class BaseMusicControllActivity<T extends ViewModel> extends Bas
 
     protected abstract void enableViewInteraction();
 
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        PermissionUtil.onPermissionResult(this, requestCode, grantResults);
-    }
 
     @Override
     public void onComplete() {
@@ -443,9 +440,9 @@ public abstract class BaseMusicControllActivity<T extends ViewModel> extends Bas
     }
 
     @Override
-    public void onSoundEffectLoaded(Config config) {
-        mConfig = config;
-        LogTool.log(this, "看看配置" + mConfig);
+    public void onSoundEffectLoaded(SoundEffectConfig soundEffectConfig) {
+        mSoundEffectConfig = soundEffectConfig;
+        LogTool.log(this, "看看音效配置" + mSoundEffectConfig);
     }
 
     @Override

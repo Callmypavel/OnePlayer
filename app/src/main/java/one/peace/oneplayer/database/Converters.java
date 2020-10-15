@@ -23,7 +23,7 @@ public class Converters {
 
     @TypeConverter
     public static String convertIntList(ArrayList<Integer> integerArrayList) {
-        return StringUtil.listToString(integerArrayList);
+        return StringUtil.listToString(integerArrayList,",");
     }
 
     @TypeConverter

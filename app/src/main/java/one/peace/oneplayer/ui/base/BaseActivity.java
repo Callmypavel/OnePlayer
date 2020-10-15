@@ -10,16 +10,26 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import java.util.ArrayList;
+import java.util.IllegalFormatCodePointException;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.databinding.DataBindingUtil;
 import androidx.databinding.ViewDataBinding;
+import androidx.databinding.library.baseAdapters.BR;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProviders;
+
+import one.peace.oneplayer.base.OneApplication;
+import one.peace.oneplayer.global.config.Config;
+import one.peace.oneplayer.ui.music.SoundEffectActivity;
+import one.peace.oneplayer.util.DialogUtil;
 import one.peace.oneplayer.util.LogTool;
+import one.peace.oneplayer.util.PermissionUtil;
+import one.peace.oneplayer.util.StringUtil;
+import one.peace.oneplayer.util.ViewTool;
 
 
 /**
@@ -28,6 +38,7 @@ import one.peace.oneplayer.util.LogTool;
 public abstract class BaseActivity<T extends ViewModel> extends AppCompatActivity {
     protected ViewDataBinding mViewDataBinding;
     protected T mViewModel;
+    protected Config mConfig;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -37,6 +48,32 @@ public abstract class BaseActivity<T extends ViewModel> extends AppCompatActivit
         mViewDataBinding = DataBindingUtil.setContentView(this,getLayoutId());
         mViewDataBinding.setLifecycleOwner(this);
         onInitData(mViewModel, mViewDataBinding);
+        Config.getInstance(this, new Config.ConfigListener() {
+            @Override
+            public void onConfigLoaded(Config config) {
+                mConfig = config;
+//                mViewDataBinding.setVariable(BR.config,config);
+//                ViewTool.setStatusColor(BaseActivity.this, mConfig.getThemeColor());
+            }
+        });
+
+        PermissionUtil.requestAllPermissions(this, new PermissionUtil.OnPermissionStateListener() {
+            @Override
+            public void onPermissionAllGranted(boolean isPermissionAllGranted) {
+                if (isPermissionAllGranted){
+                    //所有权限都已获取
+                    ArrayList<Fragment> fragments = getFragments();
+                    if (fragments != null){
+                        for (Fragment fragment : fragments) {
+                            if (fragment instanceof BaseFragment){
+                                BaseFragment baseFragment = (BaseFragment)fragment;
+                                baseFragment.onPermissionAllGranted();
+                            }
+                        }
+                    }
+                }
+            }
+        });
     }
 
 
@@ -44,6 +81,10 @@ public abstract class BaseActivity<T extends ViewModel> extends AppCompatActivit
     protected abstract int getLayoutId();
 
     protected abstract void onInitData(T viewModel, ViewDataBinding viewDataBinding);
+
+    protected ArrayList<Fragment> getFragments(){
+        return null;
+    }
 
 
     protected T getViewModel(){
@@ -94,5 +135,11 @@ public abstract class BaseActivity<T extends ViewModel> extends AppCompatActivit
         intent.setClass(this,targetActivityClass);
         startActivity(intent);
     }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        PermissionUtil.onPermissionResult(this,requestCode, grantResults);
+    }
+
 
 }

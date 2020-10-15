@@ -15,7 +15,7 @@ import one.peace.oneplayer.global.config.SoundEffectConfig;
 @Dao
 public interface SoundEffectConfigDAO {
 
-    @Query("SELECT * FROM sound_effect_config")
+    @Query("SELECT * FROM SoundEffectConfig")
     SoundEffectConfig getSoundEffectConfig();
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)

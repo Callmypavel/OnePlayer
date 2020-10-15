@@ -38,7 +38,10 @@ public abstract class BaseListFragment<E, VM extends BaseListFragment.BaseListVi
 
     @Override
     protected void onInitData(VM viewModel, ViewDataBinding viewDataBinding) {
-        viewModel.setDatas(new ObservableArrayList());
+        if (viewModel.getDatas() == null) {
+            LogTool.log(this,"重放数据");
+            viewModel.setDatas(new ObservableArrayList());
+        }
         recyclerView = viewDataBinding.getRoot().findViewById(R.id.recyclerview);
         recyclerView.setLayoutManager(generateLayoutManager());
         UniversalAdapter<E> adapter = new UniversalAdapter(getItemLayoutId());
@@ -47,6 +50,11 @@ public abstract class BaseListFragment<E, VM extends BaseListFragment.BaseListVi
         adapter.setOnItemClickListener(this);
         recyclerView.setAdapter(adapter);
         LogTool.log(this,"月读！"+viewModel.getDatas());
+    }
+
+    @Override
+    protected void onPermissionAllGranted() {
+
     }
 
     @Override

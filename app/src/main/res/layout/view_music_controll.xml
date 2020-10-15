@@ -29,7 +29,7 @@
         android:layout_alignParentBottom="true"
         android:id="@+id/main_content_bar"
         android:layout_width="wrap_content"
-        tools:layout_height="660dp"
+        tools:layout_height="60dp"
         android:layout_height="60dp">
         <RelativeLayout
             android:background="@{musicState.musicColor}"

@@ -1,30 +1,20 @@
 package one.peace.oneplayer;
 
-import android.os.Bundle;
-import android.view.View;
-
-import com.google.android.material.bottomnavigation.BottomNavigationView;
+import android.util.Log;
+import android.view.MenuItem;
 
 import java.util.ArrayList;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.databinding.ViewDataBinding;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModel;
-import androidx.navigation.NavController;
-import androidx.navigation.Navigation;
-import androidx.navigation.ui.AppBarConfiguration;
-import androidx.navigation.ui.NavigationUI;
-import androidx.viewpager.widget.PagerAdapter;
-import one.peace.oneplayer.R;
-import one.peace.oneplayer.databinding.ActivityMainBinding;
-import one.peace.oneplayer.music.entity.MusicInfo;
-import one.peace.oneplayer.ui.base.BaseActivity;
+
+import com.google.android.material.navigation.NavigationView;
+
 import one.peace.oneplayer.ui.base.BaseMultiplePageActivity;
 import one.peace.oneplayer.ui.music.LocalMusicFragment;
-import one.peace.oneplayer.util.MusicLoader;
-import one.peace.oneplayer.util.PermissionUtil;
+import one.peace.oneplayer.util.LogTool;
 
 public class MainActivity extends BaseMultiplePageActivity {
 
@@ -56,6 +46,21 @@ public class MainActivity extends BaseMultiplePageActivity {
         return titles;
     }
 
+    @Override
+    protected void onInitData(ViewModel viewModel, ViewDataBinding viewDataBinding) {
+        super.onInitData(viewModel, viewDataBinding);
+        NavigationView navigationView = findViewById(R.id.navigation_view);
+        navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
+                LogTool.log(this,"看看菜单item各项"+LogTool.toString(menuItem));
+                if ("主题换肤".contentEquals(menuItem.getTitle())){
+                    LogTool.log(this,"点击主题换肤");
+                }
+                return false;
+            }
+        });
+    }
 
     @Override
     protected void disableViewInteraction() {

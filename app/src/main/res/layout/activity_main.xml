@@ -34,7 +34,9 @@
                 app:tabSelectedTextColor="@color/WHITE"
                 android:id="@+id/id_tablayout"
                 android:layout_width="match_parent"
-                android:layout_height="?attr/actionBarSize"></com.google.android.material.tabs.TabLayout>
+                android:layout_height="?attr/actionBarSize">
+
+            </com.google.android.material.tabs.TabLayout>
 
             <androidx.viewpager.widget.ViewPager
                 app:layout_behavior="@string/appbar_scrolling_view_behavior"

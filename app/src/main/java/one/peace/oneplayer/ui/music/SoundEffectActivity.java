@@ -14,12 +14,10 @@ import android.widget.CompoundButton;
 import android.widget.SeekBar;
 import android.widget.Spinner;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.tabs.TabLayout;
 
-import java.net.MalformedURLException;
 import java.util.ArrayList;
 
 import androidx.annotation.Nullable;
@@ -29,12 +27,11 @@ import one.peace.oneplayer.R;
 import one.peace.oneplayer.base.OneApplication;
 import one.peace.oneplayer.database.AppDatabase;
 import one.peace.oneplayer.databinding.ActivitySoundEffectBinding;
-import one.peace.oneplayer.global.config.Config;
+import one.peace.oneplayer.global.config.SoundEffectConfig;
 import one.peace.oneplayer.music.player.OnePlayer;
 import one.peace.oneplayer.util.LogTool;
 import one.peace.oneplayer.util.OneBitmapUtil;
 import one.peace.oneplayer.util.StringUtil;
-import one.peace.oneplayer.util.ViewTool;
 
 
 /**
@@ -50,7 +47,7 @@ public class SoundEffectActivity extends AppCompatActivity {
     private ActivitySoundEffectBinding binding;
     private int maxEQLevel;
     private int bandNumber;
-    private Config mConfig;
+    private SoundEffectConfig mSoundEffectConfig;
     private OnePlayer mOnePlayer;
     private String[] equalizerModeTexts = new String[]{"普通", "舞曲", "民谣", "重金属", "嘻哈", "爵士", "流行", "摇滚", "经典"};
     private int seekBarInitValue = 15;
@@ -71,12 +68,11 @@ public class SoundEffectActivity extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         binding = DataBindingUtil.setContentView(SoundEffectActivity.this, R.layout.activity_sound_effect);
-        mOnePlayer = OnePlayer.getInstance(this, new Config.ConfigListener() {
+        mOnePlayer = OnePlayer.getInstance(this, new SoundEffectConfig.SoundEffectConfigListener() {
             @Override
-            public void onConfigLoaded(Config config) {
-                mConfig = config;
-                binding.setConfig(mConfig);
-                ViewTool.setStatusColor(SoundEffectActivity.this, mConfig.getThemeColor());
+            public void onSoundEffectConfigLoaded(SoundEffectConfig soundEffectConfig) {
+                mSoundEffectConfig = soundEffectConfig;
+
                 initEqualizer();
                 initBassBoost();
                 initPresetReverb();
@@ -120,35 +116,36 @@ public class SoundEffectActivity extends AppCompatActivity {
                         mOnePlayer.activateSoundEffectsExceptVisualizer(b);
                         if (b) {
                             for (int i = 0; i < bandNumber; i++) {
-                                seekBars.get(i).setProgress(mConfig.getBandLevels().get(i) + maxEQLevel / 100);
+                                seekBars.get(i).setProgress(mSoundEffectConfig.getBandLevels().get(i) + maxEQLevel / 100);
                             }
-                            seekBars.get(bandNumber).setProgress(mConfig.getBassBoostStrenth());
-                            seekBars.get(bandNumber + 1).setProgress(mConfig.getVirtualizerStrength());
-                            seekBars.get(bandNumber + 2).setProgress(mConfig.getEnvironmentReverbConfig().getDecayTime() - 100);
-                            seekBars.get(bandNumber + 3).setProgress(mConfig.getEnvironmentReverbConfig().getDecayHFTime() - 100);
-                            seekBars.get(bandNumber + 4).setProgress(mConfig.getEnvironmentReverbConfig().getDensity());
-                            seekBars.get(bandNumber + 5).setProgress(mConfig.getEnvironmentReverbConfig().getDiffusion());
-                            seekBars.get(bandNumber + 6).setProgress(mConfig.getEnvironmentReverbConfig().getReflectionsDelay());
-                            seekBars.get(bandNumber + 7).setProgress(mConfig.getEnvironmentReverbConfig().getReflectionsLevel() - 9000);
-                            seekBars.get(bandNumber + 8).setProgress(mConfig.getEnvironmentReverbConfig().getReverbDelay() + 100);
-                            seekBars.get(bandNumber + 9).setProgress(mConfig.getEnvironmentReverbConfig().getReverbLevel() + 9000);
-                            seekBars.get(bandNumber + 10).setProgress(mConfig.getEnvironmentReverbConfig().getRoomLevel() * 1000 + 9000);
-                            seekBars.get(bandNumber + 11).setProgress(mConfig.getEnvironmentReverbConfig().getRoomHFLevel() * 1000 + 9000);
-                            LogTool.log("SoundEffectActivity", "检查decaytime去除" + mConfig.getEnvironmentReverbConfig().getDecayTime());
-                            LogTool.log("SoundEffectActivity", "test" + mConfig.getEnvironmentReverbConfig().getDecayHFTime());
-                            LogTool.log("SoundEffectActivity", "test" + mConfig.getEnvironmentReverbConfig().getDensity());
-                            LogTool.log("SoundEffectActivity", "test" + mConfig.getEnvironmentReverbConfig().getDiffusion());
-                            LogTool.log("SoundEffectActivity", "test" + mConfig.getEnvironmentReverbConfig().getReflectionsDelay());
-                            LogTool.log("SoundEffectActivity", "test" + mConfig.getEnvironmentReverbConfig().getReflectionsLevel());
-                            LogTool.log("SoundEffectActivity", "test" + mConfig.getEnvironmentReverbConfig().getReverbDelay());
-                            LogTool.log("SoundEffectActivity", "test" + mConfig.getEnvironmentReverbConfig().getReverbLevel());
-                            LogTool.log("SoundEffectActivity", "test" + mConfig.getEnvironmentReverbConfig().getRoomLevel());
-                            LogTool.log("SoundEffectActivity", "test" + mConfig.getEnvironmentReverbConfig().getRoomHFLevel());
+                            seekBars.get(bandNumber).setProgress(mSoundEffectConfig.getBassBoostStrenth());
+                            seekBars.get(bandNumber + 1).setProgress(mSoundEffectConfig.getVirtualizerStrength());
+                            seekBars.get(bandNumber + 2).setProgress(mSoundEffectConfig.getEnvironmentReverbConfig().getDecayTime() - 100);
+                            seekBars.get(bandNumber + 3).setProgress(mSoundEffectConfig.getEnvironmentReverbConfig().getDecayHFTime() - 100);
+                            seekBars.get(bandNumber + 4).setProgress(mSoundEffectConfig.getEnvironmentReverbConfig().getDensity());
+                            seekBars.get(bandNumber + 5).setProgress(mSoundEffectConfig.getEnvironmentReverbConfig().getDiffusion());
+                            seekBars.get(bandNumber + 6).setProgress(mSoundEffectConfig.getEnvironmentReverbConfig().getReflectionsDelay());
+                            seekBars.get(bandNumber + 7).setProgress(mSoundEffectConfig.getEnvironmentReverbConfig().getReflectionsLevel() - 9000);
+                            seekBars.get(bandNumber + 8).setProgress(mSoundEffectConfig.getEnvironmentReverbConfig().getReverbDelay() + 100);
+                            seekBars.get(bandNumber + 9).setProgress(mSoundEffectConfig.getEnvironmentReverbConfig().getReverbLevel() + 9000);
+                            seekBars.get(bandNumber + 10).setProgress(mSoundEffectConfig.getEnvironmentReverbConfig().getRoomLevel() * 1000 + 9000);
+                            seekBars.get(bandNumber + 11).setProgress(mSoundEffectConfig.getEnvironmentReverbConfig().getRoomHFLevel() * 1000 + 9000);
+                            LogTool.log("SoundEffectActivity", "检查decaytime去除" + mSoundEffectConfig.getEnvironmentReverbConfig().getDecayTime());
+                            LogTool.log("SoundEffectActivity", "test" + mSoundEffectConfig.getEnvironmentReverbConfig().getDecayHFTime());
+                            LogTool.log("SoundEffectActivity", "test" + mSoundEffectConfig.getEnvironmentReverbConfig().getDensity());
+                            LogTool.log("SoundEffectActivity", "test" + mSoundEffectConfig.getEnvironmentReverbConfig().getDiffusion());
+                            LogTool.log("SoundEffectActivity", "test" + mSoundEffectConfig.getEnvironmentReverbConfig().getReflectionsDelay());
+                            LogTool.log("SoundEffectActivity", "test" + mSoundEffectConfig.getEnvironmentReverbConfig().getReflectionsLevel());
+                            LogTool.log("SoundEffectActivity", "test" + mSoundEffectConfig.getEnvironmentReverbConfig().getReverbDelay());
+                            LogTool.log("SoundEffectActivity", "test" + mSoundEffectConfig.getEnvironmentReverbConfig().getReverbLevel());
+                            LogTool.log("SoundEffectActivity", "test" + mSoundEffectConfig.getEnvironmentReverbConfig().getRoomLevel());
+                            LogTool.log("SoundEffectActivity", "test" + mSoundEffectConfig.getEnvironmentReverbConfig().getRoomHFLevel());
                         }
 
                     }
                 });
             }
+
         });
 
 
@@ -162,7 +159,7 @@ public class SoundEffectActivity extends AppCompatActivity {
     }
 
     public void saveEffect(View view) {
-        AppDatabase.getInstance(this).configDao().update(mConfig);
+        AppDatabase.getInstance(this).soundEffectConfigDao().update(mSoundEffectConfig);
         Snackbar.make(findViewById(R.id.save_sound_effects_button), StringUtil.getString(this, R.string.saved_sound_effects), Snackbar.LENGTH_SHORT).show();
 
     }
@@ -176,7 +173,7 @@ public class SoundEffectActivity extends AppCompatActivity {
         final int minEQLevel = bandLevelRange[0];
         maxEQLevel = bandLevelRange[1];
         LogTool.log("TestActivity", "最小值为" + minEQLevel + "最大值为" + maxEQLevel);
-        bandNumber = (short) mConfig.getBandLevels().size();
+        bandNumber = (short) mSoundEffectConfig.getBandLevels().size();
         //LogTool.log("TestActivity", "band数量" + bandNumber);
         for (short i = 0; i < bandNumber; i++) {
             View view = LayoutInflater.from(this).inflate(R.layout.item_equalizer, null, false);
@@ -196,9 +193,9 @@ public class SoundEffectActivity extends AppCompatActivity {
                     equalizer.setBandLevel(finalI, (short) (value * 100));
                     //equalizer.setEnabled(true);
                     decibelTextView.setText(StringUtil.getString(SoundEffectActivity.this, R.string.decibel, value));
-                    ArrayList<Integer> bandLevels = mConfig.getBandLevels();
+                    ArrayList<Integer> bandLevels = mSoundEffectConfig.getBandLevels();
                     bandLevels.set(finalI, (int) value);
-                    mConfig.setBandLevels(bandLevels);
+                    mSoundEffectConfig.setBandLevels(bandLevels);
                 }
 
                 @Override
@@ -213,7 +210,7 @@ public class SoundEffectActivity extends AppCompatActivity {
             });
             //LogTool.log("TestActivity","initEqualizer()初始化值"+mConfig.toString());
             //LogTool.log("TestActivity","initEqualizer()初始化值"+mConfig.getBandLevels().get(i)+maxEQLevel);
-            seekbar.setProgress(mConfig.getBandLevels().get(i) + maxEQLevel / 100);
+            seekbar.setProgress(mSoundEffectConfig.getBandLevels().get(i) + maxEQLevel / 100);
             seekBars.add(seekbar);
             binding.equailizerField.addView(view);
         }
@@ -230,7 +227,7 @@ public class SoundEffectActivity extends AppCompatActivity {
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 bassBoost.setStrength((short) progress);
                 textView.setText(StringUtil.getString(SoundEffectActivity.this, R.string.value, progress));
-                mConfig.setBassBoostStrength(progress);
+                mSoundEffectConfig.setBassBoostStrength(progress);
             }
 
             @Override
@@ -243,7 +240,7 @@ public class SoundEffectActivity extends AppCompatActivity {
 
             }
         });
-        seekbar.setProgress(mConfig.getBassBoostStrenth());
+        seekbar.setProgress(mSoundEffectConfig.getBassBoostStrenth());
         seekBars.add(seekbar);
     }
 
@@ -264,7 +261,7 @@ public class SoundEffectActivity extends AppCompatActivity {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 presetreverb.setPreset((short) position);
-                mConfig.setPresetReverb(position);
+                mSoundEffectConfig.setPresetReverb(position);
             }
 
             @Override
@@ -272,7 +269,7 @@ public class SoundEffectActivity extends AppCompatActivity {
 
             }
         });
-        spinner.setSelection(mConfig.getPresetReverb());
+        spinner.setSelection(mSoundEffectConfig.getPresetReverb());
     }
 
     private void initVirtualizer() {
@@ -286,7 +283,7 @@ public class SoundEffectActivity extends AppCompatActivity {
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 virtualizer.setStrength((short) progress);
                 textView.setText(StringUtil.getString(SoundEffectActivity.this, R.string.value, progress));
-                mConfig.setVirtualizerStrength(progress);
+                mSoundEffectConfig.setVirtualizerStrength(progress);
             }
 
             @Override
@@ -299,7 +296,7 @@ public class SoundEffectActivity extends AppCompatActivity {
 
             }
         });
-        seekbar.setProgress(mConfig.getVirtualizerStrength());
+        seekbar.setProgress(mSoundEffectConfig.getVirtualizerStrength());
         seekBars.add(seekbar);
     }
 
@@ -327,7 +324,7 @@ public class SoundEffectActivity extends AppCompatActivity {
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 environmentalReverb.setReverbDelay(progress);
                 textView.setText(StringUtil.getString(SoundEffectActivity.this, R.string.timeMeasurement, progress));
-                mConfig.getEnvironmentReverbConfig().setReverbDelay(progress);
+                mSoundEffectConfig.getEnvironmentReverbConfig().setReverbDelay(progress);
             }
 
             @Override
@@ -340,7 +337,7 @@ public class SoundEffectActivity extends AppCompatActivity {
 
             }
         });
-        seekbar.setProgress(mConfig.getEnvironmentReverbConfig().getReverbDelay() + 100);
+        seekbar.setProgress(mSoundEffectConfig.getEnvironmentReverbConfig().getReverbDelay() + 100);
         seekBars.add(seekbar);
     }
 
@@ -355,7 +352,7 @@ public class SoundEffectActivity extends AppCompatActivity {
                 int value = progress - 9;
                 environmentalReverb.setRoomHFLevel((short) (value * 1000));
                 textView.setText(StringUtil.getString(SoundEffectActivity.this, R.string.decibel, value));
-                mConfig.getEnvironmentReverbConfig().setRoomHFLevel((short) value);
+                mSoundEffectConfig.getEnvironmentReverbConfig().setRoomHFLevel((short) value);
             }
 
             @Override
@@ -368,7 +365,7 @@ public class SoundEffectActivity extends AppCompatActivity {
 
             }
         });
-        seekbar.setProgress(mConfig.getEnvironmentReverbConfig().getRoomHFLevel() * 1000 + 9000);
+        seekbar.setProgress(mSoundEffectConfig.getEnvironmentReverbConfig().getRoomHFLevel() * 1000 + 9000);
         seekBars.add(seekbar);
     }
 
@@ -383,7 +380,7 @@ public class SoundEffectActivity extends AppCompatActivity {
                 int value = progress - 9;
                 environmentalReverb.setRoomLevel((short) value);
                 textView.setText(StringUtil.getString(SoundEffectActivity.this, R.string.decibel, value));
-                mConfig.getEnvironmentReverbConfig().setRoomLevel((short) (value * 1000));
+                mSoundEffectConfig.getEnvironmentReverbConfig().setRoomLevel((short) (value * 1000));
             }
 
             @Override
@@ -396,7 +393,7 @@ public class SoundEffectActivity extends AppCompatActivity {
 
             }
         });
-        seekbar.setProgress(mConfig.getEnvironmentReverbConfig().getRoomLevel() * 1000 + 9000);
+        seekbar.setProgress(mSoundEffectConfig.getEnvironmentReverbConfig().getRoomLevel() * 1000 + 9000);
         seekBars.add(seekbar);
     }
 
@@ -411,7 +408,7 @@ public class SoundEffectActivity extends AppCompatActivity {
                 int value = progress - 9;
                 environmentalReverb.setReverbLevel((short) value);
                 textView.setText(StringUtil.getString(SoundEffectActivity.this, R.string.decibel, value));
-                mConfig.getEnvironmentReverbConfig().setReverbLevel((short) (value * 1000));
+                mSoundEffectConfig.getEnvironmentReverbConfig().setReverbLevel((short) (value * 1000));
             }
 
             @Override
@@ -424,7 +421,7 @@ public class SoundEffectActivity extends AppCompatActivity {
 
             }
         });
-        seekbar.setProgress(mConfig.getEnvironmentReverbConfig().getReverbLevel() + 9000);
+        seekbar.setProgress(mSoundEffectConfig.getEnvironmentReverbConfig().getReverbLevel() + 9000);
         seekBars.add(seekbar);
     }
 
@@ -440,7 +437,7 @@ public class SoundEffectActivity extends AppCompatActivity {
                 LogTool.log("TestActivity", "查看反射等级" + (short) value);
                 environmentalReverb.setReflectionsLevel((short) value);
                 textView.setText(StringUtil.getString(SoundEffectActivity.this, R.string.decibel, value));
-                mConfig.getEnvironmentReverbConfig().setReflectionsLevel((short) (value * 1000));
+                mSoundEffectConfig.getEnvironmentReverbConfig().setReflectionsLevel((short) (value * 1000));
             }
 
             @Override
@@ -453,7 +450,7 @@ public class SoundEffectActivity extends AppCompatActivity {
 
             }
         });
-        seekbar.setProgress(mConfig.getEnvironmentReverbConfig().getReflectionsLevel() + 9000);
+        seekbar.setProgress(mSoundEffectConfig.getEnvironmentReverbConfig().getReflectionsLevel() + 9000);
         seekBars.add(seekbar);
     }
 
@@ -467,7 +464,7 @@ public class SoundEffectActivity extends AppCompatActivity {
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 environmentalReverb.setReflectionsDelay(progress);
                 textView.setText(StringUtil.getString(SoundEffectActivity.this, R.string.timeMeasurement, progress));
-                mConfig.getEnvironmentReverbConfig().setReflectionsDelay(progress);
+                mSoundEffectConfig.getEnvironmentReverbConfig().setReflectionsDelay(progress);
             }
 
             @Override
@@ -480,7 +477,7 @@ public class SoundEffectActivity extends AppCompatActivity {
 
             }
         });
-        seekbar.setProgress(mConfig.getEnvironmentReverbConfig().getReflectionsDelay());
+        seekbar.setProgress(mSoundEffectConfig.getEnvironmentReverbConfig().getReflectionsDelay());
         seekBars.add(seekbar);
     }
 
@@ -494,7 +491,7 @@ public class SoundEffectActivity extends AppCompatActivity {
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 environmentalReverb.setDiffusion((short) progress);
                 textView.setText(StringUtil.getString(SoundEffectActivity.this, R.string.value, progress));
-                mConfig.getEnvironmentReverbConfig().setDiffusion((short) progress);
+                mSoundEffectConfig.getEnvironmentReverbConfig().setDiffusion((short) progress);
             }
 
             @Override
@@ -507,7 +504,7 @@ public class SoundEffectActivity extends AppCompatActivity {
 
             }
         });
-        seekbar.setProgress(mConfig.getEnvironmentReverbConfig().getDiffusion());
+        seekbar.setProgress(mSoundEffectConfig.getEnvironmentReverbConfig().getDiffusion());
         seekBars.add(seekbar);
     }
 
@@ -522,7 +519,7 @@ public class SoundEffectActivity extends AppCompatActivity {
                 LogTool.log("TestActivity", "查看欲设" + (short) progress);
                 environmentalReverb.setDensity((short) progress);
                 textView.setText(StringUtil.getString(SoundEffectActivity.this, R.string.value, progress));
-                mConfig.getEnvironmentReverbConfig().setDensity((short) progress);
+                mSoundEffectConfig.getEnvironmentReverbConfig().setDensity((short) progress);
             }
 
             @Override
@@ -535,7 +532,7 @@ public class SoundEffectActivity extends AppCompatActivity {
 
             }
         });
-        seekbar.setProgress(mConfig.getEnvironmentReverbConfig().getDensity());
+        seekbar.setProgress(mSoundEffectConfig.getEnvironmentReverbConfig().getDensity());
         seekBars.add(seekbar);
     }
 
@@ -550,7 +547,7 @@ public class SoundEffectActivity extends AppCompatActivity {
                 int value = progress * 100 + 100;
                 environmentalReverb.setDecayHFRatio((short) value);
                 textView.setText(StringUtil.getString(SoundEffectActivity.this, R.string.timeMeasurement, value));
-                mConfig.getEnvironmentReverbConfig().setDecayHFTime(value);
+                mSoundEffectConfig.getEnvironmentReverbConfig().setDecayHFTime(value);
             }
 
             @Override
@@ -563,7 +560,7 @@ public class SoundEffectActivity extends AppCompatActivity {
 
             }
         });
-        seekbar.setProgress(mConfig.getEnvironmentReverbConfig().getDecayHFTime() - 100);
+        seekbar.setProgress(mSoundEffectConfig.getEnvironmentReverbConfig().getDecayHFTime() - 100);
         seekBars.add(seekbar);
     }
 
@@ -578,7 +575,7 @@ public class SoundEffectActivity extends AppCompatActivity {
                 int value = progress * 100 + 100;
                 environmentalReverb.setDecayTime((short) value);
                 textView.setText(StringUtil.getString(SoundEffectActivity.this, R.string.timeMeasurement, value));
-                mConfig.getEnvironmentReverbConfig().setDecayTime(value);
+                mSoundEffectConfig.getEnvironmentReverbConfig().setDecayTime(value);
                 LogTool.log("TestActivity", "检查decaytime" + value);
             }
 
@@ -592,7 +589,7 @@ public class SoundEffectActivity extends AppCompatActivity {
 
             }
         });
-        seekbar.setProgress(mConfig.getEnvironmentReverbConfig().getDecayTime() - 100);
+        seekbar.setProgress(mSoundEffectConfig.getEnvironmentReverbConfig().getDecayTime() - 100);
         seekBars.add(seekbar);
     }
 

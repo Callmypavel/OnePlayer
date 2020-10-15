@@ -86,7 +86,7 @@ public class LogTool {
             StackTraceElement[] stackTraceElements = Thread.currentThread().getStackTrace();
             for (int i = 3; i < stackTraceElements.length; i++) {
                 StackTraceElement ste = stackTraceElements[i];
-                Log.v(tag.getClass().getSimpleName(), message+","+ste.getFileName() + "," + ste.getMethodName() + "(),第" + ste.getLineNumber()+"行,线程ID:"+android.os.Process.myTid());
+                Log.v(tag.getClass().getSimpleName(), ste.getFileName() + "," + ste.getMethodName() + "(),第" + ste.getLineNumber()+"行,线程ID:"+android.os.Process.myTid());
             }
         }
     }
