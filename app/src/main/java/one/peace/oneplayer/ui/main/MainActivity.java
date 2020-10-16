@@ -1,4 +1,4 @@
-package one.peace.oneplayer;
+package one.peace.oneplayer.ui.main;
 
 import android.util.Log;
 import android.view.MenuItem;
@@ -12,6 +12,7 @@ import androidx.lifecycle.ViewModel;
 
 import com.google.android.material.navigation.NavigationView;
 
+import one.peace.oneplayer.R;
 import one.peace.oneplayer.ui.base.BaseMultiplePageActivity;
 import one.peace.oneplayer.ui.music.LocalMusicFragment;
 import one.peace.oneplayer.util.LogTool;

@@ -4,13 +4,11 @@ import android.graphics.Bitmap;
 import android.graphics.Rect;
 import android.view.View;
 
-import java.util.ArrayList;
-
 import androidx.databinding.ObservableArrayList;
 import androidx.databinding.ViewDataBinding;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import one.peace.oneplayer.MainActivity;
+
 import one.peace.oneplayer.R;
 import one.peace.oneplayer.base.IndexedEntities;
 import one.peace.oneplayer.music.entity.AlbumInfo;
@@ -19,9 +17,7 @@ import one.peace.oneplayer.ui.base.BaseActivity;
 import one.peace.oneplayer.ui.base.BaseListFragment;
 
 import one.peace.oneplayer.ui.base.UniversalAdapter;
-import one.peace.oneplayer.util.ExecutorServiceUtil;
 import one.peace.oneplayer.util.LogTool;
-import one.peace.oneplayer.util.MusicLoader;
 import one.peace.oneplayer.util.OneBitmapUtil;
 
 public class LocalAlbumFragment extends BaseListFragment<AlbumInfo, BaseListFragment.BaseListViewModel> implements IndexedEntities.IndexInfoChangedListener {

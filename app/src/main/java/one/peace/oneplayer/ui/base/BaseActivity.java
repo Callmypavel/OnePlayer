@@ -51,8 +51,9 @@ public abstract class BaseActivity<T extends ViewModel> extends AppCompatActivit
         Config.getInstance(this, new Config.ConfigListener() {
             @Override
             public void onConfigLoaded(Config config) {
+                onInitDataAfterConfigLoaded(mViewModel,mViewDataBinding,config);
                 mConfig = config;
-//                mViewDataBinding.setVariable(BR.config,config);
+                mViewDataBinding.setVariable(BR.config,config);
 //                ViewTool.setStatusColor(BaseActivity.this, mConfig.getThemeColor());
             }
         });
@@ -81,6 +82,9 @@ public abstract class BaseActivity<T extends ViewModel> extends AppCompatActivit
     protected abstract int getLayoutId();
 
     protected abstract void onInitData(T viewModel, ViewDataBinding viewDataBinding);
+    protected void onInitDataAfterConfigLoaded(T viewModel, ViewDataBinding viewDataBinding,Config config){
+
+    }
 
     protected ArrayList<Fragment> getFragments(){
         return null;

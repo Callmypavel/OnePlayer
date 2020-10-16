@@ -7,28 +7,21 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.os.Build;
 import android.util.Log;
 import android.view.View;
-import android.widget.RelativeLayout;
 import android.widget.RemoteViews;
 
 import com.google.android.material.snackbar.Snackbar;
 
-import java.util.ArrayList;
-
-import androidx.annotation.NonNull;
 import androidx.databinding.ViewDataBinding;
 import androidx.lifecycle.ViewModel;
 import androidx.palette.graphics.Palette;
 import one.peace.oneplayer.BR;
-import one.peace.oneplayer.MainActivity;
+import one.peace.oneplayer.ui.main.MainActivity;
 import one.peace.oneplayer.R;
-import one.peace.oneplayer.base.OneApplication;
 import one.peace.oneplayer.global.config.Config;
 import one.peace.oneplayer.global.config.SoundEffectConfig;
 import one.peace.oneplayer.music.entity.MusicInfo;
@@ -40,11 +33,8 @@ import one.peace.oneplayer.ui.view.StretchLayout;
 import one.peace.oneplayer.util.ColorUtil;
 import one.peace.oneplayer.util.LogTool;
 import one.peace.oneplayer.util.OneBitmapUtil;
-import one.peace.oneplayer.util.PermissionUtil;
 import one.peace.oneplayer.util.StringUtil;
 import one.peace.oneplayer.util.ViewTool;
-import one.peace.oneplayer.BR;
-
 
 
 /**

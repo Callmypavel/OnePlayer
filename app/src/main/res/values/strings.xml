@@ -25,7 +25,7 @@
     <string name="color_red">红%1$d</string>
     <string name="color_green">绿%1$d</string>
     <string name="color_blue">蓝%1$d</string>
-    <string name="alpha">透明度%1$d</string>
+    <string name="color_alpha">透明度%1$d</string>
     <string name="radius">高斯模糊度%1$d</string>
     <string name="color_red_tag">redTag</string>
     <string name="color_green_tag">greenTag</string>
