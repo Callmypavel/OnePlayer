@@ -47,7 +47,7 @@ public class LocalMusicFragment extends BaseMultiplePageFragment implements Musi
 
     @Override
     protected void onInit() {
-        LogTool.log(this, "你应该只调一遍");
+        //LogTool.log(this, "你应该只调一遍");
 
     }
 

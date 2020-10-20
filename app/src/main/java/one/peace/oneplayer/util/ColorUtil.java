@@ -3,7 +3,6 @@ package one.peace.oneplayer.util;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Color;
-import android.util.Log;
 
 /**
  * Created by ouyan on 2016/6/23.
@@ -25,9 +24,8 @@ public class ColorUtil {
         }else {
             contrast = (luminance2+0.05f)/(luminance1+0.05f);
         }
-        Log.v("ColorUtil","对比度"+contrast);
+        LogTool.log("ColorUtil","对比度"+contrast);
         if(contrast>4.5){
-
             return true;
         }else return false;
     }

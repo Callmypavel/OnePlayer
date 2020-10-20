@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:bind="http://schemas.android.com/apk/res-auto"
+<layout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
     <data>
         <import type="one.peace.oneplayer.music.entity.MusicInfo" />
@@ -26,10 +25,8 @@
         android:visibility="@{musicState.isClickable?View.VISIBLE:View.GONE}"
         android:layout_gravity="bottom"
         android:background="@color/WHITE"
-        android:layout_alignParentBottom="true"
-        android:id="@+id/main_content_bar"
         android:layout_width="wrap_content"
-        tools:layout_height="60dp"
+        tools:layout_height="660dp"
         android:layout_height="60dp">
         <RelativeLayout
             android:background="@{musicState.musicColor}"
@@ -105,7 +102,7 @@
             android:blurBitmap="@{musicState.currentBitmap}"
             android:blurRadius="@{config.blurRadius}"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content">
+            android:layout_height="match_parent">
             <RelativeLayout
                 android:visibility="@{musicState.isInPlayView?View.VISIBLE:View.GONE}"
                 android:layout_width="match_parent"
@@ -165,14 +162,14 @@
                 android:visibility="@{musicState.isInPlayView?View.VISIBLE:View.GONE}"
                 android:id="@+id/play_view_controll_bar"
                 android:layout_width="match_parent"
-                android:layout_height="190dp"
+                android:layout_height="match_parent"
                 >
 
                 <RelativeLayout
                     android:background="@color/colorControllBarTransparent"
                     android:layout_centerInParent="true"
                     android:layout_width="340dp"
-                    android:layout_height="170dp">
+                    android:layout_height="wrap_content">
 
                     <one.peace.oneplayer.ui.view.CircleSeekBar
                         android:id="@+id/one_seekbar"
@@ -267,7 +264,7 @@
                         android:scaleType="centerInside"
                         android:layout_width="48dp"
                         android:layout_height="48dp"
-                        android:src="@drawable/queue_music_black"
+                        android:src="@{musicState.isWhite?@drawable/queue_music_white:@drawable/queue_music_black}"
                         android:id="@+id/play_view_queue"
                         android:layout_below="@id/play_view_previous"
                         android:layout_alignLeft="@id/play_view_progress"

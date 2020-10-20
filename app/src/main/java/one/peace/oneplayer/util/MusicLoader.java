@@ -41,9 +41,7 @@ public abstract class MusicLoader extends Worker {
     @NonNull
     @Override
     public Result doWork() {
-
         loadMusic();
-        scanFinished();
         return Result.success();
     }
 
@@ -73,7 +71,7 @@ public abstract class MusicLoader extends Worker {
     protected abstract void loadMusic();
 
     public static void initHandler() {
-        LogTool.logCrime("MusicLoader","调用几次！！！");
+        //LogTool.logCrime("MusicLoader","调用几次！！！");
         //默认情况下获取当前线程的Looper
         if (handler == null) {
             handler = new Handler(new Handler.Callback() {
@@ -133,7 +131,7 @@ public abstract class MusicLoader extends Worker {
 
     protected void scanFound(MusicInfo musicInfo) {
         sendSimpleParcelableMessage(LOAD_FOUND, "musicInfo", musicInfo);
-        LogTool.log(this,"秋风:"+musicInfo.getUrl());
+        //LogTool.log(this,"秋风:"+musicInfo.getUrl());
     }
 
     protected void scanProgressChanged(int progress) {

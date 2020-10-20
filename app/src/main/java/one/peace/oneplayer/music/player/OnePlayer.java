@@ -200,7 +200,7 @@ public class OnePlayer implements Serializable {
         bassBoost = new BassBoost(5, sessionId);
         presetReverb = new PresetReverb(5, sessionId);
         virtualizer = new Virtualizer(5, sessionId);
-
+        LogTool.log(this,"激活音效:"+virtualizer+","+equalizer+","+bassBoost+","+presetReverb+","+visualizer);
         //mediaPlayer.attachAuxEffect(environmentalReverb.getId());
         visualizer.setCaptureSize(64);
         visualizer.setDataCaptureListener(new Visualizer.OnDataCaptureListener() {
@@ -355,20 +355,34 @@ public class OnePlayer implements Serializable {
     }
 
     public void activateSoundEffects(boolean enabled) {
-        visualizer.setEnabled(enabled);
+        if (visualizer != null) {
+            visualizer.setEnabled(enabled);
+        }
         activateSoundEffectsExceptVisualizer(enabled);
     }
 
     public void activateSoundEffectsExceptVisualizer(boolean enabled) {
-        equalizer.setEnabled(enabled);
-        bassBoost.setEnabled(enabled);
-        presetReverb.setEnabled(enabled);
-        virtualizer.setEnabled(enabled);
-        environmentalReverb.setEnabled(enabled);
+        if (equalizer != null) {
+            equalizer.setEnabled(enabled);
+        }
+        if (bassBoost != null) {
+            bassBoost.setEnabled(enabled);
+        }
+        if (presetReverb != null) {
+            presetReverb.setEnabled(enabled);
+        }
+        if (virtualizer != null) {
+            virtualizer.setEnabled(enabled);
+        }
+        if (environmentalReverb != null) {
+            environmentalReverb.setEnabled(enabled);
+        }
     }
 
     public void activateVisualizer(boolean enabled) {
-        visualizer.setEnabled(enabled);
+        if (visualizer != null) {
+            visualizer.setEnabled(enabled);
+        }
     }
 
     protected void initHandler() {
@@ -468,7 +482,7 @@ public class OnePlayer implements Serializable {
     }
 
     public void playMusic(MusicInfo musicInfo, int position) {
-        Log.v("OnePlayer", "selectMusic()");
+        LogTool.log("OnePlayer", "播放音乐()"+musicInfo.getDisplayName());
         stopTimer();
         if (mediaPlayer.isPlaying()) {
             pause();

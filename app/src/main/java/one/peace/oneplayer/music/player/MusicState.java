@@ -69,7 +69,7 @@ public class MusicState extends BaseObservable {
     }
 
     public void setCurrentBitmap(Bitmap currentBitmap) {
-        LogTool.log(this, "设置Bitmap" + currentBitmap);
+        LogTool.log(this, "音乐状态设置Bitmap:" + currentBitmap);
         this.currentBitmap = currentBitmap;
         notifyPropertyChanged(BR.currentBitmap);
     }
@@ -101,6 +101,7 @@ public class MusicState extends BaseObservable {
 
     public void setInPlayView(boolean inPlayView) {
         isInPlayView = inPlayView;
+        LogTool.log(this, "音乐状态设置是否在播放界面" + isInPlayView);
         notifyPropertyChanged(BR.isInPlayView);
     }
 
@@ -121,6 +122,7 @@ public class MusicState extends BaseObservable {
 
     public void setIsWhite(boolean white) {
         isWhite = white;
+        LogTool.log(this,"音乐状态设置是否白色"+white);
         notifyPropertyChanged(BR.isWhite);
     }
 

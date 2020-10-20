@@ -31,6 +31,7 @@
         <activity android:name=".ui.music.AlbumDetailActivity" />
         <activity android:name=".ui.music.SingerDetailActivity" />
         <activity android:name=".ui.music.SoundEffectActivity" />
+        <activity android:name=".ui.function.ColorSelectActivity"/>
     </application>
 
 </manifest>

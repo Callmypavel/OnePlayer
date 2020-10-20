@@ -41,11 +41,18 @@
             <androidx.viewpager.widget.ViewPager
                 app:layout_behavior="@string/appbar_scrolling_view_behavior"
                 android:id="@+id/id_viewpager"
+                android:layout_below="@+id/id_tablayout"
+                android:layout_above="@+id/main_content_bar"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" />
 
             <include
+                android:layout_width="match_parent"
+                android:layout_height="60dp"
+                android:layout_alignParentBottom="true"
+                android:id="@+id/main_content_bar"
                 layout="@layout/view_music_controll"
+                bind:config="@{config}"
                 bind:musicState="@{musicState}"
                 bind:musicInfo="@{musicState.currentMusic}"
                 bind:onClickListener="@{onClickListener}"

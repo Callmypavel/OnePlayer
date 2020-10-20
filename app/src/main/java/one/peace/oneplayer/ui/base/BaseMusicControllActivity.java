@@ -49,8 +49,6 @@ public abstract class BaseMusicControllActivity<T extends ViewModel> extends Bas
     private BroadcastReceiver nextReceiver;
     private OnePlayer mOnePlayer;
     private boolean isNotiClickable = true;
-    //状态栏的初始颜色
-    private int statusInitColor = Color.argb(0, 0, 0, 0);
     private ViewDataBinding mViewDataBinding;
     @Override
     protected void onInitData(T viewModel, ViewDataBinding viewDataBinding) {
@@ -64,12 +62,6 @@ public abstract class BaseMusicControllActivity<T extends ViewModel> extends Bas
         mMusicState = MusicState.getInstance(this);
         mOnePlayer = OnePlayer.getInstance(this);
         mOnePlayer.setOnMusicListener(this);
-        Config.getInstance(this, new Config.ConfigListener() {
-            @Override
-            public void onConfigLoaded(Config config) {
-                mConfig = config;
-            }
-        });
         CircleSeekBar circleSeekBar = getWindow().getDecorView().findViewById(R.id.one_seekbar);
         circleSeekBar.setOnSeekBarActionListener(new CircleSeekBar.OnSeekBarActionListener() {
             @Override
@@ -93,7 +85,6 @@ public abstract class BaseMusicControllActivity<T extends ViewModel> extends Bas
             @Override
             public void onReachMax() {
                 disableViewInteraction();
-                ViewTool.setStatusColor(BaseMusicControllActivity.this, statusInitColor);
             }
 
             @Override
@@ -120,7 +111,6 @@ public abstract class BaseMusicControllActivity<T extends ViewModel> extends Bas
                 mMusicState.setMusicColor(color);
                 if (mMusicState.getIsInPlayView()) {
                     LogTool.log(this, "设置状态栏颜色为" + color);
-                    ViewTool.setStatusColor(BaseMusicControllActivity.this,statusInitColor);
                 }
                 int currentColor;
                 if (mMusicState.getIsWhite()) {
@@ -144,7 +134,7 @@ public abstract class BaseMusicControllActivity<T extends ViewModel> extends Bas
 
 
     private void initNotification(boolean isPlayState, Bitmap bitmap) {
-        LogTool.log(this, "initNotification()发出通知" + bitmap);
+        //LogTool.log(this, "initNotification()发出通知" + bitmap);
         NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         Intent intent = new Intent(this, MainActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);//
@@ -181,7 +171,7 @@ public abstract class BaseMusicControllActivity<T extends ViewModel> extends Bas
 
     }
     private RemoteViews buildRemoteViews(boolean isPlayState,Bitmap bitmap,boolean isBig){
-        LogTool.log(this,"buildRemoteViews","通知栏专辑图"+bitmap);
+        //LogTool.log(this,"buildRemoteViews","通知栏专辑图"+bitmap);
         RemoteViews remoteViews;
         if(isBig){
             remoteViews = new RemoteViews(getPackageName(), R.layout.notification_expand);
@@ -385,7 +375,7 @@ public abstract class BaseMusicControllActivity<T extends ViewModel> extends Bas
 
     @Override
     public void onMusicChanged(MusicInfo musicInfo) {
-        LogTool.log(this, "更换音乐:" + musicInfo.getDisplayName());
+        LogTool.logCrime(this, "更换音乐:" + musicInfo.getDisplayName());
         updateMusicInfo(musicInfo);
     }
 

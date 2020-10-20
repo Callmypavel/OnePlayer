@@ -25,12 +25,11 @@
                 android:id="@+id/toolbar"
                 android:layout_width="match_parent"
                 android:layout_height="?attr/actionBarSize"
-                android:background="@{config.themeColor}" >
+                >
             </androidx.appcompat.widget.Toolbar>
         </com.google.android.material.appbar.AppBarLayout>
         <RelativeLayout
             android:layout_centerHorizontal="true"
-            android:background="@{config.themeColor}"
             tools:background="@color/colorPrimary"
             android:layout_marginTop="50dp"
             android:layout_below="@id/id_appbarlayout"

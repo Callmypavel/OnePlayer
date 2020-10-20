@@ -9,11 +9,11 @@ import androidx.lifecycle.ViewModel;
 
 import one.peace.oneplayer.R;
 import one.peace.oneplayer.database.AppDatabase;
-import one.peace.oneplayer.database.dao.ConfigDAO;
 import one.peace.oneplayer.databinding.ActivityColorSelectBinding;
 import one.peace.oneplayer.global.config.Config;
 import one.peace.oneplayer.ui.base.BaseActivity;
 import one.peace.oneplayer.ui.view.OnPreventFastClickListener;
+import one.peace.oneplayer.util.StringUtil;
 import one.peace.oneplayer.util.ViewTool;
 
 public class ColorSelectActivity extends BaseActivity<ColorSelectActivity.ColorSelectViewModel> {
@@ -85,14 +85,14 @@ public class ColorSelectActivity extends BaseActivity<ColorSelectActivity.ColorS
             viewModel.setBlueValue(Color.blue(themeColor));
             viewModel.setAlphaValue(Color.alpha(themeColor));
             if (viewDataBinding instanceof ActivityColorSelectBinding) {
-                ActivityColorSelectBinding activityColorSelectBinding = (ActivityColorSelectBinding) viewDataBinding;
+                final ActivityColorSelectBinding activityColorSelectBinding = (ActivityColorSelectBinding) viewDataBinding;
                 activityColorSelectBinding.setConfig(config);
                 activityColorSelectBinding.redColorSeekbar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
                     @Override
                     public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                         viewModel.setRedValue(progress);
-                        int themeColor = viewModel.getThemeColor();
-                        ViewTool.setStatusColor(ColorSelectActivity.this,themeColor);
+                        updateColor(viewModel,activityColorSelectBinding);
+                        activityColorSelectBinding.redTint.setText(StringUtil.getString(ColorSelectActivity.this,R.string.color_red,progress));
                     }
 
                     @Override
@@ -109,8 +109,8 @@ public class ColorSelectActivity extends BaseActivity<ColorSelectActivity.ColorS
                     @Override
                     public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                         viewModel.setGreenValue(progress);
-                        int themeColor = viewModel.getThemeColor();
-                        ViewTool.setStatusColor(ColorSelectActivity.this,themeColor);
+                        updateColor(viewModel,activityColorSelectBinding);
+                        activityColorSelectBinding.greenTint.setText(StringUtil.getString(ColorSelectActivity.this,R.string.color_green,progress));
                     }
 
                     @Override
@@ -127,8 +127,8 @@ public class ColorSelectActivity extends BaseActivity<ColorSelectActivity.ColorS
                     @Override
                     public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                         viewModel.setBlueValue(progress);
-                        int themeColor = viewModel.getThemeColor();
-                        ViewTool.setStatusColor(ColorSelectActivity.this,themeColor);
+                        updateColor(viewModel,activityColorSelectBinding);
+                        activityColorSelectBinding.blueTint.setText(StringUtil.getString(ColorSelectActivity.this,R.string.color_blue,progress));
                     }
 
                     @Override
@@ -145,8 +145,8 @@ public class ColorSelectActivity extends BaseActivity<ColorSelectActivity.ColorS
                     @Override
                     public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                         viewModel.setAlphaValue(progress);
-                        int themeColor = viewModel.getThemeColor();
-                        ViewTool.setStatusColor(ColorSelectActivity.this,themeColor);
+                        updateColor(viewModel,activityColorSelectBinding);
+                        activityColorSelectBinding.alphaTint.setText(StringUtil.getString(ColorSelectActivity.this,R.string.color_alpha,progress));
                     }
 
                     @Override
@@ -177,5 +177,12 @@ public class ColorSelectActivity extends BaseActivity<ColorSelectActivity.ColorS
             }
         }
 
+    }
+
+    private void updateColor(ColorSelectViewModel colorSelectViewModel,ActivityColorSelectBinding activityColorSelectBinding){
+        int themeColor = colorSelectViewModel.getThemeColor();
+        ViewTool.setStatusColor(ColorSelectActivity.this,themeColor);
+        activityColorSelectBinding.previewLayout.setBackgroundColor(themeColor);
+        activityColorSelectBinding.toolbar.setBackgroundColor(themeColor);
     }
 }

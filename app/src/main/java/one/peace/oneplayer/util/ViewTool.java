@@ -3,6 +3,7 @@ package one.peace.oneplayer.util;
 import android.app.Activity;
 import android.content.Context;
 import android.os.Build;
+import android.view.View;
 import android.view.Window;
 
 /**
@@ -24,6 +25,24 @@ public class ViewTool {
                 window.setStatusBarColor(color);
             }
 
+        }
+    }
+
+    public static void showView(View view, boolean isShowView) {
+        showView(view, isShowView, false);
+    }
+
+    public static void showView(View view, boolean isShowView, boolean isHoldPosition) {
+        if (view != null) {
+            if (isShowView) {
+                view.setVisibility(View.VISIBLE);
+            } else {
+                if (isHoldPosition) {
+                    view.setVisibility(View.INVISIBLE);
+                } else {
+                    view.setVisibility(View.GONE);
+                }
+            }
         }
     }
 

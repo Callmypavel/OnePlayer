@@ -3,24 +3,16 @@ package one.peace.oneplayer.global.config;
 
 import android.content.Context;
 import android.graphics.Color;
-import android.media.audiofx.EnvironmentalReverb;
-
-import com.google.gson.Gson;
-
-import java.util.ArrayList;
 
 import androidx.databinding.BaseObservable;
 import androidx.databinding.Bindable;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
-import androidx.room.TypeConverter;
 import one.peace.oneplayer.BR;
 import one.peace.oneplayer.database.AppDatabase;
-import one.peace.oneplayer.database.dao.ConfigDAO;
-import one.peace.oneplayer.music.player.MusicState;
 import one.peace.oneplayer.util.ExecutorServiceUtil;
-import one.peace.oneplayer.util.StringUtil;
+import one.peace.oneplayer.util.LogTool;
 
 /**
  * Created by ouyan on 2016/9/24.
@@ -31,7 +23,7 @@ public class Config extends BaseObservable {
     @PrimaryKey
     private int configId = 1;
     @ColumnInfo(name = "theme_color")
-    private int themeColor = Color.GREEN;
+    private int themeColor = Color.BLACK;
     @ColumnInfo(name = "blur_radius")
     private int blurRadius = 5;
     @ColumnInfo(name = "red_value")
@@ -58,12 +50,14 @@ public class Config extends BaseObservable {
                     synchronized (Config.class) {
                         if (sInstance == null) {
                             sInstance = AppDatabase.getInstance(context).configDao().getConfig();
+                            LogTool.log(this,"查看加载配置"+LogTool.toString(sInstance));
                         }
                     }
                 }
                 //加载出来还是空
                 if (sInstance == null) {
                     sInstance = new Config();
+                    LogTool.log(this,"加载出来的配置文件是空的");
                 }
                 listener.onConfigLoaded(sInstance);
             }

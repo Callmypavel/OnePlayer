@@ -1,19 +1,12 @@
 package one.peace.oneplayer.ui.base;
 
-
-import android.graphics.Bitmap;
-
-import java.util.List;
-
 import androidx.databinding.ObservableArrayList;
 import androidx.databinding.ViewDataBinding;
-import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import one.peace.oneplayer.R;
-import one.peace.oneplayer.util.LogTool;
 
 public abstract class BaseListFragment<E, VM extends BaseListFragment.BaseListViewModel> extends BaseFragment<VM> implements UniversalAdapter.OnItemClickListener {
     protected RecyclerView recyclerView;
@@ -39,7 +32,7 @@ public abstract class BaseListFragment<E, VM extends BaseListFragment.BaseListVi
     @Override
     protected void onInitData(VM viewModel, ViewDataBinding viewDataBinding) {
         if (viewModel.getDatas() == null) {
-            LogTool.log(this,"重放数据");
+            //LogTool.log(this,"重放数据");
             viewModel.setDatas(new ObservableArrayList());
         }
         recyclerView = viewDataBinding.getRoot().findViewById(R.id.recyclerview);
@@ -49,7 +42,7 @@ public abstract class BaseListFragment<E, VM extends BaseListFragment.BaseListVi
         universalAdapter = adapter;
         adapter.setOnItemClickListener(this);
         recyclerView.setAdapter(adapter);
-        LogTool.log(this,"月读！"+viewModel.getDatas());
+        //LogTool.log(this,"月读！"+viewModel.getDatas());
     }
 
     @Override
