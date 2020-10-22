@@ -90,6 +90,7 @@ public class MusicState extends BaseObservable {
     }
 
     public void setIsPlaying(boolean playing) {
+        LogTool.log(this, "音乐状态设置是否播放:" + playing);
         isPlaying = playing;
         notifyPropertyChanged(BR.isPlaying);
     }

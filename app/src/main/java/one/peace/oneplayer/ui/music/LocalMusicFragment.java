@@ -69,17 +69,12 @@ public class LocalMusicFragment extends BaseMultiplePageFragment implements Musi
 
     @Override
     public void loadFound(MusicInfo musicInfo) {
-        if (isFirst) {
-            firstMusicInfo = musicInfo;
-            isFirst = false;
-        }
+
     }
 
     @Override
     public void loadFinished() {
-        if (firstMusicInfo != null) {
-            OnePlayer.getInstance(getContext()).selectMusic(firstMusicInfo);
-        }
+
     }
 
     @Override

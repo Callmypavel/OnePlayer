@@ -18,6 +18,8 @@ import one.peace.oneplayer.util.MusicLoader;
 
 public class LocalSongFrament extends BaseListFragment<MusicInfo, BaseListFragment.BaseListViewModel> implements MusicLoader.LoadMusicListener {
     private ObservableArrayList<MusicInfo> tempMusicInfos = new ObservableArrayList<>();
+    private boolean isFirst = true;
+    private MusicInfo firstMusicInfo;
     @Override
     protected int getItemLayoutId() {
         return R.layout.item_local_song;
@@ -52,12 +54,18 @@ public class LocalSongFrament extends BaseListFragment<MusicInfo, BaseListFragme
             //LogTool.log(this,"临时新增单曲"+musicInfo.getDisplayName());
             tempMusicInfos.add(musicInfo);
         }
-
+        if (isFirst) {
+            firstMusicInfo = musicInfo;
+            isFirst = false;
+        }
     }
 
     @Override
     public void loadFinished() {
-
+        if (firstMusicInfo != null) {
+            OnePlayer.getInstance(getContext()).setPlayList(getViewModel().getDatas());
+            OnePlayer.getInstance(getContext()).selectMusic(firstMusicInfo);
+        }
     }
 
     @Override

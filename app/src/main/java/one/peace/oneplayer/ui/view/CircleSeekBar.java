@@ -8,7 +8,6 @@ import android.graphics.Paint;
 import android.graphics.RectF;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
@@ -50,6 +49,7 @@ public class CircleSeekBar extends View implements GestureDetector.OnGestureList
     private float innerRingRatio = 0.78f;
     //按键图占整体View的比
     private float buttonRatio = 0.6f;
+    private boolean isPlaying = false;
     public CircleSeekBar(Context context) {
         super(context);
         initialize(context);
@@ -73,13 +73,10 @@ public class CircleSeekBar extends View implements GestureDetector.OnGestureList
 
     @BindingAdapter("android:isWhite")
     public static void setIsWhite(CircleSeekBar circleSeekBar, boolean isWhite) {
-        if (isWhite) {
-            LogTool.log(TAG, "绘制白色进度条");
-            circleSeekBar.setColorInt(Color.WHITE);
-        } else {
-            LogTool.log(TAG, "绘制黑色进度条");
-            circleSeekBar.setColorInt(Color.BLACK);
-        }
+        int colorInt = isWhite?Color.WHITE:Color.BLACK;
+        circleSeekBar.setColorInt(colorInt);
+        circleSeekBar.setPaintColor(colorInt);
+        circleSeekBar.updateButtonBitmap();
     }
     @BindingAdapter("android:seekBarColor")
     public static void setSeekBarColor(CircleSeekBar circleSeekBar, int color) {
@@ -87,7 +84,8 @@ public class CircleSeekBar extends View implements GestureDetector.OnGestureList
     }
     @BindingAdapter("android:isPlaying")
     public static void setIsPlaying(CircleSeekBar circleSeekBar, boolean isPlaying) {
-        circleSeekBar.setButtonBitmap(isPlaying);
+        circleSeekBar.setPlaying(isPlaying);
+        circleSeekBar.updateButtonBitmap();
     }
 
     @BindingAdapter("android:percentage")
@@ -130,7 +128,7 @@ public class CircleSeekBar extends View implements GestureDetector.OnGestureList
     private void initialize(Context context) {
         resize();
 
-        setPaintColor();
+        setPaintColor(colorInt);
         defaultPaint = new Paint();
 
         gestureDetector = new GestureDetector(context,this);
@@ -141,33 +139,32 @@ public class CircleSeekBar extends View implements GestureDetector.OnGestureList
 
     }
 
-    public void setColorInt(int colorInt){
-        this.colorInt = colorInt;
-        setPaintColor();
-        invalidate();
+    public void setPlaying(boolean playing) {
+        isPlaying = playing;
     }
 
-    public void setPaintColor(){
+    public void setColorInt(int colorInt){
+
+        this.colorInt = colorInt;
+
+    }
+
+    public void setPaintColor(int colorInt){
         if(ringPaint==null) {
             ringPaint = new Paint();
+            ringPaint.setStrokeWidth(ringRadius);
+            ringPaint.setAntiAlias(true);
+            ringPaint.setStyle(Paint.Style.STROKE);
         }
-        ringPaint.setColor(colorInt);
-        ringPaint.setStrokeWidth(ringRadius);
-        ringPaint.setAntiAlias(true);
-        ringPaint.setStyle(Paint.Style.STROKE);
+        ringPaint.setColor((colorInt == Color.WHITE)?Color.BLACK:Color.WHITE);
         if(tintRingPaint==null) {
             tintRingPaint = new Paint();
+            tintRingPaint.setStrokeWidth(ringRadius);
+            tintRingPaint.setAntiAlias(true);
+            tintRingPaint.setStyle(Paint.Style.STROKE);
+            tintRingPaint.setAlpha(60);
         }
         tintRingPaint.setColor(colorInt);
-        tintRingPaint.setStrokeWidth(ringRadius);
-        tintRingPaint.setAntiAlias(true);
-        tintRingPaint.setStyle(Paint.Style.STROKE);
-        tintRingPaint.setAlpha(60);
-        if(colorInt== Color.WHITE) {
-            draw_bitmap = play_white_bitmap;
-        }else {
-            draw_bitmap = play_black_bitmap;
-        }
     }
 
     @Override
@@ -189,24 +186,22 @@ public class CircleSeekBar extends View implements GestureDetector.OnGestureList
         return gestureDetector.onTouchEvent(event);
     }
 
-    public void setButtonBitmap(Boolean isPlaying){
+    public void updateButtonBitmap(){
+        LogTool.logCrime(this,"改变按键图片"+isPlaying);
         if(isPlaying){
-
             if(colorInt== Color.WHITE) {
                 draw_bitmap = pause_white_bitmap;
             }else {
                 draw_bitmap = pause_black_bitmap;
             }
-            invalidate();
-
         }else {
             if(colorInt== Color.WHITE) {
                 draw_bitmap = play_white_bitmap;
             }else {
                 draw_bitmap = play_black_bitmap;
             }
-            invalidate();
         }
+        postInvalidate();
     }
 
     public void setDegree(float degree){

@@ -370,12 +370,12 @@ public abstract class BaseMusicControllActivity<T extends ViewModel> extends Bas
 
     @Override
     public void onComplete() {
-        LogTool.log(this, "播放完成");
+        LogTool.log(this, "音乐状态回调播放完成");
     }
 
     @Override
     public void onMusicChanged(MusicInfo musicInfo) {
-        LogTool.logCrime(this, "更换音乐:" + musicInfo.getDisplayName());
+        LogTool.logCrime(this, "音乐状态回调更换音乐:" + musicInfo.getDisplayName());
         updateMusicInfo(musicInfo);
     }
 
@@ -389,7 +389,7 @@ public abstract class BaseMusicControllActivity<T extends ViewModel> extends Bas
     @Override
     public void onPrepared(int duration) {
         duration = duration / 1000;
-        LogTool.log(this, "准备完毕，总时长:" + duration);
+        LogTool.log(this, "音乐状态回调准备完毕，总时长:" + duration);
         mMusicState.setDurationInSeconds(duration);
         mMusicState.setIsPlaying(true);
         initNotification(false, null);
@@ -407,7 +407,7 @@ public abstract class BaseMusicControllActivity<T extends ViewModel> extends Bas
 
     @Override
     public void onMusicPause() {
-        LogTool.log(this, "暂停播放");
+        LogTool.log(this, "音乐状态回调暂停播放");
         mMusicState.setIsPlaying(false);
         initNotification(true, null);
     }
