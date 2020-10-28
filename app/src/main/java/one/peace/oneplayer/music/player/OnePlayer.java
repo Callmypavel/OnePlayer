@@ -50,7 +50,6 @@ public class OnePlayer implements Serializable {
     private OnMusicListener onMusicListener;
     private SoundEffectConfig mSoundEffectConfig;
     private static MusicInfo lastMusic;
-    private boolean isMediaPlayerInited = false;
 
     private Timer timer;
     private TimerTask timerTask;
@@ -64,7 +63,7 @@ public class OnePlayer implements Serializable {
 
         void onMusicTickling(float time);
 
-        void onPrepared(int dutation);
+        void onPrepared(int duration);
 
         void onError(int what, int extra);
 
@@ -150,18 +149,15 @@ public class OnePlayer implements Serializable {
     }
 
     private void init() {
-        LogTool.log(this, "初始化" + mSoundEffectConfig);
+        LogTool.log(this, "初始化" + LogTool.toString(mSoundEffectConfig));
 
-        if(isMediaPlayerInited){
-            return;
-        }
         if (mediaPlayer == null) {
             initMediaPlayer();
             initSoundEffects();
             activateVisualizer(true);
         }
         isStarted = false;
-        isMediaPlayerInited = true;
+        LogTool.log(this, "设置成未开始状态" );
     }
 
     public void selectMusic(MusicInfo musicInfo){
@@ -169,6 +165,7 @@ public class OnePlayer implements Serializable {
         try {
             mediaPlayer.reset();
             mediaPlayer.setDataSource(musicInfo.getUrl());
+
             if (onMusicListener != null) {
                 if (lastMusic != null) {
                     lastMusic.setPlaying(false);

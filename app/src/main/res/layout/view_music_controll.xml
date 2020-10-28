@@ -91,7 +91,7 @@
                 android:layout_width="40dp"
                 android:layout_height="40dp"
                 tools:src="@drawable/play_bare_black"
-                android:src="@{musicState.isPlaying?@drawable/pause_bare_black:@drawable/play_bare_black}"
+                android:src="@{musicState.isWhite?(musicState.isPlaying?@drawable/pause_bare_white:@drawable/play_bare_white):(musicState.isPlaying?@drawable/pause_bare_black:@drawable/play_bare_black)}"
                 android:id="@+id/bottom_play_button"
                 />
 

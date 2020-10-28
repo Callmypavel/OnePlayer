@@ -339,7 +339,7 @@ public abstract class BaseMusicControllActivity<T extends ViewModel> extends Bas
                 mOnePlayer.changeMusic(false);
                 break;
             case R.id.play_view_next:
-                LogTool.log(this, "播放下一首");
+                LogTool.log(this, "按下下一首");
                 mOnePlayer.changeMusic(true);
                 break;
             case R.id.play_view_queue:
@@ -375,7 +375,7 @@ public abstract class BaseMusicControllActivity<T extends ViewModel> extends Bas
 
     @Override
     public void onMusicChanged(MusicInfo musicInfo) {
-        LogTool.logCrime(this, "音乐状态回调更换音乐:" + musicInfo.getDisplayName());
+        LogTool.log(this, "音乐状态回调更换音乐:" + musicInfo.getDisplayName());
         updateMusicInfo(musicInfo);
     }
 
@@ -383,7 +383,7 @@ public abstract class BaseMusicControllActivity<T extends ViewModel> extends Bas
     public void onMusicTickling(float time) {
         mMusicState.setProgress(StringUtil.ten2sixty(time));
         mMusicState.setPercentage(time * 1.f / mMusicState.getDurationInSeconds());
-        //LogTool.log(this,"走时:"+StringUtil.ten2sixty(time));
+        LogTool.log(this,"音乐状态走时:"+StringUtil.ten2sixty(time));
     }
 
     @Override
@@ -414,7 +414,7 @@ public abstract class BaseMusicControllActivity<T extends ViewModel> extends Bas
 
     @Override
     public void onMusicContinue() {
-        LogTool.log(this, "继续播放");
+        LogTool.log(this, "音乐状态继续播放");
         mMusicState.setIsPlaying(true);
         initNotification(false, null);
     }

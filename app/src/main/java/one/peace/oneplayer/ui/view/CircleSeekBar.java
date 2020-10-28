@@ -187,7 +187,7 @@ public class CircleSeekBar extends View implements GestureDetector.OnGestureList
     }
 
     public void updateButtonBitmap(){
-        LogTool.logCrime(this,"改变按键图片"+isPlaying);
+        //LogTool.logCrime(this,"改变按键图片"+isPlaying);
         if(isPlaying){
             if(colorInt== Color.WHITE) {
                 draw_bitmap = pause_white_bitmap;
