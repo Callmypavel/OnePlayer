@@ -20,7 +20,7 @@ import androidx.lifecycle.ViewModelProviders;
 import one.peace.oneplayer.global.config.Config;
 import one.peace.oneplayer.util.LogTool;
 import one.peace.oneplayer.util.PermissionUtil;
-
+import one.peace.oneplayer.util.ViewTool;
 
 
 /**
@@ -49,7 +49,7 @@ public abstract class BaseActivity<T extends ViewModel> extends AppCompatActivit
                 onInitDataAfterConfigLoaded(mViewModel,mViewDataBinding,config);
                 mConfig = config;
                 mViewDataBinding.setVariable(BR.config,config);
-//                ViewTool.setStatusColor(BaseActivity.this, mConfig.getThemeColor());
+                ViewTool.setStatusColor(BaseActivity.this, mConfig.getThemeColor());
             }
         });
 

@@ -13,6 +13,8 @@ import one.peace.oneplayer.databinding.ActivityColorSelectBinding;
 import one.peace.oneplayer.global.config.Config;
 import one.peace.oneplayer.ui.base.BaseActivity;
 import one.peace.oneplayer.ui.view.OnPreventFastClickListener;
+import one.peace.oneplayer.util.ColorUtil;
+import one.peace.oneplayer.util.ExecutorServiceUtil;
 import one.peace.oneplayer.util.StringUtil;
 import one.peace.oneplayer.util.ViewTool;
 
@@ -23,6 +25,7 @@ public class ColorSelectActivity extends BaseActivity<ColorSelectActivity.ColorS
         private int greenValue;
         private int blueValue;
         private int alphaValue;
+        private boolean isWhite = true;
 
         public int getThemeColor(){
             return Color.argb(alphaValue,redValue,greenValue,blueValue);
@@ -58,6 +61,10 @@ public class ColorSelectActivity extends BaseActivity<ColorSelectActivity.ColorS
 
         public void setAlphaValue(int alphaValue) {
             this.alphaValue = alphaValue;
+        }
+
+        public void setWhite(boolean white) {
+            isWhite = white;
         }
     }
 
@@ -160,9 +167,13 @@ public class ColorSelectActivity extends BaseActivity<ColorSelectActivity.ColorS
                     }
                 });
                 activityColorSelectBinding.redColorSeekbar.setProgress(viewModel.redValue);
+                activityColorSelectBinding.redTint.setText(StringUtil.getString(ColorSelectActivity.this,R.string.color_red,viewModel.redValue));
                 activityColorSelectBinding.greenColorSeekbar.setProgress(viewModel.greenValue);
+                activityColorSelectBinding.greenTint.setText(StringUtil.getString(ColorSelectActivity.this,R.string.color_green,viewModel.greenValue));
                 activityColorSelectBinding.blueColorSeekbar.setProgress(viewModel.blueValue);
+                activityColorSelectBinding.blueTint.setText(StringUtil.getString(ColorSelectActivity.this,R.string.color_blue,viewModel.blueValue));
                 activityColorSelectBinding.alphaColorSeekbar.setProgress(viewModel.alphaValue);
+                activityColorSelectBinding.alphaTint.setText(StringUtil.getString(ColorSelectActivity.this,R.string.color_alpha,viewModel.alphaValue));
                 activityColorSelectBinding.applyButton.setOnClickListener(new OnPreventFastClickListener() {
                     @Override
                     public void onPreventedFastClick(View view) {
@@ -171,7 +182,12 @@ public class ColorSelectActivity extends BaseActivity<ColorSelectActivity.ColorS
                         config.setGreenValue(viewModel.greenValue);
                         config.setBlueValue(viewModel.blueValue);
                         config.setAlphaValue(viewModel.alphaValue);
-                        AppDatabase.getInstance(ColorSelectActivity.this).configDao().update(config);
+                        ExecutorServiceUtil.submit(new Runnable() {
+                            @Override
+                            public void run() {
+                                AppDatabase.getInstance(ColorSelectActivity.this).configDao().update(config);
+                            }
+                        });
                     }
                 });
             }
@@ -182,7 +198,14 @@ public class ColorSelectActivity extends BaseActivity<ColorSelectActivity.ColorS
     private void updateColor(ColorSelectViewModel colorSelectViewModel,ActivityColorSelectBinding activityColorSelectBinding){
         int themeColor = colorSelectViewModel.getThemeColor();
         ViewTool.setStatusColor(ColorSelectActivity.this,themeColor);
-        activityColorSelectBinding.previewLayout.setBackgroundColor(themeColor);
-        activityColorSelectBinding.toolbar.setBackgroundColor(themeColor);
+        activityColorSelectBinding.previewTextview.setBackgroundColor(themeColor);
+        activityColorSelectBinding.toolbarTextview.setBackgroundColor(themeColor);
+        activityColorSelectBinding.applyButton.setTextColor(themeColor);
+        if(!ColorUtil.getContrast(themeColor, colorSelectViewModel.isWhite?Color.WHITE:Color.BLACK)){
+            //对比度不够，需要切换黑白色
+            colorSelectViewModel.setWhite(!colorSelectViewModel.isWhite);
+        }
+        activityColorSelectBinding.toolbarTextview.setTextColor(colorSelectViewModel.isWhite?Color.WHITE:Color.BLACK);
+        activityColorSelectBinding.previewTextview.setTextColor(colorSelectViewModel.isWhite?Color.WHITE:Color.BLACK);
     }
 }

@@ -12,45 +12,38 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
-        <com.google.android.material.appbar.AppBarLayout
-            android:id="@+id/id_appbarlayout"
+        <TextView
+            android:background="@{config.themeColor}"
+            android:id="@+id/toolbar_textview"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-            <androidx.appcompat.widget.Toolbar
-                app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
-                app:theme="@style/ThemeOverlay.AppCompat.ActionBar"
-                app:layout_scrollFlags="scroll|enterAlways"
-                app:titleTextColor="@color/WHITE"
-                app:title="@string/color_select"
-                android:id="@+id/toolbar"
-                android:layout_width="match_parent"
-                android:layout_height="?attr/actionBarSize"
-                >
-            </androidx.appcompat.widget.Toolbar>
-        </com.google.android.material.appbar.AppBarLayout>
-        <RelativeLayout
-            android:layout_centerHorizontal="true"
+            android:text="主题换肤"
+            android:textSize="20sp"
+            android:textColor="@color/WHITE"
+            tools:background="@color/BLACK"
+            android:gravity="center_vertical"
+            android:padding="15dp"
+            android:layout_height="?attr/actionBarSize">
+
+        </TextView>
+
+        <TextView
+            android:id="@+id/preview_textview"
             tools:background="@color/colorPrimary"
             android:layout_marginTop="50dp"
-            android:layout_below="@id/id_appbarlayout"
-            android:id="@+id/preview_layout"
+            android:layout_below="@id/toolbar_textview"
+            android:textColor="@color/WHITE"
+            android:layout_centerHorizontal="true"
+            android:layout_centerVertical="true"
+            android:gravity="center"
+            android:text="@string/preview"
             android:layout_width="200dp"
-            android:layout_height="200dp">
-            <TextView
-                android:textColor="@color/WHITE"
-                android:layout_centerHorizontal="true"
-                android:layout_centerVertical="true"
-                android:text="@string/preview"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
-
-        </RelativeLayout>
+            android:layout_height="200dp" />
 
         <SeekBar
             android:layout_marginTop="20dp"
             android:layout_marginStart="20dp"
             android:max="255"
-            android:layout_below="@id/preview_layout"
+            android:layout_below="@id/preview_textview"
             android:id="@+id/red_color_seekbar"
             android:layout_width="250dp"
             android:layout_height="30dp" />
@@ -105,7 +98,7 @@
             android:text="@string/color_blue"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/alpha_tint"
+            android:id="@+id/blue_tint"
             android:layout_alignTop="@+id/blue_color_seekbar"
             android:layout_toRightOf="@+id/blue_color_seekbar"
             android:layout_toEndOf="@+id/blue_color_seekbar" />
@@ -115,7 +108,7 @@
             android:text="@string/color_alpha"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/blue_tint"
+            android:id="@+id/alpha_tint"
             android:layout_alignTop="@+id/alpha_color_seekbar"
             android:layout_toRightOf="@+id/alpha_color_seekbar"
             android:layout_toEndOf="@+id/alpha_color_seekbar" />

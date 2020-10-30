@@ -106,6 +106,7 @@ public class Config extends BaseObservable {
     public void setRedValue(int redValue) {
         this.redValue = redValue;
         notifyPropertyChanged(BR.redValue);
+        updateThemeColor();
     }
 
     @Bindable
@@ -116,6 +117,7 @@ public class Config extends BaseObservable {
     public void setGreenValue(int greenValue) {
         this.greenValue = greenValue;
         notifyPropertyChanged(BR.greenValue);
+        updateThemeColor();
     }
 
     @Bindable
@@ -126,6 +128,7 @@ public class Config extends BaseObservable {
     public void setBlueValue(int blueValue) {
         this.blueValue = blueValue;
         notifyPropertyChanged(BR.blueValue);
+        updateThemeColor();
     }
 
     @Bindable
@@ -136,6 +139,12 @@ public class Config extends BaseObservable {
     public void setAlphaValue(int alphaValue) {
         this.alphaValue = alphaValue;
         notifyPropertyChanged(BR.alphaValue);
+        updateThemeColor();
+    }
+
+    private void updateThemeColor(){
+        themeColor = Color.argb(alphaValue,redValue,greenValue,blueValue);
+        notifyPropertyChanged(BR.themeColor);
     }
 
     @Override

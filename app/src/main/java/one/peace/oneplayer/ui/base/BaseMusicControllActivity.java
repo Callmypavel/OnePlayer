@@ -324,6 +324,14 @@ public abstract class BaseMusicControllActivity<T extends ViewModel> extends Bas
     }
 
     @Override
+    protected void onResume() {
+        super.onResume();
+        if (mConfig != null) {
+            ViewTool.setStatusColor(this, mConfig.getThemeColor());
+        }
+    }
+
+    @Override
     public void onBackPressed() {
         if (mMusicState.getIsInPlayView()) {
             quitPlayView();
